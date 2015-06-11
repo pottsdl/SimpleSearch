@@ -25,9 +25,11 @@ CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 #	OUTPUTTED Executables
 PROGS      = ssfi
 
-all :	$(LIB_FILES) $(PROGS) $(TARGET1)
+all :	$(LIB_FILES) $(PROGS) $(TARGET1) 
 	./$(TARGET1)
 
+exe :	$(LIB_FILES) $(PROGS)
+	./$(PROGS) -t 3 .
 
 .c.o :
 	$(CC) $(CFLAGS) -c $<
