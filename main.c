@@ -24,18 +24,19 @@
  */
 #include <unistd.h>
 #include <sys/types.h>
-#include <dirent.h>
+/* #include <dirent.h> */
 #include <stdio.h>
-#include <string.h>
+/* #include <string.h> */
 
 #include <errno.h> /* for errno */
 #include <stdlib.h> /* for exit() */
-#include <limits.h> /* for LONG_MAX/LONG_MAX */
+#include <limits.h> /* for LONG_MAX/LONG_MIN */
 
 /*******************************************************************************
  * Project Includes
  *******************************************************************************
  */
+#include "listdir.h"
 
 
 /*******************************************************************************
@@ -49,8 +50,7 @@
  * Local Function Prototypes 
  *******************************************************************************
  */
-// void listdir(const char *name, int level);
-static void listdir(const char *name);
+// static void listdir(const char *name);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -107,6 +107,8 @@ int main (int argc, char *argv[])
     printf ("Based dir:          %s\n", first_dir);
 
     listdir(first_dir);
+
+
     return 0;
 } /* main */
 
@@ -115,6 +117,7 @@ int main (int argc, char *argv[])
  *******************************************************************************
  */
 
+#if 0
 static void
 listdir (const char * dir_name)
 {
@@ -188,3 +191,4 @@ listdir (const char * dir_name)
         exit (EXIT_FAILURE);
     }
 }
+#endif
