@@ -17,7 +17,9 @@ SRCS       = main.c
 LIB_FILES  = main.o listdir.o work_queue.o
 
 TARGET1 = test1.out
-SRC_FILES1=unity/unity.c TestProductionCode_Runner.c TestProductionCode.c listdir.c work_queue.c
+UNIT_TEST_FILE = TestProductionCode.c
+UNIT_TEST_AUTOGEN_RUNNER = TestProductionCode_Runner.c
+SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) listdir.c work_queue.c
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -42,6 +44,9 @@ ssfi : $(LIB_FILES)
 test: $(SRC_FILES1)
 	$(CC) $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
 
+# Rule to generate runner file automatically
+$(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)
+	ruby unity/auto/generate_test_runner.rb $(UNIT_TEST_FILE) $(UNIT_TEST_AUTOGEN_RUNNER)
 
 clean :
 	rm -f $(CLEANFILES) $(PROGS)
