@@ -2,18 +2,19 @@
 CC         = gcc
 CPP        = g++
 
-#CFLAGS     = -g -D_REENTRANT -pedantic -Wall -lboost_filesystem -L/usr/lib/x86_64-linux-gnu -L/usr/lib
-CFLAGS     = -g -D_REENTRANT -pedantic -Wall -L/usr/lib/x86_64-linux-gnu -L/usr/lib
+INC_DIRS   = -I. -I../unity
+LIBFLAGS   = -L/usr/lib/x86_64-linux-gnu -L/usr/lib -ldl
+CFLAGS     = -g -D_REENTRANT -pedantic -Wall $(LIBFLAGS)
 CPPFLAGS   = $(CFLAGS)
 
 #LINK_FLAGS = -ladm
 
 #	Files to compile?
-SRCS       = main.cpp
+SRCS       = main.c
 
 #	Path to library .o files
 #LIB_FILES  = main.o BitDatabase.o BitTestResults.o BitTest.o BitCategory.o
-LIB_FILES  = main.o 
+LIB_FILES  = main.o listdir.o
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -30,6 +31,13 @@ all :	$(LIB_FILES) $(PROGS)
 
 ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
+
+TARGET1 = test1.out
+SRC_FILES1=../unity/unity.c src/ProductionCode.c  test/TestProductionCode.c  test/no_ruby/TestProductionCode_Runner.c
+test: 
+	$(CC) $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
+	./$(TARGET1)
+
 
 clean :
 	rm -f $(CLEANFILES) $(PROGS)
