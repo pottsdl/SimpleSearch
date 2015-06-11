@@ -30,6 +30,7 @@
 #include <stdlib.h> /* for exit() */
 #include <limits.h> /* for LONG_MAX/LONG_MIN */
 #include <pthread.h> /* for pthread_* calls */
+#include <assert.h>  /* for assert() */
 
 /*******************************************************************************
  * Project Includes
@@ -68,11 +69,14 @@ int main (int argc, char *argv[])
     long tmp_long = 1;
     long num_worker_threads = 1;
     char *first_dir = NULL;
+    long thread_idx = 0;
 
-    pthread_t thread1, thread2;
-    const char *message1 = "Thread 1";
-    const char *message2 = "Thread 2";
-    int iret1, iret2;
+    /* pthread_t thread1, thread2; */
+    pthread_t *thread_array = NULL;
+    /* const char *message1 = "Thread 1"; */
+    /* const char *message2 = "Thread 2"; */
+    /* int iret1, iret2; */
+    int iret1;
 
     while ((opt = getopt(argc, argv, "t:")) != -1) {
         switch (opt) {
@@ -112,6 +116,27 @@ int main (int argc, char *argv[])
 
     listdir(first_dir);
 
+    thread_array = malloc(num_worker_threads * sizeof(pthread_t));
+    assert(thread_array != NULL);
+    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
+    {
+        iret1 = pthread_create(&thread_array[thread_idx], NULL, print_message_function, (void*) thread_idx);
+        if (iret1)
+        {
+            fprintf(stderr,"Error - pthread_create() for idx=%ld return code: %d\n", thread_idx, iret1);
+            exit(EXIT_FAILURE);
+        }
+        printf("pthread_create() for thread %ld returns: %d\n", thread_idx, iret1);
+    } /* end for */
+    printf ("All %ld thread(s) created, now going into join...\n", num_worker_threads);
+    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
+    {
+        printf ("Joining thread idx=%ld\n", thread_idx);
+        pthread_join(thread_array[thread_idx], NULL);
+    }
+    free (thread_array);
+    thread_array = NULL;
+#if 0
     /* Create independent threads each of which will execute function */
     iret1 = pthread_create(&thread1, NULL, print_message_function, (void*) message1);
     if (iret1)
@@ -133,6 +158,7 @@ int main (int argc, char *argv[])
     /* the process and all threads before the threads have completed.   */
     pthread_join( thread1, NULL);
     pthread_join( thread2, NULL);
+#endif
 
 
 
@@ -147,8 +173,13 @@ int main (int argc, char *argv[])
 
 void *print_message_function(void *ptr)
 {
-    char *message;
-    message = (char *) ptr;
-    printf("%s \n", message);
+    /* char *message; */
+    /* message = (char *) ptr; */
+    /* printf("%s \n", message); */
+
+    long thread_idx = (long *) ptr;
+    printf ("Thread %ld\n", thread_idx);
+
+    return(NULL);
 }
 
