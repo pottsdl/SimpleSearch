@@ -51,11 +51,20 @@
  *******************************************************************************
  */
 void *print_message_function(void *ptr);
+void *ChildThread1(void *arg);
+void *ChildThread2(void *arg);
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
+static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  con = PTHREAD_COND_INITIALIZER;
+static int count = 1;
+int condition=1,val=1;
+
+volatile int sv=10;
+volatile int x,y,temp=10;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -120,7 +129,18 @@ int main (int argc, char *argv[])
     assert(thread_array != NULL);
     for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
     {
-        iret1 = pthread_create(&thread_array[thread_idx], NULL, print_message_function, (void*) thread_idx);
+        switch (thread_idx)
+        {
+            case 0:
+                iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread1, (void*) thread_idx);
+                break;
+            case 1:
+                iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread2, (void*) thread_idx);
+                break;
+            default:
+                iret1 = pthread_create(&thread_array[thread_idx], NULL, print_message_function, (void*) thread_idx);
+                break;
+        }
         if (iret1)
         {
             fprintf(stderr,"Error - pthread_create() for idx=%ld return code: %d\n", thread_idx, iret1);
@@ -177,8 +197,52 @@ void *print_message_function(void *ptr)
     /* message = (char *) ptr; */
     /* printf("%s \n", message); */
 
-    long thread_idx = (long *) ptr;
+    long thread_idx = (long) ptr;
     printf ("Thread %ld\n", thread_idx);
+
+    return(NULL);
+}
+
+void *ChildThread1(void *arg)
+{
+    sleep(1);
+    pthread_mutex_lock (&mut);
+    printf("wait called\n");
+    while(count<10)                      /* if while loop with signal complete first don't wait */
+    {
+        printf("In wait\n");
+        pthread_cond_wait(&con, &mut);  /* wait for the signal with con as condition variable */
+    }
+    x=sv;
+    x++;
+    sv=x;
+    printf("The child1 sv is %d\n",sv);
+    pthread_mutex_unlock (&mut);
+    return(NULL);
+}
+ 
+void *ChildThread2(void *arg)
+{
+ 
+    while(count<10)
+    {
+        pthread_mutex_lock (&mut);
+        pthread_cond_signal(&con);  /*wake up waiting thread with condition variable */
+        /*con if it is called before this function */
+        if(val==1)
+        {
+            y=sv;
+            y--;
+            sv=y;
+            printf("The child2 sv is %d\n",sv);
+            val++;
+        }
+        count++;
+        pthread_mutex_unlock (&mut);
+
+    }
+    printf("mutex released\n");
+    printf("chil2 exit\n");
 
     return(NULL);
 }
