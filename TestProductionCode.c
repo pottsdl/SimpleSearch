@@ -13,7 +13,7 @@ void tearDown(void)
 {
 }
 
-void test_FindFunction_WhichIsBroken_ShouldReturnZeroIfItemIsNotInList_WhichWorksEvenInOurBrokenCode(void)
+void test_BasicEquality(void)
 {
     char *first_dir = ".";
     listdir(first_dir);

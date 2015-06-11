@@ -2,12 +2,12 @@
 #include <setjmp.h>
 #include <stdio.h>
 
-char MessageBuffer[50];
+/* char MessageBuffer[50]; */
 
 extern void setUp(void);
 extern void tearDown(void);
 
-extern void test_FindFunction_WhichIsBroken_ShouldReturnZeroIfItemIsNotInList_WhichWorksEvenInOurBrokenCode(void);
+extern void test_BasicEquality(void);
 
 static void runTest(UnityTestFunction test)
 {
@@ -34,7 +34,7 @@ int main(void)
   UnityBegin();
 
   // RUN_TEST calls runTest
-  RUN_TEST(test_FindFunction_WhichIsBroken_ShouldReturnZeroIfItemIsNotInList_WhichWorksEvenInOurBrokenCode, 20);
+  RUN_TEST(test_BasicEquality, 16);
 
   UnityEnd();
   return 0;
