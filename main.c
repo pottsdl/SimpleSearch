@@ -60,11 +60,6 @@ void *ChildThread2(void *arg);
  */
 static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  con = PTHREAD_COND_INITIALIZER;
-static int count = 1;
-int condition=1,val=1;
-
-volatile int sv=10;
-volatile int x,y,temp=10;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -205,42 +200,34 @@ void *print_message_function(void *ptr)
 
 void *ChildThread1(void *arg)
 {
+    printf ("In ChildThread1\n"); fflush(stdout);
     sleep(1);
+    printf (" ChildThread1 after sleep 1\n"); fflush(stdout);
     pthread_mutex_lock (&mut);
-    printf("wait called\n");
-    while(count<10)                      /* if while loop with signal complete first don't wait */
-    {
-        printf("In wait\n");
-        pthread_cond_wait(&con, &mut);  /* wait for the signal with con as condition variable */
-    }
-    x=sv;
-    x++;
-    sv=x;
-    printf("The child1 sv is %d\n",sv);
+    printf("mutext locked for wait\n");
+
+    printf("In wait\n");
+    pthread_cond_wait(&con, &mut);  /* wait for the signal with con as condition variable */
+    printf ("Out of wait\n");
+
     pthread_mutex_unlock (&mut);
+    printf("mutex released\n");
+    printf("chil1 exit\n");
+
     return(NULL);
 }
  
 void *ChildThread2(void *arg)
 {
  
-    while(count<10)
-    {
-        pthread_mutex_lock (&mut);
-        pthread_cond_signal(&con);  /*wake up waiting thread with condition variable */
-        /*con if it is called before this function */
-        if(val==1)
-        {
-            y=sv;
-            y--;
-            sv=y;
-            printf("The child2 sv is %d\n",sv);
-            val++;
-        }
-        count++;
-        pthread_mutex_unlock (&mut);
+    printf ("In ChildThread2\n"); fflush(stdout);
+    sleep(2);
+    printf (" ChildThread2 after sleep 1\n"); fflush(stdout);
+    pthread_mutex_lock (&mut);
+    printf("mutex locked for signal\n");
+    pthread_cond_signal(&con);  /*wake up waiting thread with condition variable */
+    pthread_mutex_unlock (&mut);
 
-    }
     printf("mutex released\n");
     printf("chil2 exit\n");
 
