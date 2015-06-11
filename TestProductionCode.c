@@ -136,6 +136,32 @@ void test_addFirstListItem(void)
 
     stat = add_item_after(list, NULL);
     TEST_ASSERT_EQUAL(stat, STATUS_SUCCESS);
-    TEST_ASSERT_EQUAL(list->next, list);
-    TEST_ASSERT_EQUAL(list->prev, list);
+    TEST_ASSERT_EQUAL(list->next, NULL);
+    TEST_ASSERT_EQUAL(list->prev, NULL);
+}
+
+void test_addThreeListItems(void)
+{
+    List_Node_t *list = NULL;
+    List_Node_t *currItem = NULL;
+    int stat = STATUS_SUCCESS;
+    Bool_t is_empty = FALSE;
+    int list_items[] = { 1, 2, 3 };
+    int itemsToAdd;
+    int itemCount;
+
+    createList(&list);
+
+    for (itemsToAdd = 0; itemsToAdd < sizeof(list_items)/sizeof(*list_items);
+            itemsToAdd++)
+    {
+        stat = add_item_after(list, (void*)&list_items[itemsToAdd]);
+        TEST_ASSERT_EQUAL(stat, STATUS_SUCCESS);
+    }
+    for (itemCount = 0, currItem = list;
+            currItem != NULL;
+            itemCount++, currItem = currItem->next)
+    {
+        printf ("Item[%d] = %d\n", itemCount, *(int *)currItem->list_item);
+    }
 }

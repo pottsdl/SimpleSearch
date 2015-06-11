@@ -102,12 +102,10 @@ int add_item_after(List_Node_t *head, void *item)
 
     /* if first actual list item, don't need to malloc */
     if ((head->next == NULL) &&
-            (head->prev == NULL))
+            (head->prev == NULL) && (head->list_item == NULL))
     {
         head->list_item = item;
         /* We point to ourselves */
-        head->prev = head;
-        head->next = head;
     }
     else
     {
@@ -121,7 +119,10 @@ int add_item_after(List_Node_t *head, void *item)
         newItem->prev = head;
 
         /* Now place it on the list */
-        head->next->prev = newItem;
+        if (head->next != NULL)
+        {
+            head->next->prev = newItem;
+        }
         head->next = newItem;
     }
 
