@@ -14,10 +14,10 @@ SRCS       = main.c
 
 #	Path to library .o files
 #LIB_FILES  = main.o BitDatabase.o BitTestResults.o BitTest.o BitCategory.o
-LIB_FILES  = main.o listdir.o
+LIB_FILES  = main.o listdir.o work_queue.o
 
 TARGET1 = test1.out
-SRC_FILES1=unity/unity.c listdir.c TestProductionCode_Runner.c TestProductionCode.c
+SRC_FILES1=unity/unity.c TestProductionCode_Runner.c TestProductionCode.c listdir.c work_queue.c
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -39,7 +39,7 @@ exe :	$(LIB_FILES) $(PROGS)
 ssfi : $(LIB_FILES)
 	$(CC) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
-test: 
+test: $(SRC_FILES1)
 	$(CC) $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
 
 

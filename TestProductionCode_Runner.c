@@ -8,6 +8,8 @@ extern void setUp(void);
 extern void tearDown(void);
 
 extern void test_BasicEquality(void);
+extern void test_createNonZeroLengthQueue(void);
+extern void test_queueEmptyOnCreate(void);
 
 static void runTest(UnityTestFunction test)
 {
@@ -34,7 +36,9 @@ int main(void)
   UnityBegin();
 
   // RUN_TEST calls runTest
-  RUN_TEST(test_BasicEquality, 16);
+  RUN_TEST(test_BasicEquality, 30);
+  RUN_TEST(test_createNonZeroLengthQueue, 38);
+  RUN_TEST(test_queueEmptyOnCreate, 48);
 
   UnityEnd();
   return 0;

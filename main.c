@@ -31,7 +31,9 @@
 #include <limits.h> /* for LONG_MAX/LONG_MIN */
 #include <pthread.h> /* for pthread_* calls */
 #include <assert.h>  /* for assert() */
+#if 0
 #include <string.h> /* for memset() */
+#endif
 
 /*******************************************************************************
  * Project Includes
@@ -39,8 +41,10 @@
  */
 #include "common_types.h"
 #include "listdir.h"
+#include "work_queue.h"
 
 
+#if 0
 typedef struct
 {
     Bool_t queue_empty;
@@ -50,6 +54,7 @@ typedef struct
     pthread_cond_t  con;
     int length;
 } Work_Queue_t;
+#endif
 
 /*******************************************************************************
  * Local Constants 
@@ -58,6 +63,7 @@ typedef struct
 /* #define EXIT_FAILURE (-1) */
 #define BASE_TEN (0) /* Used for strtol */
 
+#if 0
 #define EXIT_EARLY_ON_ERROR(stat) \
     do \
     { \
@@ -67,6 +73,7 @@ typedef struct
             goto error; \
         } \
     } while(0)
+#endif
 
 /*******************************************************************************
  * Local Function Prototypes 
@@ -75,7 +82,7 @@ typedef struct
 void *print_message_function(void *ptr);
 void *ChildThread1(void *arg);
 void *ChildThread2(void *arg);
-static Work_Queue_t *createWorkQueue(int queue_length);
+/* static Work_Queue_t *createWorkQueue(int queue_length); */
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -266,6 +273,7 @@ void *ChildThread2(void *arg)
 }
 
 
+#if 0
 static Work_Queue_t *createWorkQueue(int queue_length)
 {
     Work_Queue_t *newQueue = NULL;
@@ -338,3 +346,4 @@ error:
 
     goto cleanup;
 }
+#endif

@@ -1,7 +1,7 @@
-#ifndef __COMMON_TYPES_H__
-#define __COMMON_TYPES_H__
+#ifndef __ERROR_MACROS_H__
+#define __ERROR_MACROS_H__
 /**
- * @file           common_types.h
+ * @file           error_macros.h
  * @brief:         <description>
  * @verbatim
  *******************************************************************************
@@ -21,6 +21,8 @@
  * System Includes
  *******************************************************************************
  */
+#include <stdio.h> /* for fprintf() */
+#include <errno.h> /* for errno() */
 
 /*******************************************************************************
  * Project Includes
@@ -31,14 +33,20 @@
  * Typedefs
  *******************************************************************************
  */
-typedef unsigned char Bool_t;
 
 /*******************************************************************************
  * Constants
  *******************************************************************************
  */
-#define TRUE  1
-#define FALSE 0
+#define EXIT_EARLY_ON_ERROR(stat) \
+    do \
+    { \
+        if (stat != 0) \
+        { \
+            fprintf(stderr, "[%s, %d:%s] stat = %d\n", __FILE__, __LINE__, __FUNCTION__, stat); \
+            goto error; \
+        } \
+    } while(0)
 
 /*******************************************************************************
  * Structures
@@ -65,5 +73,5 @@ typedef unsigned char Bool_t;
 #define GLOBAL_VAR_DECLARE extern
 #endif /* _MAIN_ */
 
-#endif /* __COMMON_TYPES_H__ */
+#endif /* __ERROR_MACROS_H__ */
 

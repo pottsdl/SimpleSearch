@@ -1,7 +1,7 @@
-#ifndef __COMMON_TYPES_H__
-#define __COMMON_TYPES_H__
+#ifndef __WORK_QUEUE_H__
+#define __WORK_QUEUE_H__
 /**
- * @file           common_types.h
+ * @file           work_queue.h
  * @brief:         <description>
  * @verbatim
  *******************************************************************************
@@ -21,29 +21,37 @@
  * System Includes
  *******************************************************************************
  */
+#include <pthread.h> /* for pthread_* calls */
 
 /*******************************************************************************
  * Project Includes
  *******************************************************************************
  */
+#include "common_types.h"
 
 /*******************************************************************************
  * Typedefs
  *******************************************************************************
  */
-typedef unsigned char Bool_t;
 
 /*******************************************************************************
  * Constants
  *******************************************************************************
  */
-#define TRUE  1
-#define FALSE 0
 
 /*******************************************************************************
  * Structures
  *******************************************************************************
  */
+typedef struct
+{
+    Bool_t queue_empty;
+    Bool_t mut_init;
+    Bool_t con_init;
+    pthread_mutex_t mut;
+    pthread_cond_t  con;
+    int length;
+} Work_Queue_t;
 
 /*******************************************************************************
  * Unions
@@ -54,6 +62,7 @@ typedef unsigned char Bool_t;
  * External Function Prototypes
  *******************************************************************************
  */
+Work_Queue_t *createWorkQueue(int queue_length);
 
 /*******************************************************************************
  * Global Variables
@@ -65,5 +74,5 @@ typedef unsigned char Bool_t;
 #define GLOBAL_VAR_DECLARE extern
 #endif /* _MAIN_ */
 
-#endif /* __COMMON_TYPES_H__ */
+#endif /* __WORK_QUEUE_H__ */
 
