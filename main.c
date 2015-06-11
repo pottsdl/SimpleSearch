@@ -37,11 +37,9 @@
  * Project Includes
  *******************************************************************************
  */
+#include "common_types.h"
 #include "listdir.h"
 
-typedef unsigned char Bool_t;
-#define TRUE  1
-#define FALSE 0
 
 typedef struct
 {
