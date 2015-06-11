@@ -2,7 +2,7 @@
 CC         = gcc
 CPP        = g++
 
-INC_DIRS   = -I. -I../unity
+INC_DIRS   = -I. -Iunity
 LIBFLAGS   = -L/usr/lib/x86_64-linux-gnu -L/usr/lib -ldl
 CFLAGS     = -g -D_REENTRANT -pedantic -Wall $(LIBFLAGS)
 CPPFLAGS   = $(CFLAGS)
@@ -33,7 +33,7 @@ ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
 TARGET1 = test1.out
-SRC_FILES1=../unity/unity.c src/ProductionCode.c  test/TestProductionCode.c  test/no_ruby/TestProductionCode_Runner.c
+SRC_FILES1=unity/unity.c listdir.c TestProductionCode_Runner.c TestProductionCode.c
 test: 
 	$(CC) $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
 	./$(TARGET1)
