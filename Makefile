@@ -19,7 +19,7 @@ LIB_FILES  = main.o listdir.o work_queue.o
 TARGET1 = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
 UNIT_TEST_AUTOGEN_RUNNER = TestProductionCode_Runner.c
-SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) listdir.c work_queue.c
+SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) listdir.c work_queue.c linked_list.c
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -42,7 +42,8 @@ ssfi : $(LIB_FILES)
 	$(CC) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
 test: $(SRC_FILES1)
-	$(CC) $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
+	$(CC) -g $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
+	./$(TARGET1)
 
 # Rule to generate runner file automatically
 $(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)

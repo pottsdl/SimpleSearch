@@ -1,7 +1,7 @@
-#ifndef __ERROR_MACROS_H__
-#define __ERROR_MACROS_H__
+#ifndef __LINKED_LIST_H__
+#define __LINKED_LIST_H__
 /**
- * @file           error_macros.h
+ * @file           linked_list.h
  * @brief:         <description>
  * @verbatim
  *******************************************************************************
@@ -21,8 +21,6 @@
  * System Includes
  *******************************************************************************
  */
-#include <stdio.h> /* for fprintf() */
-#include <errno.h> /* for errno() */
 
 /*******************************************************************************
  * Project Includes
@@ -38,37 +36,19 @@
  * Constants
  *******************************************************************************
  */
-typedef enum
-{
-    STATUS_SUCCESS = 0,
-    STATUS_INVALID_PTR = 1,
-    STATUS_UNKNOWN
-} Status_Codes_t;
-
-#define EXIT_EARLY_ON_ERROR(stat) \
-    do \
-    { \
-        if (stat != 0) \
-        { \
-            fprintf(stderr, "[%s, %d:%s] stat = %d\n", __FILE__, __LINE__, __FUNCTION__, stat); \
-            goto error; \
-        } \
-    } while(0)
-
-#define EXIT_ON_NULL_PTR(ptr, err_stat) \
-    do \
-    { \
-        if (NULL == ptr) \
-        { \
-          err_stat = STATUS_INVALID_PTR; \
-          EXIT_EARLY_ON_ERROR(err_stat); \
-        } \
-    } while(0)
 
 /*******************************************************************************
  * Structures
  *******************************************************************************
  */
+struct List_Node
+{
+    void *list_item;
+    struct List_Node *next;
+    struct List_Node *prev;
+};
+typedef struct List_Node List_Node_t;
+
 
 /*******************************************************************************
  * Unions
@@ -79,16 +59,22 @@ typedef enum
  * External Function Prototypes
  *******************************************************************************
  */
+int create_list(List_Node_t **head);
+int is_list_empty(List_Node_t *head, Bool_t *is_empty);
 
 /*******************************************************************************
  * Global Variables
  *******************************************************************************
  */
+#if defined(TEST)
+extern Bool_t fakeMallocFailure;
+#endif /* defined(TEST) */
+
 #if _MAIN_
 #define GLOBAL_VAR_DECLARE
 #else
 #define GLOBAL_VAR_DECLARE extern
 #endif /* _MAIN_ */
 
-#endif /* __ERROR_MACROS_H__ */
+#endif /* __LINKED_LIST_H__ */
 
