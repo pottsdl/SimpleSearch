@@ -31,6 +31,7 @@
 #include <limits.h> /* for LONG_MAX/LONG_MIN */
 #include <pthread.h> /* for pthread_* calls */
 #include <assert.h>  /* for assert() */
+#include <string.h> /* for memset() */
 
 /*******************************************************************************
  * Project Includes
@@ -38,6 +39,19 @@
  */
 #include "listdir.h"
 
+typedef unsigned char Bool_t;
+#define TRUE  1
+#define FALSE 0
+
+typedef struct
+{
+    Bool_t queue_empty;
+    Bool_t mut_init;
+    Bool_t con_init;
+    pthread_mutex_t mut;
+    pthread_cond_t  con;
+    int length;
+} Work_Queue_t;
 
 /*******************************************************************************
  * Local Constants 
@@ -46,6 +60,16 @@
 /* #define EXIT_FAILURE (-1) */
 #define BASE_TEN (0) /* Used for strtol */
 
+#define EXIT_EARLY_ON_ERROR(stat) \
+    do \
+    { \
+        if (stat != 0) \
+        { \
+            fprintf(stderr, "[%s, %d:%s] stat = %d\n", __FILE__, __LINE__, __FUNCTION__, stat); \
+            goto error; \
+        } \
+    } while(0)
+
 /*******************************************************************************
  * Local Function Prototypes 
  *******************************************************************************
@@ -53,6 +77,7 @@
 void *print_message_function(void *ptr);
 void *ChildThread1(void *arg);
 void *ChildThread2(void *arg);
+static Work_Queue_t *createWorkQueue(int queue_length);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -74,6 +99,8 @@ int main (int argc, char *argv[])
     long num_worker_threads = 1;
     char *first_dir = NULL;
     long thread_idx = 0;
+
+    Work_Queue_t *testQueue = NULL;
 
     /* pthread_t thread1, thread2; */
     pthread_t *thread_array = NULL;
@@ -119,6 +146,12 @@ int main (int argc, char *argv[])
     printf ("Based dir:          %s\n", first_dir);
 
     listdir(first_dir);
+
+    testQueue = createWorkQueue(5);
+    if (testQueue != NULL)
+    {
+        printf ("testQueue len=%d\n", testQueue->length);
+    }
 
     thread_array = malloc(num_worker_threads * sizeof(pthread_t));
     assert(thread_array != NULL);
@@ -234,3 +267,76 @@ void *ChildThread2(void *arg)
     return(NULL);
 }
 
+
+static Work_Queue_t *createWorkQueue(int queue_length)
+{
+    Work_Queue_t *newQueue = NULL;
+    Work_Queue_t *tmpQueue = NULL;
+    int stat = 0;
+
+    tmpQueue = (Work_Queue_t *) malloc(sizeof(Work_Queue_t));
+    if (tmpQueue != NULL)
+    {
+        /* Wipe memory first so we know what succeeds later */
+        memset (tmpQueue, 0, sizeof(Work_Queue_t));
+
+        tmpQueue->queue_empty = TRUE;
+        tmpQueue->length = queue_length;
+        /*
+         * tmpQueue->con_init and tmpQueue>mut_init are FALSE because of
+         * memset(), no need to do it again.
+         */
+        stat = pthread_cond_init(&tmpQueue->con, NULL);
+        EXIT_EARLY_ON_ERROR(stat);
+        tmpQueue->con_init = TRUE;
+        stat = pthread_mutex_init(&tmpQueue->mut, NULL);
+        EXIT_EARLY_ON_ERROR(stat);
+        tmpQueue->mut_init = TRUE;
+    }
+
+    /* If we succeeded, then set newQueue to return to be tmpQueue */
+    newQueue = tmpQueue;
+
+cleanup:
+    return(newQueue);
+
+error:
+    /*
+     * Zero out/destroy/cleanup internals of Work_Queue_t
+     */
+    if (tmpQueue->con_init == TRUE)
+    {
+        stat = pthread_cond_destroy(&tmpQueue->con);
+        if (stat == 0)
+        {
+            memset(&tmpQueue->mut, 0, sizeof(pthread_mutex_t));
+            tmpQueue->con_init = FALSE;
+        }
+        else
+        {
+            fprintf(stderr, "[%s, %d:%s] failed, stat=%d, errno=%d, %s\n",
+                    __FILE__, __LINE__, __FUNCTION__, stat, errno, strerror(errno));
+        }
+    }
+    if (tmpQueue->mut_init == TRUE)
+    {
+        stat = pthread_mutex_destroy(&tmpQueue->mut);
+        if (stat == 0)
+        {
+            memset(&tmpQueue->mut, 0, sizeof(pthread_cond_t));
+            tmpQueue->mut_init = FALSE;
+        }
+        else
+        {
+            fprintf(stderr, "[%s, %d:%s] failed, stat=%d, errno=%d, %s\n",
+                    __FILE__, __LINE__, __FUNCTION__, stat, errno, strerror(errno));
+        }
+    }
+    tmpQueue->length = 0;
+    
+    /* Now free up the space for Work_Queue_t, and NULL it out */
+    free(tmpQueue);
+    tmpQueue = NULL;
+
+    goto cleanup;
+}
