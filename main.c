@@ -24,13 +24,12 @@
  */
 #include <unistd.h>
 #include <sys/types.h>
-/* #include <dirent.h> */
 #include <stdio.h>
-/* #include <string.h> */
 
 #include <errno.h> /* for errno */
 #include <stdlib.h> /* for exit() */
 #include <limits.h> /* for LONG_MAX/LONG_MIN */
+#include <pthread.h> /* for pthread_* calls */
 
 /*******************************************************************************
  * Project Includes
@@ -43,14 +42,14 @@
  * Local Constants 
  *******************************************************************************
  */
-// #define EXIT_FAILURE (-1)
+/* #define EXIT_FAILURE (-1) */
 #define BASE_TEN (0) /* Used for strtol */
 
 /*******************************************************************************
  * Local Function Prototypes 
  *******************************************************************************
  */
-// static void listdir(const char *name);
+void *print_message_function(void *ptr);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -70,32 +69,37 @@ int main (int argc, char *argv[])
     long num_worker_threads = 1;
     char *first_dir = NULL;
 
+    pthread_t thread1, thread2;
+    const char *message1 = "Thread 1";
+    const char *message2 = "Thread 2";
+    int iret1, iret2;
+
     while ((opt = getopt(argc, argv, "t:")) != -1) {
         switch (opt) {
-        case 't':
-            tmp_long = strtol(optarg, &endptr, BASE_TEN);
-            if ((errno == ERANGE && (tmp_long == LONG_MAX || tmp_long == LONG_MIN))
-                    || (errno != 0 && tmp_long == 0))
-            {
-                perror("strtol");
-                exit(EXIT_FAILURE);
-            }
+            case 't':
+                tmp_long = strtol(optarg, &endptr, BASE_TEN);
+                if ((errno == ERANGE && (tmp_long == LONG_MAX || tmp_long == LONG_MIN))
+                        || (errno != 0 && tmp_long == 0))
+                {
+                    perror("strtol");
+                    exit(EXIT_FAILURE);
+                }
 
-            if (endptr == optarg)
-            {
-                fprintf(stderr, "No digits were found\n");
+                if (endptr == optarg)
+                {
+                    fprintf(stderr, "No digits were found\n");
+                    exit(EXIT_FAILURE);
+                }
+                num_worker_threads = tmp_long;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [-t num_threads] <first_dir_path>\n", argv[0]);
                 exit(EXIT_FAILURE);
-            }
-            num_worker_threads = tmp_long;
-            break;
-        default:
-            fprintf(stderr, "Usage: %s [-t num_threads] <first_dir_path>\n", argv[0]);
-            exit(EXIT_FAILURE);
         }
     }
 
-    // Now optind (declared extern int by <unistd.h>) is the index of the first non-option argument.
-    // If it is >= argc, there were no non-option arguments.
+    /* Now optind (declared extern int by <unistd.h>) is the index of the first non-option argument. */
+    /* If it is >= argc, there were no non-option arguments. */
     if (optind >= argc)
     {
         fprintf(stderr, "Usage: %s [-t num_threads] <first_dir_path>\n", argv[0]);
@@ -108,6 +112,30 @@ int main (int argc, char *argv[])
 
     listdir(first_dir);
 
+    /* Create independent threads each of which will execute function */
+    iret1 = pthread_create(&thread1, NULL, print_message_function, (void*) message1);
+    if (iret1)
+    {
+        fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
+        exit(EXIT_FAILURE);
+    }
+
+    iret2 = pthread_create(&thread2, NULL, print_message_function, (void*) message2);
+    if (iret2)
+    {
+        fprintf(stderr,"Error - pthread_create() return code: %d\n",iret2);
+        exit(EXIT_FAILURE);
+    }
+    printf("pthread_create() for thread 1 returns: %d\n",iret1);
+    printf("pthread_create() for thread 2 returns: %d\n",iret2);
+    /* Wait till threads are complete before main continues. Unless we  */
+    /* wait we run the risk of executing an exit which will terminate   */
+    /* the process and all threads before the threads have completed.   */
+    pthread_join( thread1, NULL);
+    pthread_join( thread2, NULL);
+
+
+
 
     return 0;
 } /* main */
@@ -117,78 +145,10 @@ int main (int argc, char *argv[])
  *******************************************************************************
  */
 
-#if 0
-static void
-listdir (const char * dir_name)
+void *print_message_function(void *ptr)
 {
-    DIR * directory_handle;
-
-    /* Open the directory specified by "dir_name". */
-
-    directory_handle = opendir (dir_name);
-
-    /* Check it was opened. */
-    if (! directory_handle) {
-        fprintf (stderr, "Cannot open directory '%s': %s\n",
-                 dir_name, strerror (errno));
-        exit (EXIT_FAILURE);
-    }
-    while (1) {
-        struct dirent * entry;
-        const char * d_name;
-
-        /* "Readdir" gets subsequent entries from "directory_handle". */
-        entry = readdir (directory_handle);
-        if (! entry) {
-            /* There are no more entries in this directory, so break
-               out of the while loop. */
-            break;
-        }
-        d_name = entry->d_name;
-#if 0
-        /* Print the name of the file and directory. */
-        printf ("%s/%s\n", dir_name, d_name);
-
-#else
-        /* If you don't want to print the directories, use the
-           following line: */
-
-        if (! (entry->d_type & DT_DIR)) {
-            const char *extension = strrchr(d_name, '.');
-            if ((extension != NULL) && (strcmp(extension, ".txt") == 0))
-            {
-                printf ("[%c] %s/%s\n", 'f', dir_name, d_name);
-            }
-        }
-#endif /* 0 */
-
-
-        if (entry->d_type & DT_DIR) {
-
-            /* Check that the directory is not "directory_handle" or directory_handle's parent. */
-            
-            if (strcmp (d_name, "..") != 0 &&
-                strcmp (d_name, ".") != 0) {
-                int path_length;
-                char path[PATH_MAX];
- 
-                path_length = snprintf (path, PATH_MAX,
-                                        "%s/%s", dir_name, d_name);
-                // printf ("[%c] %s\n", 'd', path);
-                if (path_length >= PATH_MAX) {
-                    fprintf (stderr, "Path length has got too long.\n");
-                    exit (EXIT_FAILURE);
-                }
-                /* Recursively call "listdir" with the new path. */
-                listdir (path);
-            }
-	}
-    }
-    /* After going through all the entries, close the directory. */
-    if (closedir (directory_handle)) {
-        fprintf (stderr, "Could not close '%s': %s\n",
-                 dir_name, strerror (errno));
-        exit (EXIT_FAILURE);
-    }
+    char *message;
+    message = (char *) ptr;
+    printf("%s \n", message);
 }
-#endif
+
