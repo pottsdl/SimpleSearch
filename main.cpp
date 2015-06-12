@@ -42,6 +42,7 @@
 #include "common_types.h"
 #include "listdir.h"
 #include "work_queue.h"
+#include <iostream>
 
 
 #if 0
@@ -110,6 +111,7 @@ int main (int argc, char *argv[])
     long thread_idx = 0;
 
     Work_Queue_t *testQueue = NULL;
+    queue<char*> textFileQueue;
 
     /* pthread_t thread1, thread2; */
     pthread_t *thread_array = NULL;
@@ -154,9 +156,17 @@ int main (int argc, char *argv[])
     printf ("Number of threads:  %li\n", num_worker_threads);
     printf ("Based dir:          %s\n", first_dir);
 
-    listdir(first_dir);
+    listdir(first_dir, textFileQueue);
+    cout << "Dumping file list queue:\n";
+    cout << "========================\n";
+    while (!textFileQueue.empty())
+    {
+        cout << "  " << textFileQueue.front() << endl;
+        textFileQueue.pop();
+    }
+    std::cout << '\n';
     /* callListTest2(); */
-    queueTest();
+    // queueTest();
 
     if (0 == 1)
     {

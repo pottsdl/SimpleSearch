@@ -22,6 +22,8 @@
  *******************************************************************************
  */
 #include <stdlib.h> /* for exit() */
+#include <queue>
+using namespace std;
 
 /*******************************************************************************
  * Project Includes
@@ -52,7 +54,7 @@
  * External Function Prototypes
  *******************************************************************************
  */
-extern void listdir(const char *name);
+extern void listdir(const char *dir_name, queue<char*> &fileQueue);
 
 /*******************************************************************************
  * Global Variables

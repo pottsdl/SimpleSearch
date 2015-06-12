@@ -50,7 +50,7 @@
  *******************************************************************************
  */
 
-extern void listdir (const char * dir_name)
+extern void listdir(const char *dir_name, queue<char*> &fileQueue)
 {
     DIR * directory_handle;
 
@@ -88,7 +88,15 @@ extern void listdir (const char * dir_name)
             const char *extension = strrchr(d_name, '.');
             if ((extension != NULL) && (strcmp(extension, ".txt") == 0))
             {
-                printf ("[%c] %s/%s\n", 'f', dir_name, d_name);
+                // printf ("[%c] %s/%s\n", 'f', dir_name, d_name);
+                /*
+                 * Make space for a copy of the full file path
+                 * dir_name + '/' + d_name + '\0';
+                 */
+                int pathLen = strlen(dir_name) + strlen(d_name) + 1 + 1;
+                char *pathCopy = (char *) calloc(pathLen, sizeof(char));
+                snprintf(pathCopy, pathLen, "%s/%s", dir_name, d_name);
+                fileQueue.push(pathCopy);
             }
         }
 #endif /* 0 */
@@ -111,7 +119,7 @@ extern void listdir (const char * dir_name)
                     exit (EXIT_FAILURE);
                 }
                 /* Recursively call "listdir" with the new path. */
-                listdir (path);
+                listdir (path, fileQueue);
             }
 	}
     }
