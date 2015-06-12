@@ -483,3 +483,15 @@ void test_WordDictInsert(void)
 {
     wordDictAddItems();
 }
+void test_WordDictLock(void)
+{
+    wordDictLock();
+}
+void test_WordDictUnlock(void)
+{
+    wordDictUnlock();
+}
+void test_WordDictIterItems(void)
+{
+    wordDictIterItems();
+}

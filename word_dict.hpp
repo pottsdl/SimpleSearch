@@ -31,9 +31,14 @@
  */
 #include "common_types.h"
 
+#if defined(TEST)
 extern "C" {
     void wordDictConstruct(void);
     void wordDictAddItems(void);
+    void wordDictLock(void);
+    void wordDictUnlock(void);
+    void wordDictIterItems(void);
+#endif /* defined(TEST) */
 }
 
 /*******************************************************************************
@@ -59,16 +64,22 @@ class Word_Dict
         virtual ~Word_Dict(void);
         void lock(void);
         void unlock(void);
-        Bool_t isLocked(void) { return(_is_locked); };
-        void insertWord(int word, int count);
-        map<int,int> &getMap(void) { return(_dictionaryMap); };
+        Bool_t isLocked(void) { return(this->_is_locked); };
+        void insertWord(char *word, int count);
+        map<char*,int> &getMap(void) { return(this->_dictionaryMap); };
+        void begin(void);
+        void end(void);
+        void getNextWord(char **word, int *count);
+        
 
 
     private:
         Bool_t _mut_init;
         Bool_t _is_locked;
         pthread_mutex_t _mut;
-        map<int,int> _dictionaryMap;
+        map<char*,int> _dictionaryMap;
+        map<char*,int>::iterator _it;
+
         void _lock(void);
         void _unlock(void);
 };
