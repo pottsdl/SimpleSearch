@@ -4,7 +4,7 @@ CPP        = g++
 INC_DIRS   = -I. -Iunity
 LIBFLAGS   = -L/usr/lib -L /usr/local/lib -L/usr/lib/x86_64-linux-gnu
 CFLAGS     = -g -D_REENTRANT -pedantic -Wall -pthread $(LIBFLAGS)
-CPPFLAGS   = $(CFLAGS)
+CPPFLAGS   = $(CFLAGS) -ansi
 
 LINK_FLAGS = -lstdc++
 
@@ -12,12 +12,19 @@ LINK_FLAGS = -lstdc++
 SRCS       = main.c
 
 #	Path to library .o files
-LIB_FILES  = main.o listdir.o work_queue.o
+LIB_FILES  = main.o listdir.o work_queue.o buffer_processing.o
 
 TEST_TARGET = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
 UNIT_TEST_AUTOGEN_RUNNER = TestProductionCode_Runner.c
-UNITTEST_SRC_FILES=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) work_queue.cpp
+UNITTEST_SRC_FILES=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) work_queue.cpp buffer_processing.cpp
+
+# Attempt to build Unity unit tests on a C++ file, didn't work out with
+# generate_test_runner
+#CPP_TEST_TARGET = test2.out
+#CPP_UNIT_TEST_FILE = TestCode.cpp
+#CPP_UNIT_TEST_AUTOGEN_RUNNER = TestCode_Runner.c
+#CPP_UNITTEST_SRC_FILES=unity/unity.c $(CPP_UNIT_TEST_AUTOGEN_RUNNER) $(CPP_UNIT_TEST_FILE) word_dict.cpp
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -39,13 +46,23 @@ exe :	$(LIB_FILES) $(PROGS)
 ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
-test: $(UNITTEST_SRC_FILES)
+#test: test1 test2
+test: test1 
+.PHONY: test
+
+test1: $(UNITTEST_SRC_FILES)
 	$(CPP) -g -pthread $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
 	./$(TEST_TARGET)
+
+#test2: $(CPP_UNITTEST_SRC_FILES)
+	#$(CPP) -g -Wall -pthread $(INC_DIRS) -DTEST $(CPP_UNITTEST_SRC_FILES) -o $(CPP_TEST_TARGET)
+	#./$(CPP_TEST_TARGET)
 
 # Rule to generate runner file automatically
 $(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)
 	ruby unity/auto/generate_test_runner.rb $(UNIT_TEST_FILE) $(UNIT_TEST_AUTOGEN_RUNNER)
+#$(CPP_UNIT_TEST_AUTOGEN_RUNNER): $(CPP_UNIT_TEST_FILE)
+	#ruby unity/auto/generate_test_runner.rb $(CPP_UNIT_TEST_FILE) $(CPP_UNIT_TEST_AUTOGEN_RUNNER)
 
 clean :
 	rm -f $(CLEANFILES) $(PROGS)

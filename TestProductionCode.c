@@ -5,6 +5,8 @@
 /* Include things to test */
 #include "error_macros.h"
 #include "work_queue.hpp"
+#include "buffer_processing.hpp"
+#include "word_dict.hpp"
 
 /**
  * Provide constant for a non-zero length, which should be valid, exact value
@@ -277,4 +279,203 @@ void *WriterThread(void *arg)
     printf ("[%d] XXX  Pushing EXIT  XXXX\n", tid);
     q->push("EXIT");
 
+}
+
+void test_goodIsLowerWordChars(void)
+{
+    char goodList[] = "abcdefghijklmnopqrstuvwxyz";
+    int charIdx = 0;
+
+    for (charIdx = 0; charIdx < strlen(goodList); charIdx++)
+    {
+        Bool_t isGood = FALSE;
+
+        isGood = isWordChar(goodList[charIdx]);
+        if (isGood == FALSE)
+        {
+            fprintf (stderr, "Test FAILED '%c' should have been GOOD.\n",
+                    goodList[charIdx]);
+        }
+        TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), TRUE);
+    }
+}
+
+void test_goodIsUpperWordChars(void)
+{
+    char goodList[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    int charIdx = 0;
+
+    for (charIdx = 0; charIdx < strlen(goodList); charIdx++)
+    {
+        Bool_t isGood = FALSE;
+
+        isGood = isWordChar(goodList[charIdx]);
+        if (isGood == FALSE)
+        {
+            fprintf (stderr, "Test FAILED '%c' should have been GOOD.\n",
+                    goodList[charIdx]);
+        }
+        TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), TRUE);
+    }
+}
+
+void test_goodIsNumWordChars(void)
+{
+    char goodList[] = "0123456789";
+    int charIdx = 0;
+
+    for (charIdx = 0; charIdx < strlen(goodList); charIdx++)
+    {
+        Bool_t isGood = FALSE;
+
+        isGood = isWordChar(goodList[charIdx]);
+        if (isGood == FALSE)
+        {
+            fprintf (stderr, "Test FAILED '%c' should have been GOOD.\n",
+                    goodList[charIdx]);
+        }
+        TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), TRUE);
+    }
+}
+void test_badIsWordChars(void)
+{
+    char goodList[] = "-!@#$%^&*()+_~`";
+    int charIdx = 0;
+
+    for (charIdx = 0; charIdx < strlen(goodList); charIdx++)
+    {
+        Bool_t isGood = FALSE;
+
+        isGood = isWordChar(goodList[charIdx]);
+        if (isGood == TRUE)
+        {
+            fprintf (stderr, "Test FAILED '%c' should have been BAD.\n",
+                    goodList[charIdx]);
+        }
+        TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), FALSE);
+    }
+}
+
+void test_bufferWordMultiple(void)
+{
+}
+
+void test_bufferWordOneOnly(void)
+{
+    char mybuf[] = "abc";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "abc"), 0);
+    /* Should've processed up to 'c', so all 3 */
+    TEST_ASSERT_EQUAL(ret, 3);
+    return;
+}
+void test_bufferWordOneStartsLate(void)
+{
+    char mybuf[] = "!-=abc";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "abc"), 0);
+    /* Should've processed up to 'c', so all 6 */
+    TEST_ASSERT_EQUAL(ret, 6);
+    return;
+}
+void test_bufferWordOneGarbageAtEnd(void)
+{
+    char mybuf[] = "zzz!-=";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "zzz"), 0);
+    /* Should've processed up to 3rd 'z', so 8 */
+    TEST_ASSERT_EQUAL(ret, 3);
+    return;
+}
+void test_bufferWordOneGarbageAtBothEnds(void)
+{
+    char mybuf[] = "===*&zzz!-=";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "zzz"), 0);
+    /* Should've processed up to 3rd 'z', so 8 */
+    TEST_ASSERT_EQUAL(ret, 8);
+    return;
+}
+void test_bufferWordTwoWordsOnly(void)
+{
+    char mybuf[] = "zzz=abc";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "zzz"), 0);
+    /* Should've processed up to 3rd 'z', so 3 */
+    TEST_ASSERT_EQUAL(ret, 3);
+    return;
+}
+void test_bufferWordTwoWordsWithGarbageBothEnds(void)
+{
+    char mybuf[] = "!!!zzz=abc!!!";
+    int buflen = strlen(mybuf);
+    int ret = -1;
+    char *result_word = NULL;
+
+    ret = processBufferForWords(mybuf, buflen, &result_word);
+
+    if (result_word != NULL)
+    {
+        printf ("Found word: %s\n", result_word);
+    }
+    TEST_ASSERT_NOT_NULL(result_word);
+    TEST_ASSERT_EQUAL(strcmp(result_word, "zzz"), 0);
+    /* Should've processed up to 3rd 'z', so 6 */
+    TEST_ASSERT_EQUAL(ret, 6);
+    return;
+}
+
+void test_WordDictConstruct(void)
+{
+    wordDictConstruct;
 }

@@ -33,6 +33,8 @@
 #include <assert.h>  /* for assert() */
 #include <string.h> /* for strerror() */
 #include <fcntl.h>
+#include <iostream>
+#include <list>
 
 
 /*******************************************************************************
@@ -42,8 +44,7 @@
 #include "common_types.h"
 #include "listdir.hpp"
 #include "work_queue.hpp"
-#include <iostream>
-
+#include "buffer_processing.hpp"
 
 /*******************************************************************************
  * Local Constants 
@@ -125,6 +126,21 @@ int main (int argc, char *argv[])
 
     printf ("Number of threads:  %li\n", num_worker_threads);
     printf ("Based dir:          %s\n", first_dir);
+
+    {
+        char mybuf[] = "!!!zzz=abc!!!555++++Doug";
+        int buflen = strlen(mybuf);
+        std::list<char *> word_list;
+        int ret = -1;
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        for (std::list<char *>::iterator it=word_list.begin(); it != word_list.end(); ++it)
+        {
+            printf ("Found word: %s\n", *it);
+
+        } /* end for */
+    }
+    exit(0);
 
     thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
     args_array = (ReaderWriterArgs_t *) malloc(num_worker_threads * sizeof(ReaderWriterArgs_t));
@@ -239,3 +255,38 @@ void processFile(std::string filePath, int tid)
 
     return;
 }
+
+#if 0
+int processBufferForWorks(char *buffer, int buffer_sz)
+{
+    int begin_last_word = -1;
+    for (char_index = 0; char_index < buffer_sz; char_index++)
+    {
+        char *curr;
+        curr = buffer[char_index];
+
+        /* If a word character we'll want to keep going */
+        if (isWordChar(curr))
+        {
+            if (begin_last_word == -1)
+            {
+                begin_last_word = char_index;
+            }
+        }
+    }
+}
+
+Bool_t isWordChar(const char thisOne)
+{
+    if ((thisOne >= 'A' && thisOne <= 'Z') ||
+            (thisOne >= 'a' && thisOne <= 'z') ||
+            (thisOne >= '0' && thisOne <= '9'))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+#endif
