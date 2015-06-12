@@ -61,6 +61,7 @@ typedef struct List_Node List_Node_t;
  */
 int create_list(List_Node_t **head);
 int is_list_empty(List_Node_t *head, Bool_t *is_empty);
+int add_item_after(List_Node_t *head, void *item);
 
 /*******************************************************************************
  * Global Variables
