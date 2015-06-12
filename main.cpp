@@ -57,19 +57,11 @@
  * Local Function Prototypes 
  *******************************************************************************
  */
-void *print_message_function(void *ptr);
-void *ChildThread1(void *arg);
-void *ChildThread2(void *arg);
-extern "C" {
-extern void callListTest2(void);
-}
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
-static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  con = PTHREAD_COND_INITIALIZER;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -83,12 +75,8 @@ int main (int argc, char *argv[])
     long tmp_long = 1;
     long num_worker_threads = 1;
     char *first_dir = NULL;
-    long thread_idx = 0;
 
     queue<char*> textFileQueue;
-
-    pthread_t *thread_array = NULL;
-    int iret1;
 
     while ((opt = getopt(argc, argv, "t:")) != -1) {
         switch (opt) {
@@ -138,7 +126,6 @@ int main (int argc, char *argv[])
         free(filenameToFree);
     }
     std::cout << '\n';
-    /* callListTest2(); */
 
 
     return 0;
@@ -149,50 +136,3 @@ int main (int argc, char *argv[])
  *******************************************************************************
  */
 
-void *print_message_function(void *ptr)
-{
-    /* char *message; */
-    /* message = (char *) ptr; */
-    /* printf("%s \n", message); */
-
-    long thread_idx = (long) ptr;
-    printf ("Thread %ld\n", thread_idx);
-
-    return(NULL);
-}
-
-void *ChildThread1(void *arg)
-{
-    printf ("In ChildThread1\n"); fflush(stdout);
-    sleep(1);
-    printf (" ChildThread1 after sleep 1\n"); fflush(stdout);
-    pthread_mutex_lock (&mut);
-    printf("mutext locked for wait\n");
-
-    printf("In wait\n");
-    pthread_cond_wait(&con, &mut);  /* wait for the signal with con as condition variable */
-    printf ("Out of wait\n");
-
-    pthread_mutex_unlock (&mut);
-    printf("mutex released\n");
-    printf("chil1 exit\n");
-
-    return(NULL);
-}
- 
-void *ChildThread2(void *arg)
-{
- 
-    printf ("In ChildThread2\n"); fflush(stdout);
-    sleep(2);
-    printf (" ChildThread2 after sleep 1\n"); fflush(stdout);
-    pthread_mutex_lock (&mut);
-    printf("mutex locked for signal\n");
-    pthread_cond_signal(&con);  /*wake up waiting thread with condition variable */
-    pthread_mutex_unlock (&mut);
-
-    printf("mutex released\n");
-    printf("chil2 exit\n");
-
-    return(NULL);
-}

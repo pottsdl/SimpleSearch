@@ -12,7 +12,7 @@ LINK_FLAGS = -lstdc++
 SRCS       = main.c
 
 #	Path to library .o files
-LIB_FILES  = main.o listdir.o work_queue.o list_test.o
+LIB_FILES  = main.o listdir.o work_queue.o
 
 TEST_TARGET = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
