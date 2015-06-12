@@ -83,8 +83,10 @@ void *print_message_function(void *ptr);
 void *ChildThread1(void *arg);
 void *ChildThread2(void *arg);
 /* static Work_Queue_t *createWorkQueue(int queue_length); */
+extern "C" {
 extern void callListTest2(void);
 extern void queueTest(void);
+}
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -164,7 +166,7 @@ int main (int argc, char *argv[])
             printf ("testQueue len=%d\n", testQueue->length);
         }
 
-        thread_array = malloc(num_worker_threads * sizeof(pthread_t));
+        thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
         assert(thread_array != NULL);
         for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
         {
