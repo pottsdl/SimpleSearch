@@ -20,6 +20,8 @@
  *******************************************************************************
  */
 #include <list>
+#include <queue>
+#include <iostream>
 #include <stdio.h>
 
 /*******************************************************************************
@@ -76,6 +78,21 @@ extern "C" {
         {
             printf ("Popping int %d\n", *iter);
         } /* end for */
+    }
+
+    void queueTest (void)
+    {
+        queue<int> intQueue;
+
+        intQueue.push(10); cout << "Adding 10\n";
+        intQueue.push(11); cout << "Adding 11\n";
+        intQueue.push(12); cout << "Adding 12\n";
+        while (!intQueue.empty())
+        {
+            std::cout << ' ' << intQueue.front();
+            intQueue.pop();
+        }
+        std::cout << '\n';
     }
 }
 

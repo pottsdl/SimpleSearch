@@ -83,7 +83,8 @@ void *print_message_function(void *ptr);
 void *ChildThread1(void *arg);
 void *ChildThread2(void *arg);
 /* static Work_Queue_t *createWorkQueue(int queue_length); */
-extern void callListTest(void);
+extern void callListTest2(void);
+extern void queueTest(void);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -152,7 +153,8 @@ int main (int argc, char *argv[])
     printf ("Based dir:          %s\n", first_dir);
 
     listdir(first_dir);
-    callListTest();
+    /* callListTest2(); */
+    queueTest();
 
     if (0 == 1)
     {
