@@ -41,7 +41,7 @@
  */
 #include "common_types.h"
 #include "listdir.h"
-#include "work_queue.h"
+#include "work_queue.hpp"
 #include <iostream>
 
 

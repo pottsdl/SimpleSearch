@@ -40,7 +40,7 @@ ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
 test: $(UNITTEST_SRC_FILES)
-	$(CPP) -g $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
+	$(CPP) -g -pthread $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
 	./$(TEST_TARGET)
 
 # Rule to generate runner file automatically
