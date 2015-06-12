@@ -161,8 +161,11 @@ int main (int argc, char *argv[])
     cout << "========================\n";
     while (!textFileQueue.empty())
     {
+        char *filenameToFree = NULL;
         cout << "  " << textFileQueue.front() << endl;
+        filenameToFree = textFileQueue.front();
         textFileQueue.pop();
+        free(filenameToFree);
     }
     std::cout << '\n';
     /* callListTest2(); */
