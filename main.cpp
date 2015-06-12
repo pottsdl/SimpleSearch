@@ -32,6 +32,8 @@
 #include <pthread.h> /* for pthread_* calls */
 #include <assert.h>  /* for assert() */
 #include <string.h> /* for strerror() */
+#include <fcntl.h>
+
 
 /*******************************************************************************
  * Project Includes
@@ -62,6 +64,7 @@ typedef struct
  *******************************************************************************
  */
 void *workerThread(void *arg);
+void processFile(std::string filePath, int tid);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -142,6 +145,11 @@ int main (int argc, char *argv[])
         args_array[thread_idx].myQueue = fileProcessingQueue;
         args_array[thread_idx].thread_idx = thread_idx;
         stat = pthread_create(&thread_array[thread_idx], NULL, workerThread, (void*) &args_array[thread_idx]);
+        if (stat != 0)
+        {
+            fprintf(stderr, "ERROR: Failed to spawn thread index: %d. (%d, %s)\n",
+                thread_idx, errno, strerror(errno));
+        }
     }
 
     listdir(first_dir, fileProcessingQueue);
@@ -153,7 +161,7 @@ int main (int argc, char *argv[])
     }
     for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
     {
-        printf ("Joining thread idx=%ld\n", thread_idx);
+        printf ("Joining thread idx=%d\n", thread_idx);
         pthread_join(thread_array[thread_idx], NULL);
     }
 
@@ -185,7 +193,49 @@ void *workerThread(void *arg)
         }
         printf ("[%d] Queue not empty, popping front\n", tid);
         queueString = q->pop_front();
-        printf ("[%d] Processing:%s\n", tid, queueString.c_str());
+
+        if (queueString != "EXIT")
+        {
+            printf ("[%d] Processing:%s\n", tid, queueString.c_str());
+            processFile(queueString, tid);
+        }
+        else
+        {
+            printf ("[%d] Received EXIT msg\n", tid);
+        }
     }
     printf ("Worker Thread #%d exitting procesing loop\n", tid);
+
+    return(NULL);
+}
+
+void processFile(std::string filePath, int tid)
+{
+    char buffer[512] = { 0 };
+
+    int fIn;
+    ssize_t bytes = 0;
+    ssize_t total_bytes = 0;
+
+    //open a file
+    fIn = open (filePath.c_str(), O_RDONLY);
+    if (fIn == -1) {
+        fprintf(stderr, "Failed to open file: %s, errno=%d,%s",
+               filePath.c_str(), errno, strerror(errno));
+        return;
+    }
+
+    //read from file
+    while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
+    {
+        total_bytes += bytes;
+    }
+
+    //and close it
+    close (fIn);
+
+    printf ("[%d] Finished processing file: %s, %lu bytes\n",
+            tid, filePath.c_str(), total_bytes);
+
+    return;
 }
