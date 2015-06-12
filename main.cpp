@@ -31,9 +31,7 @@
 #include <limits.h> /* for LONG_MAX/LONG_MIN */
 #include <pthread.h> /* for pthread_* calls */
 #include <assert.h>  /* for assert() */
-#if 0
-#include <string.h> /* for memset() */
-#endif
+#include <string.h> /* for strerror() */
 
 /*******************************************************************************
  * Project Includes
@@ -53,10 +51,17 @@
 #define BASE_TEN (0) /* Used for strtol */
 
 
+typedef struct
+{
+    Work_Queue *myQueue;
+    int thread_idx;
+} ReaderWriterArgs_t;
+
 /*******************************************************************************
  * Local Function Prototypes 
  *******************************************************************************
  */
+void *workerThread(void *arg);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -75,6 +80,10 @@ int main (int argc, char *argv[])
     long tmp_long = 1;
     long num_worker_threads = 1;
     char *first_dir = NULL;
+    pthread_t *thread_array = NULL;
+    ReaderWriterArgs_t *args_array = NULL;
+    int stat = 0;
+    int thread_idx = 0;
 
     Work_Queue *fileProcessingQueue = new Work_Queue();
 
@@ -114,15 +123,40 @@ int main (int argc, char *argv[])
     printf ("Number of threads:  %li\n", num_worker_threads);
     printf ("Based dir:          %s\n", first_dir);
 
-    listdir(first_dir, fileProcessingQueue);
-    cout << "Dumping file list queue:\n";
-    cout << "========================\n";
-    while (!fileProcessingQueue->empty())
+    thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
+    args_array = (ReaderWriterArgs_t *) malloc(num_worker_threads * sizeof(ReaderWriterArgs_t));
+    if (thread_array == NULL)
     {
-        cout << "  " << fileProcessingQueue->front() << endl;
-        fileProcessingQueue->pop();
+        fprintf(stderr, "ERROR: Failed to allocate thread_array, exitting. (%d, %s)\n",
+                errno, strerror(errno));
+        exit(1);
     }
-    std::cout << '\n';
+    if (args_array == NULL)
+    {
+        fprintf(stderr, "ERROR: Failed to allocate args_array, exitting. (%d, %s)\n",
+                errno, strerror(errno));
+        exit(1);
+    }
+    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
+    {
+        args_array[thread_idx].myQueue = fileProcessingQueue;
+        args_array[thread_idx].thread_idx = thread_idx;
+        stat = pthread_create(&thread_array[thread_idx], NULL, workerThread, (void*) &args_array[thread_idx]);
+    }
+
+    listdir(first_dir, fileProcessingQueue);
+
+    // for (thread_idx = 0; thread_idx < num_worker_threads*2; thread_idx++) 
+    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
+    {
+        fileProcessingQueue->push("EXIT");
+    }
+    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
+    {
+        printf ("Joining thread idx=%ld\n", thread_idx);
+        pthread_join(thread_array[thread_idx], NULL);
+    }
+
 
 
     return 0;
@@ -133,3 +167,25 @@ int main (int argc, char *argv[])
  *******************************************************************************
  */
 
+void *workerThread(void *arg)
+{
+    ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;
+    Work_Queue *q = _arg->myQueue;
+    string queueString = "";
+    int tid = _arg->thread_idx;
+
+    printf ("Worker Thread #%d starting...\n", tid);
+    sleep(1); /* To allow threads to get started */
+    while (queueString != "EXIT")
+    {
+        if (q->empty())
+        {
+            printf ("[%d] Waiting for not empty...\n", tid);
+            q->waitForNotEmpty();
+        }
+        printf ("[%d] Queue not empty, popping front\n", tid);
+        queueString = q->pop_front();
+        printf ("[%d] Processing:%s\n", tid, queueString.c_str());
+    }
+    printf ("Worker Thread #%d exitting procesing loop\n", tid);
+}

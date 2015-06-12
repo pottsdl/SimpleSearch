@@ -96,7 +96,9 @@ extern void listdir(const char *dir_name, Work_Queue *fileQueue)
                 int pathLen = strlen(dir_name) + strlen(d_name) + 1 + 1;
                 char *pathCopy = (char *) calloc(pathLen, sizeof(char));
                 snprintf(pathCopy, pathLen, "%s/%s", dir_name, d_name);
-                fileQueue->push(pathCopy);
+                std::string pathString = pathCopy;
+                fileQueue->push(pathString);
+                free(pathCopy);
             }
         }
 #endif /* 0 */
