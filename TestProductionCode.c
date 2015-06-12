@@ -325,12 +325,15 @@ void test_queueReaderWriter(void)
     pthread_t thread2;
     pthread_t thread3;
     int stat = 0;
-    /* ReaderWriterArgs_t args; */
+    ReaderWriterArgs_t args;
 
-    /* args.myQueue = myQueue; */
-    stat = pthread_create(&thread2, NULL, WriterThread, (void*) myQueue);
-    stat = pthread_create(&thread1, NULL, ReaderThread, (void*) myQueue);
-    stat = pthread_create(&thread3, NULL, ReaderThread, (void*) myQueue);
+    args.myQueue = myQueue;
+    args.thread_indx = 0;
+    stat = pthread_create(&thread2, NULL, WriterThread, (void*) &args);
+    args.thread_indx = 1;
+    stat = pthread_create(&thread1, NULL, ReaderThread, (void*) &args);
+    args.thread_indx = 2;
+    stat = pthread_create(&thread3, NULL, ReaderThread, (void*) &args);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
@@ -344,9 +347,10 @@ void test_queueReaderWriter(void)
 }
 void *ReaderThread(void *arg)
 {
-    Work_Queue *q = (Work_Queue *) arg;
+    ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;
+    Work_Queue *q = _arg->myQueue;
     string queueString = "";
-    int tid = 0;
+    int tid = _arg->thread_indx;
 
     while (queueString != "EXIT")
     {
@@ -363,15 +367,23 @@ void *ReaderThread(void *arg)
 
 void *WriterThread(void *arg)
 {
-    Work_Queue *q = (Work_Queue *) arg;
+    ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;
+    Work_Queue *q = _arg->myQueue;
+    int tid = _arg->thread_indx;
 
     sleep(5);
 
+    printf ("[%d] Pushing ABC\n", tid);
     q->push("ABC");
+    printf ("[%d] Pushing DEF\n", tid);
     q->push("DEF");
+    printf ("[%d] Pushing GHI\n", tid);
     q->push("GHI");
+    printf ("[%d] Pushing JKL\n", tid);
     q->push("JKL");
+    printf ("[%d] XXX  Pushing EXIT  XXXX\n", tid);
     q->push("EXIT");
+    printf ("[%d] XXX  Pushing EXIT  XXXX\n", tid);
     q->push("EXIT");
 
 }
