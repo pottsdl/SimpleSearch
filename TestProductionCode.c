@@ -325,15 +325,13 @@ void test_queueReaderWriter(void)
     pthread_t thread2;
     pthread_t thread3;
     int stat = 0;
-    ReaderWriterArgs_t args;
+    ReaderWriterArgs_t args1 = { myQueue, 1 };
+    ReaderWriterArgs_t args2 = { myQueue, 2 };
+    ReaderWriterArgs_t args3 = { myQueue, 3 };
 
-    args.myQueue = myQueue;
-    args.thread_indx = 0;
-    stat = pthread_create(&thread2, NULL, WriterThread, (void*) &args);
-    args.thread_indx = 1;
-    stat = pthread_create(&thread1, NULL, ReaderThread, (void*) &args);
-    args.thread_indx = 2;
-    stat = pthread_create(&thread3, NULL, ReaderThread, (void*) &args);
+    stat = pthread_create(&thread2, NULL, WriterThread, (void*) &args1);
+    stat = pthread_create(&thread1, NULL, ReaderThread, (void*) &args2);
+    stat = pthread_create(&thread3, NULL, ReaderThread, (void*) &args3);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
@@ -354,14 +352,14 @@ void *ReaderThread(void *arg)
 
     while (queueString != "EXIT")
     {
-        printf ("[%d] Waiting for not empty...\n", tid);
-        q->waitForNotEmpty();
+        if (q->empty())
+        {
+            printf ("[%d] Waiting for not empty...\n", tid);
+            q->waitForNotEmpty();
+        }
         printf ("[%d] Queue not empty, popping front\n", tid);
         queueString = q->pop_front();
-        if (queueString != "EXIT")
-        {
-            printf ("[%d] Read:%s\n", tid, queueString.c_str());
-        }
+        printf ("[%d] Read:%s\n", tid, queueString.c_str());
     }
 }
 
