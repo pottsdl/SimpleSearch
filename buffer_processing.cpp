@@ -82,9 +82,6 @@ int processBufferForWords(char *buffer, int buffer_sz, char **word)
     *word = NULL;
     for (char_index = 0; char_index < buffer_sz; char_index++)
     {
-        char *curr;
-        curr = &buffer[char_index];
-
         /* If a word character we'll want to keep going */
         if (isWordChar(buffer[char_index]))
         {
@@ -132,8 +129,6 @@ int processBufferForWords(char *buffer, int buffer_sz, char **word)
 
 cleanup:
     return(num_processed);
-error:
-    goto cleanup;
 }
 
 int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list)
