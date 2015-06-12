@@ -83,6 +83,7 @@ void *print_message_function(void *ptr);
 void *ChildThread1(void *arg);
 void *ChildThread2(void *arg);
 /* static Work_Queue_t *createWorkQueue(int queue_length); */
+extern void callListTest(void);
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -151,44 +152,48 @@ int main (int argc, char *argv[])
     printf ("Based dir:          %s\n", first_dir);
 
     listdir(first_dir);
+    callListTest();
 
-    testQueue = createWorkQueue(5);
-    if (testQueue != NULL)
+    if (0 == 1)
     {
-        printf ("testQueue len=%d\n", testQueue->length);
-    }
+        testQueue = createWorkQueue(5);
+        if (testQueue != NULL)
+        {
+            printf ("testQueue len=%d\n", testQueue->length);
+        }
 
-    thread_array = malloc(num_worker_threads * sizeof(pthread_t));
-    assert(thread_array != NULL);
-    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
-    {
-        switch (thread_idx)
+        thread_array = malloc(num_worker_threads * sizeof(pthread_t));
+        assert(thread_array != NULL);
+        for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
         {
-            case 0:
-                iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread1, (void*) thread_idx);
-                break;
-            case 1:
-                iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread2, (void*) thread_idx);
-                break;
-            default:
-                iret1 = pthread_create(&thread_array[thread_idx], NULL, print_message_function, (void*) thread_idx);
-                break;
-        }
-        if (iret1)
+            switch (thread_idx)
+            {
+                case 0:
+                    iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread1, (void*) thread_idx);
+                    break;
+                case 1:
+                    iret1 = pthread_create(&thread_array[thread_idx], NULL, ChildThread2, (void*) thread_idx);
+                    break;
+                default:
+                    iret1 = pthread_create(&thread_array[thread_idx], NULL, print_message_function, (void*) thread_idx);
+                    break;
+            }
+            if (iret1)
+            {
+                fprintf(stderr,"Error - pthread_create() for idx=%ld return code: %d\n", thread_idx, iret1);
+                exit(EXIT_FAILURE);
+            }
+            printf("pthread_create() for thread %ld returns: %d\n", thread_idx, iret1);
+        } /* end for */
+        printf ("All %ld thread(s) created, now going into join...\n", num_worker_threads);
+        for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
         {
-            fprintf(stderr,"Error - pthread_create() for idx=%ld return code: %d\n", thread_idx, iret1);
-            exit(EXIT_FAILURE);
+            printf ("Joining thread idx=%ld\n", thread_idx);
+            pthread_join(thread_array[thread_idx], NULL);
         }
-        printf("pthread_create() for thread %ld returns: %d\n", thread_idx, iret1);
-    } /* end for */
-    printf ("All %ld thread(s) created, now going into join...\n", num_worker_threads);
-    for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
-    {
-        printf ("Joining thread idx=%ld\n", thread_idx);
-        pthread_join(thread_array[thread_idx], NULL);
+        free (thread_array);
+        thread_array = NULL;
     }
-    free (thread_array);
-    thread_array = NULL;
 #if 0
     /* Create independent threads each of which will execute function */
     iret1 = pthread_create(&thread1, NULL, print_message_function, (void*) message1);

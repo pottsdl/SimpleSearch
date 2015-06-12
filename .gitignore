@@ -1,3 +1,6 @@
 *.o
 ssfi
 TestProductionCode_Runner.c
+.*.swp
+
+doc

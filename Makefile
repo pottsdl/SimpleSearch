@@ -3,18 +3,18 @@ CC         = gcc
 CPP        = g++
 
 INC_DIRS   = -I. -Iunity
-LIBFLAGS   = -L/usr/lib/x86_64-linux-gnu -L/usr/lib -ldl
+LIBFLAGS   = -L/usr/lib -L /usr/local/lib -L/usr/lib/x86_64-linux-gnu
 CFLAGS     = -g -D_REENTRANT -pedantic -Wall -pthread $(LIBFLAGS)
 CPPFLAGS   = $(CFLAGS)
 
-#LINK_FLAGS = -ladm
+LINK_FLAGS = -lstdc++
 
 #	Files to compile?
 SRCS       = main.c
 
 #	Path to library .o files
 #LIB_FILES  = main.o BitDatabase.o BitTestResults.o BitTest.o BitCategory.o
-LIB_FILES  = main.o listdir.o work_queue.o
+LIB_FILES  = main.o listdir.o work_queue.o list_test.o
 
 TARGET1 = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
@@ -39,7 +39,7 @@ exe :	$(LIB_FILES) $(PROGS)
 	$(CPP) $(CPPFLAGS) -c $<
 
 ssfi : $(LIB_FILES)
-	$(CC) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
+	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
 test: $(SRC_FILES1)
 	$(CC) -g $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
