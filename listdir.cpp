@@ -23,7 +23,7 @@
  * Project Includes
  *******************************************************************************
  */
-#include "listdir.h"
+#include "listdir.hpp"
 
 /*******************************************************************************
  * Local Function Prototypes 
@@ -50,7 +50,7 @@
  *******************************************************************************
  */
 
-extern void listdir(const char *dir_name, queue<char*> &fileQueue)
+extern void listdir(const char *dir_name, Work_Queue *fileQueue)
 {
     DIR * directory_handle;
 
@@ -96,7 +96,7 @@ extern void listdir(const char *dir_name, queue<char*> &fileQueue)
                 int pathLen = strlen(dir_name) + strlen(d_name) + 1 + 1;
                 char *pathCopy = (char *) calloc(pathLen, sizeof(char));
                 snprintf(pathCopy, pathLen, "%s/%s", dir_name, d_name);
-                fileQueue.push(pathCopy);
+                fileQueue->push(pathCopy);
             }
         }
 #endif /* 0 */

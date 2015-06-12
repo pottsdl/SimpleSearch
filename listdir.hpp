@@ -29,6 +29,7 @@ using namespace std;
  * Project Includes
  *******************************************************************************
  */
+#include "work_queue.hpp"
 
 /*******************************************************************************
  * Typedefs
@@ -54,7 +55,7 @@ using namespace std;
  * External Function Prototypes
  *******************************************************************************
  */
-extern void listdir(const char *dir_name, queue<char*> &fileQueue);
+extern void listdir(const char *dir_name, Work_Queue *fileQueue);
 
 /*******************************************************************************
  * Global Variables

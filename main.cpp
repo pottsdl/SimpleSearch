@@ -40,7 +40,7 @@
  *******************************************************************************
  */
 #include "common_types.h"
-#include "listdir.h"
+#include "listdir.hpp"
 #include "work_queue.hpp"
 #include <iostream>
 
@@ -76,7 +76,7 @@ int main (int argc, char *argv[])
     long num_worker_threads = 1;
     char *first_dir = NULL;
 
-    queue<char*> textFileQueue;
+    Work_Queue *fileProcessingQueue = new Work_Queue();
 
     while ((opt = getopt(argc, argv, "t:")) != -1) {
         switch (opt) {
@@ -114,16 +114,13 @@ int main (int argc, char *argv[])
     printf ("Number of threads:  %li\n", num_worker_threads);
     printf ("Based dir:          %s\n", first_dir);
 
-    listdir(first_dir, textFileQueue);
+    listdir(first_dir, fileProcessingQueue);
     cout << "Dumping file list queue:\n";
     cout << "========================\n";
-    while (!textFileQueue.empty())
+    while (!fileProcessingQueue->empty())
     {
-        char *filenameToFree = NULL;
-        cout << "  " << textFileQueue.front() << endl;
-        filenameToFree = textFileQueue.front();
-        textFileQueue.pop();
-        free(filenameToFree);
+        cout << "  " << fileProcessingQueue->front() << endl;
+        fileProcessingQueue->pop();
     }
     std::cout << '\n';
 
