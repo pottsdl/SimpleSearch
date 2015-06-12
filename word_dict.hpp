@@ -22,7 +22,7 @@
  *******************************************************************************
  */
 #include <pthread.h> /* for pthread_* calls */
-#include <queue>
+#include <map>
 #include <string>
 
 /*******************************************************************************
@@ -33,6 +33,7 @@
 
 extern "C" {
     void wordDictConstruct(void);
+    void wordDictAddItems(void);
 }
 
 /*******************************************************************************
@@ -59,13 +60,15 @@ class Word_Dict
         void lock(void);
         void unlock(void);
         Bool_t isLocked(void) { return(_is_locked); };
+        void insertWord(int word, int count);
+        map<int,int> &getMap(void) { return(_dictionaryMap); };
 
 
     private:
         Bool_t _mut_init;
         Bool_t _is_locked;
         pthread_mutex_t _mut;
-        queue<string> _filePathQueue;
+        map<int,int> _dictionaryMap;
         void _lock(void);
         void _unlock(void);
 };

@@ -21,6 +21,7 @@
  */
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for memset() */
+#include <iostream> /* for cout() */
 
 /*******************************************************************************
  * Project Includes
@@ -55,9 +56,26 @@ extern "C" {
 
     void wordDictConstruct(void)
     {
-        Word_Dict myDictionary = new Word_Dict();
+        Word_Dict *myDictionary = new Word_Dict();
+        TEST_ASSERT_NOT_EQUAL(myDictionary, NULL);
+        TEST_ASSERT_EQUAL(myDictionary->isLocked(), FALSE);
+    }
+    void wordDictAddItems(void)
+    {
+        Word_Dict *myDictionary = new Word_Dict();
         TEST_ASSERT_NOT_NULL(myDictionary);
-        TEST_ASSERT_EQUAL(myDictionary->isLocked, FALSE);
+
+        myDictionary->insertWord(1, 2);
+        myDictionary->insertWord(3, 5);
+        myDictionary->insertWord(7, 7);
+        printf ("myDictionary Inserted WORDS:\n");
+
+        std::map<int,int>::iterator it = myDictionary->getMap().begin();
+
+        // showing contents:
+        std::cout << "myDictionary contains:\n";
+        for (it=myDictionary->getMap().begin(); it!=myDictionary->getMap().end(); ++it)
+            std::cout << it->first << " => " << it->second << '\n';
     }
 }
 
@@ -84,10 +102,7 @@ Word_Dict::~Word_Dict(void)
     int stat = 0;
 
     _lock();
-    while (!_filePathQueue.empty())
-    {
-        _filePathQueue.pop();
-    }
+    _dictionaryMap.erase(_dictionaryMap.begin(), _dictionaryMap.end());
     _unlock();
 
 
@@ -133,6 +148,12 @@ void Word_Dict::unlock(void)
     _unlock();
 }
 
+void Word_Dict::insertWord(int word, int count)
+{
+    _lock();
+    _dictionaryMap.insert(pair<char,int>(word, count));
+    _unlock();
+}
 
 /*******************************************************************************
  ************************ L O C A L  F U N C T I O N S *************************

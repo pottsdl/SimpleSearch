@@ -477,5 +477,9 @@ void test_bufferWordTwoWordsWithGarbageBothEnds(void)
 
 void test_WordDictConstruct(void)
 {
-    wordDictConstruct;
+    wordDictConstruct();
+}
+void test_WordDictInsert(void)
+{
+    wordDictAddItems();
 }
