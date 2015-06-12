@@ -64,6 +64,21 @@ void test_queueEmptyOnCreate(void)
     TEST_ASSERT_NOT_NULL(testQueue);
 }
 
+void test_queueLock(void)
+{
+    Work_Queue_t *testQueue = NULL;
+    int stat = STATUS_SUCCESS;
+
+    testQueue = createWorkQueue(VALID_QUEUE_LENGTH);
+    TEST_ASSERT_NOT_NULL(testQueue);
+
+    stat = pthread_mutex_lock (&testQueue->mut);
+    TEST_ASSERT_EQUAL(stat, STATUS_SUCCESS);
+
+    stat = pthread_mutex_unlock (&testQueue->mut);
+    TEST_ASSERT_EQUAL(stat, STATUS_SUCCESS);
+}
+
 void test_createList(void)
 {
     List_Node_t *list = NULL;
