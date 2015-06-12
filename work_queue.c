@@ -61,8 +61,6 @@ Work_Queue_t *createWorkQueue(int queue_length)
         /* Wipe memory first so we know what succeeds later */
         memset (tmpQueue, 0, sizeof(Work_Queue_t));
 
-        tmpQueue->queue_empty = TRUE;
-        tmpQueue->length = queue_length;
         /*
          * tmpQueue->con_init and tmpQueue>mut_init are FALSE because of
          * memset(), no need to do it again.
@@ -113,7 +111,6 @@ error:
                     __FILE__, __LINE__, __FUNCTION__, stat, errno, strerror(errno));
         }
     }
-    tmpQueue->length = 0;
     
     /* Now free up the space for Work_Queue_t, and NULL it out */
     free(tmpQueue);

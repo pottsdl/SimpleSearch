@@ -51,11 +51,9 @@ void test_BasicEquality(void)
 void test_createNonZeroLengthQueue(void)
 {
     Work_Queue_t *testQueue = NULL;
-    static const int NONZERO_QUEUE_LENGTH = 5;
 
     testQueue = createWorkQueue(NONZERO_QUEUE_LENGTH);
     TEST_ASSERT_NOT_NULL(testQueue);
-    TEST_ASSERT_EQUAL(testQueue->length, NONZERO_QUEUE_LENGTH);
 }
 
 void test_queueEmptyOnCreate(void)
@@ -64,7 +62,6 @@ void test_queueEmptyOnCreate(void)
 
     testQueue = createWorkQueue(VALID_QUEUE_LENGTH);
     TEST_ASSERT_NOT_NULL(testQueue);
-    TEST_ASSERT_EQUAL(testQueue->queue_empty, TRUE);
 }
 
 void test_createList(void)

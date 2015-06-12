@@ -171,10 +171,6 @@ int main (int argc, char *argv[])
     if (0 == 1)
     {
         testQueue = createWorkQueue(5);
-        if (testQueue != NULL)
-        {
-            printf ("testQueue len=%d\n", testQueue->length);
-        }
 
         thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
         assert(thread_array != NULL);

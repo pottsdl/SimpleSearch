@@ -45,12 +45,10 @@
  */
 typedef struct
 {
-    Bool_t queue_empty;
     Bool_t mut_init;
     Bool_t con_init;
     pthread_mutex_t mut;
     pthread_cond_t  con;
-    int length;
 } Work_Queue_t;
 
 /*******************************************************************************
