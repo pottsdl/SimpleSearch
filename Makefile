@@ -1,4 +1,3 @@
-#	Path with flag, to ever used gcc compiler
 CC         = gcc
 CPP        = g++
 
@@ -9,17 +8,16 @@ CPPFLAGS   = $(CFLAGS)
 
 LINK_FLAGS = -lstdc++
 
-#	Files to compile?
+#	Files to compile
 SRCS       = main.c
 
 #	Path to library .o files
-#LIB_FILES  = main.o BitDatabase.o BitTestResults.o BitTest.o BitCategory.o
 LIB_FILES  = main.o listdir.o work_queue.o list_test.o
 
-TARGET1 = test1.out
+TEST_TARGET = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
 UNIT_TEST_AUTOGEN_RUNNER = TestProductionCode_Runner.c
-SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) work_queue.c linked_list.c
+UNITTEST_SRC_FILES=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) work_queue.c linked_list.c
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
@@ -27,8 +25,8 @@ CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 #	OUTPUTTED Executables
 PROGS      = ssfi
 
-all :	$(LIB_FILES) $(PROGS) $(TARGET1) 
-	./$(TARGET1)
+all :	$(LIB_FILES) $(PROGS) $(TEST_TARGET) 
+	./$(TEST_TARGET)
 
 exe :	$(LIB_FILES) $(PROGS)
 	./$(PROGS) -t 3 .
@@ -41,9 +39,9 @@ exe :	$(LIB_FILES) $(PROGS)
 ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
-test: $(SRC_FILES1)
-	$(CC) -g $(INC_DIRS) -DTEST $(SRC_FILES1) -o $(TARGET1)
-	./$(TARGET1)
+test: $(UNITTEST_SRC_FILES)
+	$(CC) -g $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
+	./$(TEST_TARGET)
 
 # Rule to generate runner file automatically
 $(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)
@@ -51,10 +49,3 @@ $(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)
 
 clean :
 	rm -f $(CLEANFILES) $(PROGS)
-
-#
-#	What are those dependancies?
-#
-depend:
-	makedepend $(SRCS)
-
