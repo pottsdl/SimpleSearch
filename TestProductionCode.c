@@ -1,7 +1,6 @@
 #include "unity.h"
 
 /* Include things to test */
-#include "listdir.h"
 #include "error_macros.h"
 #include "work_queue.h"
 #include "linked_list.h"
@@ -45,8 +44,6 @@ void createList(List_Node_t **list)
 
 void test_BasicEquality(void)
 {
-    char *first_dir = ".";
-    listdir(first_dir);
     //All of these should pass
     TEST_ASSERT_EQUAL(0, 0);
 }

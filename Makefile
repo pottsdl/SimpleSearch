@@ -19,7 +19,7 @@ LIB_FILES  = main.o listdir.o work_queue.o list_test.o
 TARGET1 = test1.out
 UNIT_TEST_FILE = TestProductionCode.c
 UNIT_TEST_AUTOGEN_RUNNER = TestProductionCode_Runner.c
-SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) listdir.c work_queue.c linked_list.c
+SRC_FILES1=unity/unity.c $(UNIT_TEST_AUTOGEN_RUNNER) $(UNIT_TEST_FILE) listdir.cpp work_queue.c linked_list.c
 
 CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 		*.[234]c *.[234]h *.bsdi *.sparc *.uw
