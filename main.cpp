@@ -134,6 +134,7 @@ int main (int argc, char *argv[])
         int ret = -1;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
         for (std::list<char *>::iterator it=word_list.begin(); it != word_list.end(); ++it)
         {
             printf ("Found word: %s\n", *it);
