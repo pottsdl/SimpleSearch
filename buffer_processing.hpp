@@ -34,6 +34,16 @@
  */
 #include "common_types.h"
 
+#if defined(TEST)
+extern "C" {
+    void bufferProcThreeWordsNotAtBegin(void);
+    void bufferProcThreeWordsAtBegin(void);
+    void bufferProcOneWordAtBegin(void);
+    void bufferProcOneWordAtEnd(void);
+    void bufferProcFullBuffer(void);
+}
+#endif /* defined(TEST) */
+
 /*******************************************************************************
  * Typedefs
  *******************************************************************************

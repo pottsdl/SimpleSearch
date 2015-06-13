@@ -495,3 +495,25 @@ void test_WordDictIterItems(void)
 {
     wordDictIterItems();
 }
+
+void test_Buffer3WordsNotStart(void)
+{
+    bufferProcThreeWordsNotAtBegin();
+}
+void test_Buffer3WordsAtStart(void)
+{
+    bufferProcThreeWordsAtBegin();
+}
+void test_Buffer1WordsAtStart(void)
+{
+    bufferProcOneWordAtBegin();
+}
+void test_Buffer1WordsAtEnd(void)
+{
+    bufferProcOneWordAtEnd();
+}
+
+void test_BufferFullOffEnds(void)
+{
+    bufferProcFullBuffer();
+}

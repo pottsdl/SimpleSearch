@@ -28,6 +28,9 @@
  * Project Includes
  *******************************************************************************
  */
+#if defined(TEST)
+#include "unity.h"
+#endif /* defined(TEST) */
 #include "buffer_processing.hpp"
 
 /*******************************************************************************
@@ -54,6 +57,116 @@
  ************************ L O C A L  F U N C T I O N S *************************
  *******************************************************************************
  */
+
+#if defined(TEST)
+extern "C" {
+
+    void bufferProcThreeWordsNotAtBegin(void)
+    {
+        char mybuf[] = "!!!zzz=abc!!!555++++Doug";
+        int buflen = strlen(mybuf);
+        std::list<char *> word_list;
+        int ret = -1;
+        int idx = 0;
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
+        TEST_ASSERT_EQUAL(word_list.size(), 4);
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it, ++idx)
+        {
+            printf ("Found word: %s\n", *it);
+            switch (idx)
+            {
+                case 0: TEST_ASSERT_EQUAL_STRING(*it, "zzz"); break;
+                case 1: TEST_ASSERT_EQUAL_STRING(*it, "abc"); break;
+                case 2: TEST_ASSERT_EQUAL_STRING(*it, "555"); break;
+                case 3: TEST_ASSERT_EQUAL_STRING(*it, "Doug"); break;
+            }
+        } /* end for */
+    }
+    void bufferProcThreeWordsAtBegin(void)
+    {
+        char mybuf[] = "zzz=abc!!!555++++Doug!!!";
+        int buflen = strlen(mybuf);
+        std::list<char *> word_list;
+        int ret = -1;
+        int idx = 0;
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
+        TEST_ASSERT_EQUAL(word_list.size(), 4);
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it, ++idx)
+        {
+            printf ("Found word: %s\n", *it);
+            switch (idx)
+            {
+                case 0: TEST_ASSERT_EQUAL_STRING(*it, "zzz"); break;
+                case 1: TEST_ASSERT_EQUAL_STRING(*it, "abc"); break;
+                case 2: TEST_ASSERT_EQUAL_STRING(*it, "555"); break;
+                case 3: TEST_ASSERT_EQUAL_STRING(*it, "Doug"); break;
+            }
+
+        } /* end for */
+    }
+    void bufferProcOneWordAtBegin(void)
+    {
+        char mybuf[] = "zzz=!!!++++";
+        int buflen = strlen(mybuf);
+        std::list<char *> word_list;
+        int ret = -1;
+        int idx = 0;
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
+        TEST_ASSERT_EQUAL(word_list.size(), 1);
+        TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
+    }
+    void bufferProcOneWordAtEnd(void)
+    {
+        char mybuf[] = "=!!!++++zzz";
+        int buflen = strlen(mybuf);
+        std::list<char *> word_list;
+        int ret = -1;
+        int idx = 0;
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
+        TEST_ASSERT_EQUAL(word_list.size(), 1);
+        TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
+    }
+    void bufferProcFullBuffer(void)
+    {
+#define MYBUF_LEN  512
+        char mybuf[MYBUF_LEN] = { 0 };
+        int buflen = MYBUF_LEN;
+        std::list<char *> word_list;
+        int ret = -1;
+        int idx = 0;
+        static const char * const BEG_STRING = "ginning"; /*   +------ ... -----+    */
+                                                          /* Be|ginning!!!!!!fin|ish */
+        static const char * const END_STRING = "fin";     /*   +------ ... -----+    */
+
+        memset(mybuf, ':', (MYBUF_LEN - 1) * sizeof(*mybuf));
+        strncpy(mybuf, BEG_STRING, strlen(BEG_STRING));
+        strncpy(&mybuf[MYBUF_LEN - strlen(END_STRING)], END_STRING, strlen(END_STRING));
+
+        ret = processWholeBuffer(mybuf, buflen, word_list);
+        printf ("  Processed: %d characters\n", ret);
+        // TEST_ASSERT_EQUAL(word_list.size(), 2);
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it, ++idx)
+        {
+            printf ("Found word: %s\n", *it);
+        }
+
+    }
+}
+#endif /* defined(TEST) */
 
 Bool_t isWordChar(const char thisOne)
 {
@@ -145,37 +258,15 @@ int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list
                 &word_found);
         buffer_start += processed_this_round;
         chars_processed += processed_this_round;
-        printf ("  this round: %d\n", processed_this_round);
-        printf ("  total     : %d\n", chars_processed);
+        printf ("  %d: bytes proceesed this loop\n", processed_this_round);
+        printf ("  %d: total bytes processed\n", chars_processed);
         if (word_found != NULL)
         {
-            printf ("---->Found word: %s\n", word_found);
+            // printf ("---->Found word: %s\n", word_found);
             word_list.push_back(word_found);
         }
+        printf ("\n\n");
     }
 
     return(chars_processed);
 }
-
-#if 0
-int test_processWholeBuffer(char *buffer, char **result_words)
-{
-    int buflen = strlen(buffer);
-    std::list<char *> word_list;
-
-    int ret = processWholeBuffer(buffer, buflen, word_list);
-
-    int list_length = word_list.size();
-    char *word_ptr_ary = (char *) calloc (list_length, sizeof(char *));
-    for (std::list<char *>::iterator it=word_list.begin(); it != word_list.end(); ++it)
-    {
-        char *word;
-        int word_length = 0;
-
-        word_length = strlen((*it)->c_str());
-        // word = calloc(*it.size());
-    }
-
-    return(ret);
-}
-#endif

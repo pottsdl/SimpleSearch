@@ -35,6 +35,8 @@
 #include <fcntl.h>
 #include <iostream>
 #include <list>
+#include <vector>
+#include <algorithm> /* for std::sort */
 
 
 /*******************************************************************************
@@ -50,7 +52,6 @@
  * Local Constants 
  *******************************************************************************
  */
-/* #define EXIT_FAILURE (-1) */
 #define BASE_TEN (0) /* Used for strtol */
 
 
@@ -65,12 +66,15 @@ typedef struct
  *******************************************************************************
  */
 void *workerThread(void *arg);
-void processFile(std::string filePath, int tid);
+static void processFile(std::string filePath, int tid);
+static void _lock_printing (void);
+static void _unlock_printing (void);
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
+static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -127,6 +131,7 @@ int main (int argc, char *argv[])
     printf ("Number of threads:  %li\n", num_worker_threads);
     printf ("Based dir:          %s\n", first_dir);
 
+#if 0
     {
         char mybuf[] = "!!!zzz=abc!!!555++++Doug";
         int buflen = strlen(mybuf);
@@ -142,6 +147,7 @@ int main (int argc, char *argv[])
         } /* end for */
     }
     exit(0);
+#endif
 
     thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
     args_array = (ReaderWriterArgs_t *) malloc(num_worker_threads * sizeof(ReaderWriterArgs_t));
@@ -171,7 +177,6 @@ int main (int argc, char *argv[])
 
     listdir(first_dir, fileProcessingQueue);
 
-    // for (thread_idx = 0; thread_idx < num_worker_threads*2; thread_idx++) 
     for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
     {
         fileProcessingQueue->push("EXIT");
@@ -226,13 +231,17 @@ void *workerThread(void *arg)
     return(NULL);
 }
 
-void processFile(std::string filePath, int tid)
+bool int_compare (int i,int j) { return (i<j); };
+
+static void processFile(std::string filePath, int tid)
 {
     char buffer[512] = { 0 };
 
     int fIn;
     ssize_t bytes = 0;
     ssize_t total_bytes = 0;
+    list<char *> word_list;
+    vector<int> read_counts;
 
     //open a file
     fIn = open (filePath.c_str(), O_RDONLY);
@@ -243,10 +252,76 @@ void processFile(std::string filePath, int tid)
     }
 
     //read from file
+    printf("Processing file: %s\n", filePath.c_str());
     while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
     {
+        int processed_bytes = 0;
+
+        read_counts.push_back(bytes);
+        word_list.clear();
+        processed_bytes = processWholeBuffer(buffer, bytes, word_list);
+
+        printf ("Processed words:  ");
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it)
+        {
+            printf ("%s, ", *it);
+        } /* end for */
+        printf ("\n");
+
+        ;
+        /*
+         * Foreach word:
+         *     - Try and find it in the list
+         *     - if in the list, increment count
+         *     - otherwise add to the list with a count of 1
+         */
+
         total_bytes += bytes;
     }
+
+    std::sort (read_counts.begin(), read_counts.end(), int_compare);
+    printf ("Summarizing file read counts:\n");
+    for (std::vector<int>::iterator v_it=read_counts.begin();
+            v_it != read_counts.end();
+            ++v_it)
+    {
+        printf (" %d,", *v_it);
+    }
+    printf ("\n");
+
+    /* Histogram */
+    /*
+     * if count == last_count
+     *   print *
+     * else
+     *   print \ncount
+     *
+     */
+    _lock_printing();
+    int last_count = -1;
+    printf ("     Read Counts Histogram\n");
+    printf ("     +-----------------------------------------------------");
+    for (std::vector<int>::iterator v_it=read_counts.begin();
+            v_it != read_counts.end();
+            ++v_it)
+    {
+        
+        // printf ("---->v_it=%d,  last_count=%d\n", *v_it, last_count);
+        if (*v_it == last_count)
+        {
+            printf ("*");
+        }
+        else
+        {
+            printf ("\n%4d | *", *v_it);
+            last_count = *v_it;
+        }
+    }
+    printf ("\n     +-----------------------------------------------------\n");
+    _unlock_printing();
+
 
     //and close it
     close (fIn);
@@ -257,37 +332,11 @@ void processFile(std::string filePath, int tid)
     return;
 }
 
-#if 0
-int processBufferForWorks(char *buffer, int buffer_sz)
+static void _lock_printing (void)
 {
-    int begin_last_word = -1;
-    for (char_index = 0; char_index < buffer_sz; char_index++)
-    {
-        char *curr;
-        curr = buffer[char_index];
-
-        /* If a word character we'll want to keep going */
-        if (isWordChar(curr))
-        {
-            if (begin_last_word == -1)
-            {
-                begin_last_word = char_index;
-            }
-        }
-    }
+    (void) pthread_mutex_lock(&g_printMutex);
 }
-
-Bool_t isWordChar(const char thisOne)
+static void _unlock_printing (void)
 {
-    if ((thisOne >= 'A' && thisOne <= 'Z') ||
-            (thisOne >= 'a' && thisOne <= 'z') ||
-            (thisOne >= '0' && thisOne <= '9'))
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
+    (void) pthread_mutex_unlock(&g_printMutex);
 }
-#endif
