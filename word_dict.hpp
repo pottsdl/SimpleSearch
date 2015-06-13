@@ -38,8 +38,8 @@ extern "C" {
     void wordDictLock(void);
     void wordDictUnlock(void);
     void wordDictIterItems(void);
-#endif /* defined(TEST) */
 }
+#endif /* defined(TEST) */
 
 /*******************************************************************************
  * Typedefs

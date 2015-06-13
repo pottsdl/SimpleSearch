@@ -43,9 +43,11 @@
  * Local Constants 
  *******************************************************************************
  */
+#if defined(TEST)
 static char word1[] = "1";
 static char word2[] = "3";
 static char word3[] = "7";
+#endif /* defined(TEST) */
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -308,17 +310,13 @@ void Word_Dict::end(void)
 void Word_Dict::getNextWord(char **word, int *count)
 {
     char *_word = NULL;
-    int   _count = -1;
     int stat = STATUS_SUCCESS;
 
     EXIT_ON_NULL_PTR(word, stat);
     EXIT_ON_NULL_PTR(count, stat);
     _lock();
-    // if (((*_it) == NULL) || (_it == _dictionaryMap.end()))
     if (_it == _dictionaryMap.end())
     {
-        // fprintf(stderr, "[%s, %d:%s] failed to get next, iterator(%p) or at end\n",
-                // __FILE__, __LINE__, __FUNCTION__, (void*) _it);
         fprintf(stderr, "[%s, %d:%s] failed to get next, iterator at end\n",
                 __FILE__, __LINE__, __FUNCTION__);
     }
