@@ -204,19 +204,6 @@ int main (int argc, char *argv[])
 
 
     wordDictionary->print();
-#if 0
-    printf ("Dumping word dictionary: =================================\n");
-    wordDictionary->begin();
-    do
-    {
-        wordDictionary->getNextWord(&word, &wordCount);
-        if (word != NULL)
-        {
-            std::cout << word << " => " << wordCount << '\n';
-        }
-    } while (word != NULL);
-    printf ("==========================================================\n");
-#endif
 
     return 0;
 } /* main */
@@ -298,16 +285,6 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
         if (g_debug_output == TRUE)
         {
             printWordList(word_list);
-#if 0
-            printf ("Processed words:  ");
-            for (std::list<char *>::iterator it=word_list.begin();
-                    it != word_list.end();
-                    ++it)
-            {
-                printf ("%s, ", *it);
-            } /* end for */
-            printf ("\n");
-#endif
         }
 
         /*
@@ -316,113 +293,28 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
          *     - if in the list, increment count
          *     - otherwise add to the list with a count of 1
          */
-        Bool_t insertedSun = FALSE;
-#if 0
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it)
         {
-            map<char*,int> mymap = dict->getMap();
-            std::map<char *,int>::iterator map_it;
-            std::map<char *,int>::iterator end_it = mymap.end();
+            char *word = NULL;
 
-            map<char*,int> newmap;
-            printf ("Inserting 'Sun' manually...\n");
-            newmap.insert(pair<char*,int>("Sun", 1));
-            newmap.insert(pair<char*,int>("Tsu", 1));
-            printf ("'Sun' inserted.\n");
-            int i = 0;
-            printf ("Dumping dictionary item by item\n");
-            for (map<char*,int>::iterator newmap_it = newmap.begin();
-                    newmap_it != newmap.end();
-                    newmap_it++, i++)
+            word = *it;
+            printf ("Finding word: %s\n", word);
+
+            if (dict->hasWord(word) == FALSE)
             {
-                printf ("[%d] %s => %d\n", i, newmap_it->first, newmap_it->second);
-            } /* end for */
-            std::map<char *,int>::iterator findnewmap_it;
-            printf ("Finding 'Sun'\n");
-            findnewmap_it = newmap.find("Sun");
-            if (findnewmap_it != newmap.end())
-            {
-                printf ("Found 'Sun'\n");
-                printf ("%s => %d\n", findnewmap_it->first, findnewmap_it->second);
-                findnewmap_it->second++;
+                printf ("[%d] Word(%s) is not in dict. adding it\n",
+                        tid, *it);
+                dict->insertWord(word, INITIAL_COUNT);
             }
             else
             {
-                printf ("No 'Sun' found\n");
+                printf ("[%d] Word(%s) IS in dict. incrementing it\n",
+                        tid, *it);
+                dict->incrementWordCount(word);
             }
-            findnewmap_it = newmap.find("Sun");
-            if (findnewmap_it != newmap.end())
-            {
-                printf ("Found 'Sun'\n");
-                printf ("%s => %d\n", findnewmap_it->first, findnewmap_it->second);
-            }
-
-
-            mymap.insert(pair<char*,int>("Sun", 1));
-            dict->print();
-        }
-#endif
-         for (std::list<char *>::iterator it=word_list.begin();
-                 it != word_list.end();
-                 ++it)
-         {
-             char *word = NULL;
-
-             word = *it;
-             printf ("Finding word: %s\n", word);
-
-#if 0 // {
-             map_it = mymap.find(word);
-             if (map_it != mymap.end())
-             {
-                 printf ("[%d] Word(%s) IS in dict. incrementing it\n",
-                         tid, *it);
-                 map_it->second++;
-#if 0 // {
-                 char *new_word = map_it->first;
-                 int new_count = map_it->second;
-                 new_count++;
-                 // mymap.erase(map_it);
-                 mymap.insert(pair<char*,int>(new_word, new_count));
-#endif // }
-                 dict->print();
-             }
-             else
-             {
-                 printf ("[%d] Word(%s) is not in dict. adding it\n",
-                         tid, *it);
-                 mymap.insert(pair<char*,int>(word, INITIAL_COUNT));
-                 dict->print();
-             }
-#else
-             if (dict->hasWord(word) == FALSE)
-             {
-                 if ((word == "Sun") && insertedSun == FALSE)
-                 {
-                     printf ("[%d] Word(%s) is not in dict. adding it first time\n",
-                             tid, *it);
-                 }
-                 else
-                 {
-                     printf ("[%d] Word(%s) is not in dict. adding it ADDL time\n",
-                             tid, *it);
-                 }
-                 printf ("[%d] Word(%s) is not in dict. adding it\n",
-                         tid, *it);
-                 dict->insertWord(word, INITIAL_COUNT);
-                 if (word == "Sun") insertedSun = TRUE;
-                 if (word == "Sun")
-                 {
-                     dict->print();
-                 }
-             }
-             else
-             {
-                 printf ("[%d] Word(%s) IS in dict. incrementing it\n",
-                         tid, *it);
-                 dict->incrementWordCount(word);
-             }
-#endif
-         } /* end for */
+        } /* end for */
         if (g_debug_output == TRUE)
         {
             printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
