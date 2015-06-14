@@ -9,9 +9,11 @@ CPPFLAGS   = $(CFLAGS) -ansi
 LINK_FLAGS = -lstdc++
 DOXYGEN_BIN = $(shell which doxygen)
 GDB_BIN     = $(shell which gdb)
+VALGRIND_BIN= $(shell which valgrind)
 SLOCCOUNT_BIN = $(shell which sloccount)
 SLOC_DATADIR = `pwd`/.slocdata
 SLOC_OUTFILE = sloc_count.txt
+MEMCHECK_FILE = memcheck.txt
 
 #	Files to compile
 SRCS       = main.cpp
@@ -36,6 +38,10 @@ all :	$(LIB_FILES) $(PROGS) $(TEST_TARGET)
 # Build the executable, and run with a simple parameter list
 exe :	$(LIB_FILES) $(PROGS)
 	./$(PROGS) -t 3 testdir/
+
+memcheck: $(LIB_FILES) $(PROGS)
+	$(VALGRIND_BIN) --tool=memcheck --leak-check=yes --log-file=$(MEMCHECK_FILE) ./$(PROGS) -t 3 testdir/subtestdir/subsubdir
+	$(EDITOR) $(MEMCHECK_FILE)
 
 .c.o :
 	$(CC) $(CFLAGS) -c $<
