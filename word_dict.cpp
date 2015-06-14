@@ -47,6 +47,11 @@
 static char word1[] = "1";
 static char word2[] = "3";
 static char word3[] = "7";
+
+static char APPLES[] = "apples";
+static char ORANGES[] = "oranges";
+static char CHERRIES[] = "cherries";
+static char PEARS[] = "pears";
 #endif /* defined(TEST) */
 
 /*******************************************************************************
@@ -201,6 +206,81 @@ extern "C" {
 
         delete myDictionary;
     }
+    void wordDictGoodFind(void)
+    {
+        int idx = 0;
+        Word_Dict *myDictionary = new Word_Dict();
+        char *_word = NULL;
+        int  _wordCount = 0;
+        if (myDictionary == NULL)
+        {
+            printf ("[%s:%d] myDictionary is NULL\n", __FILE__, __LINE__);
+        }
+        TEST_ASSERT_NOT_NULL(myDictionary);
+
+        myDictionary->insertWord(APPLES, 2);
+        myDictionary->insertWord(ORANGES, 5);
+        myDictionary->insertWord(CHERRIES, 7);
+
+        TEST_ASSERT_TRUE(myDictionary->hasWord(APPLES));
+
+        delete myDictionary;
+    }
+    void wordDictGoodMiss(void)
+    {
+        int idx = 0;
+        Word_Dict *myDictionary = new Word_Dict();
+        char *_word = NULL;
+        int  _wordCount = 0;
+        if (myDictionary == NULL)
+        {
+            printf ("[%s:%d] myDictionary is NULL\n", __FILE__, __LINE__);
+        }
+        TEST_ASSERT_NOT_NULL(myDictionary);
+
+        myDictionary->insertWord(APPLES, 2);
+        myDictionary->insertWord(ORANGES, 5);
+        myDictionary->insertWord(CHERRIES, 7);
+
+        TEST_ASSERT_FALSE(myDictionary->hasWord(PEARS));
+
+        delete myDictionary;
+    }
+    void wordDictGoodIncrement(void)
+    {
+        int idx = 0;
+        Word_Dict *myDictionary = new Word_Dict();
+        char *_word = NULL;
+        int  _wordCount = 0;
+
+        if (myDictionary == NULL)
+        {
+            printf ("[%s:%d] myDictionary is NULL\n", __FILE__, __LINE__);
+        }
+        TEST_ASSERT_NOT_NULL(myDictionary);
+        myDictionary->setDebug(TRUE);
+
+        myDictionary->insertWord(APPLES, 2);
+        myDictionary->insertWord(ORANGES, 5);
+        myDictionary->insertWord(CHERRIES, 7);
+
+        myDictionary->print();
+
+        if (myDictionary->hasWord(APPLES) == FALSE)
+        {
+            printf ("Word(%s) is not in dict. adding it\n", APPLES);
+            myDictionary->insertWord(APPLES, 1);
+        }
+        else
+        {
+            printf ("Word(%s) IS in dict. INCREMENTING COUNT\n", APPLES);
+            myDictionary->incrementWordCount(APPLES);
+        }
+        myDictionary->print();
+        TEST_ASSERT_EQUAL(myDictionary->getWordCount(APPLES), 3);
+
+        delete myDictionary;
+    }
 }
 #endif /* defined(TEST) */
 
@@ -215,6 +295,7 @@ Word_Dict::Word_Dict(void)
     EXIT_EARLY_ON_ERROR(stat);
     _mut_init = TRUE;
     _it = _dictionaryMap.begin();
+    _showDebugOutput = FALSE;
 
 cleanup:
     return;
@@ -227,18 +308,18 @@ Word_Dict::~Word_Dict(void)
 {
     int stat = 0;
 
-    printf ("[%s:%d} deleting myDictionary\n", __FILE__, __LINE__);
+    printf ("[%s:%d] deleting myDictionary\n", __FILE__, __LINE__);
 
 
     _lock();
     if (!_dictionaryMap.empty())
     {
-        printf ("[%s:%d} Erasing any existing map entries\n", __FILE__, __LINE__);
+        printf ("[%s:%d] Erasing any existing map entries\n", __FILE__, __LINE__);
         _dictionaryMap.erase(_dictionaryMap.begin(), _dictionaryMap.end());
     }
     else
     {
-        printf ("[%s:%d} No map entries to erase\n", __FILE__, __LINE__);
+        printf ("[%s:%d] No map entries to erase\n", __FILE__, __LINE__);
     }
     _unlock();
 
@@ -310,6 +391,7 @@ void Word_Dict::end(void)
 void Word_Dict::getNextWord(char **word, int *count)
 {
     char *_word = NULL;
+    int _count = -1;
     int stat = STATUS_SUCCESS;
 
     EXIT_ON_NULL_PTR(word, stat);
@@ -317,13 +399,13 @@ void Word_Dict::getNextWord(char **word, int *count)
     _lock();
     if (_it == _dictionaryMap.end())
     {
-        fprintf(stderr, "[%s, %d:%s] failed to get next, iterator at end\n",
-                __FILE__, __LINE__, __FUNCTION__);
+        // fprintf(stderr, "[%s, %d:%s] failed to get next, iterator at end\n",
+                // __FILE__, __LINE__, __FUNCTION__);
     }
     else
     {
         _word = _it->first;
-        *count = _it->second;
+        _count = _it->second;
         _it++;
     }
 cleanup:
@@ -331,11 +413,120 @@ cleanup:
     {
         *word = _word;
     }
+    if (count != NULL)
+    {
+        *count = _count;
+    }
     _unlock();
     return;
 error:
     goto cleanup;
 
+}
+
+Bool_t Word_Dict::hasWord(char *word)
+{
+    std::map<char *,int>::iterator it;
+    Bool_t found = FALSE;
+    char *wordFound = NULL;
+    int count = -1;
+
+
+    if (strcmp(word ,"Sun") == 0)
+    {
+        printf ("Looking for word(%s) in dictionary...\n", word);
+        print();
+    }
+    _lock();
+    it = _dictionaryMap.find(word);
+    _unlock();
+    wordFound = it->first;
+    count = it->second;
+    // if ((it != _dictionaryMap.end()) && (strcmp(it->first, word) == 0))
+    if ((it != _dictionaryMap.end()))
+    {
+        found = TRUE;
+        if (_showDebugOutput == TRUE)
+        {
+            printf ("%s => %d\n", wordFound, count);
+        }
+    }
+
+    return(found);
+}
+
+void Word_Dict::incrementWordCount(char *word)
+{
+    std::map<char *,int>::iterator it;
+    char *wordFound = NULL;
+    int count = -1;
+
+    _lock();
+
+    it = _dictionaryMap.find(word);
+    if (it != _dictionaryMap.end())
+    {
+        it->second++;
+        // wordFound = it->first;
+        // count = it->second;
+        // count++;
+        // _dictionaryMap.erase(it);
+        // _dictionaryMap.insert(pair<char*,int>(wordFound, count));
+    }
+
+    _unlock();
+
+    return;
+}
+
+void Word_Dict::print(void)
+{
+    char *word = NULL;
+    int wordCount = -1;
+
+    printf ("Dumping word dictionary: =================================\n");
+    begin();
+    do
+    {
+        getNextWord(&word, &wordCount);
+        if (word != NULL)
+        {
+            std::cout << word << " => " << wordCount << '\n';
+        }
+    } while (word != NULL);
+    printf ("==========================================================\n");
+
+    return;
+}
+
+void Word_Dict::setDebug(Bool_t enabled)
+{
+    _lock();
+    _showDebugOutput = enabled;
+    _unlock();
+}
+
+Bool_t Word_Dict::getDebug(void)
+{
+    Bool_t isEnabled = FALSE;
+    _lock();
+    isEnabled = _showDebugOutput;
+    _unlock();
+    return(isEnabled);
+}
+
+int Word_Dict::getWordCount(char *word)
+{
+    int _word_count = -1;
+    _lock();
+    std::map<char *,int>::iterator it = _dictionaryMap.find(word);
+    if (it != _dictionaryMap.end())
+    {
+        _word_count = it->second;
+    }
+    _unlock();
+
+    return(_word_count);
 }
 
 /*******************************************************************************

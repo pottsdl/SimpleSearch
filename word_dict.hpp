@@ -38,6 +38,9 @@ extern "C" {
     void wordDictLock(void);
     void wordDictUnlock(void);
     void wordDictIterItems(void);
+    void wordDictGoodFind(void);
+    void wordDictGoodMiss(void);
+    void wordDictGoodIncrement(void);
 }
 #endif /* defined(TEST) */
 
@@ -70,6 +73,12 @@ class Word_Dict
         void begin(void);
         void end(void);
         void getNextWord(char **word, int *count);
+        Bool_t hasWord(char *word);
+        void incrementWordCount(char *word);
+        void print(void);
+        void setDebug(Bool_t enabled);
+        Bool_t getDebug(void);
+        int getWordCount(char *word);
         
 
 
@@ -79,6 +88,7 @@ class Word_Dict
         pthread_mutex_t _mut;
         map<char*,int> _dictionaryMap;
         map<char*,int>::iterator _it;
+        Bool_t _showDebugOutput;
 
         void _lock(void);
         void _unlock(void);

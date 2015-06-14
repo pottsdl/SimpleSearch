@@ -47,6 +47,7 @@
 #include "listdir.hpp"
 #include "work_queue.hpp"
 #include "buffer_processing.hpp"
+#include "word_dict.hpp"
 
 /*******************************************************************************
  * Local Constants 
@@ -58,6 +59,7 @@
 typedef struct
 {
     Work_Queue *myQueue;
+    Word_Dict  *wordDictionary;
     int thread_idx;
 } ReaderWriterArgs_t;
 
@@ -66,15 +68,18 @@ typedef struct
  *******************************************************************************
  */
 void *workerThread(void *arg);
-static void processFile(std::string filePath, int tid);
+static void processFile(int tid, std::string filePath, Word_Dict *dict);
 static void _lock_printing (void);
 static void _unlock_printing (void);
+static void print_read_performance (std::vector<int> &read_counts);
+void printWordList(list<char*> word_list);
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
 static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
+Bool_t g_debug_output = false;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -93,9 +98,15 @@ int main (int argc, char *argv[])
     int stat = 0;
     int thread_idx = 0;
 
-    Work_Queue *fileProcessingQueue = new Work_Queue();
+#if 0
+    char *word = NULL;
+    int wordCount = -1;
+#endif
 
-    while ((opt = getopt(argc, argv, "t:")) != -1) {
+    Work_Queue *fileProcessingQueue = new Work_Queue();
+    Word_Dict  *wordDictionary = new Word_Dict();
+
+    while ((opt = getopt(argc, argv, "t:v")) != -1) {
         switch (opt) {
             case 't':
                 tmp_long = strtol(optarg, &endptr, BASE_TEN);
@@ -112,6 +123,9 @@ int main (int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
                 num_worker_threads = tmp_long;
+                break;
+            case 'v':
+                g_debug_output = TRUE;
                 break;
             default:
                 fprintf(stderr, "Usage: %s [-t num_threads] <first_dir_path>\n", argv[0]);
@@ -167,6 +181,7 @@ int main (int argc, char *argv[])
     {
         args_array[thread_idx].myQueue = fileProcessingQueue;
         args_array[thread_idx].thread_idx = thread_idx;
+        args_array[thread_idx].wordDictionary = wordDictionary;
         stat = pthread_create(&thread_array[thread_idx], NULL, workerThread, (void*) &args_array[thread_idx]);
         if (stat != 0)
         {
@@ -188,6 +203,20 @@ int main (int argc, char *argv[])
     }
 
 
+    // wordDictionary->print();
+#if 0
+    printf ("Dumping word dictionary: =================================\n");
+    wordDictionary->begin();
+    do
+    {
+        wordDictionary->getNextWord(&word, &wordCount);
+        if (word != NULL)
+        {
+            std::cout << word << " => " << wordCount << '\n';
+        }
+    } while (word != NULL);
+    printf ("==========================================================\n");
+#endif
 
     return 0;
 } /* main */
@@ -201,6 +230,7 @@ void *workerThread(void *arg)
 {
     ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;
     Work_Queue *q = _arg->myQueue;
+    Word_Dict *dict = _arg->wordDictionary;
     string queueString = "";
     int tid = _arg->thread_idx;
 
@@ -219,7 +249,7 @@ void *workerThread(void *arg)
         if (queueString != "EXIT")
         {
             printf ("[%d] Processing:%s\n", tid, queueString.c_str());
-            processFile(queueString, tid);
+            processFile(tid, queueString, dict);
         }
         else
         {
@@ -231,10 +261,14 @@ void *workerThread(void *arg)
     return(NULL);
 }
 
-bool int_compare (int i,int j) { return (i<j); };
-
-static void processFile(std::string filePath, int tid)
+bool int_compare (int i,int j)
 {
+    return (i<j);
+}
+
+static void processFile(int tid, std::string filePath, Word_Dict *dict)
+{
+    static const int INITIAL_COUNT = 1;
     char buffer[512] = { 0 };
 
     int fIn;
@@ -261,26 +295,168 @@ static void processFile(std::string filePath, int tid)
         word_list.clear();
         processed_bytes = processWholeBuffer(buffer, bytes, word_list);
 
-        printf ("Processed words:  ");
-        for (std::list<char *>::iterator it=word_list.begin();
-                it != word_list.end();
-                ++it)
+        if (g_debug_output == TRUE)
         {
-            printf ("%s, ", *it);
-        } /* end for */
-        printf ("\n");
+            printWordList(word_list);
+#if 0
+            printf ("Processed words:  ");
+            for (std::list<char *>::iterator it=word_list.begin();
+                    it != word_list.end();
+                    ++it)
+            {
+                printf ("%s, ", *it);
+            } /* end for */
+            printf ("\n");
+#endif
+        }
 
-        ;
         /*
          * Foreach word:
          *     - Try and find it in the list
          *     - if in the list, increment count
          *     - otherwise add to the list with a count of 1
          */
+        Bool_t insertedSun = FALSE;
+#if 0
+        {
+            map<char*,int> mymap = dict->getMap();
+            std::map<char *,int>::iterator map_it;
+            std::map<char *,int>::iterator end_it = mymap.end();
+
+            map<char*,int> newmap;
+            printf ("Inserting 'Sun' manually...\n");
+            newmap.insert(pair<char*,int>("Sun", 1));
+            newmap.insert(pair<char*,int>("Tsu", 1));
+            printf ("'Sun' inserted.\n");
+            int i = 0;
+            printf ("Dumping dictionary item by item\n");
+            for (map<char*,int>::iterator newmap_it = newmap.begin();
+                    newmap_it != newmap.end();
+                    newmap_it++, i++)
+            {
+                printf ("[%d] %s => %d\n", i, newmap_it->first, newmap_it->second);
+            } /* end for */
+            std::map<char *,int>::iterator findnewmap_it;
+            printf ("Finding 'Sun'\n");
+            findnewmap_it = newmap.find("Sun");
+            if (findnewmap_it != newmap.end())
+            {
+                printf ("Found 'Sun'\n");
+                printf ("%s => %d\n", findnewmap_it->first, findnewmap_it->second);
+                findnewmap_it->second++;
+            }
+            else
+            {
+                printf ("No 'Sun' found\n");
+            }
+            findnewmap_it = newmap.find("Sun");
+            if (findnewmap_it != newmap.end())
+            {
+                printf ("Found 'Sun'\n");
+                printf ("%s => %d\n", findnewmap_it->first, findnewmap_it->second);
+            }
+
+
+            mymap.insert(pair<char*,int>("Sun", 1));
+            dict->print();
+        }
+#endif
+         for (std::list<char *>::iterator it=word_list.begin();
+                 it != word_list.end();
+                 ++it)
+         {
+             char *word = NULL;
+
+             word = *it;
+             printf ("Finding word: %s\n", word);
+
+#if 0 // {
+             map_it = mymap.find(word);
+             if (map_it != mymap.end())
+             {
+                 printf ("[%d] Word(%s) IS in dict. incrementing it\n",
+                         tid, *it);
+                 map_it->second++;
+#if 0 // {
+                 char *new_word = map_it->first;
+                 int new_count = map_it->second;
+                 new_count++;
+                 // mymap.erase(map_it);
+                 mymap.insert(pair<char*,int>(new_word, new_count));
+#endif // }
+                 dict->print();
+             }
+             else
+             {
+                 printf ("[%d] Word(%s) is not in dict. adding it\n",
+                         tid, *it);
+                 mymap.insert(pair<char*,int>(word, INITIAL_COUNT));
+                 dict->print();
+             }
+#else
+             if (dict->hasWord(word) == FALSE)
+             {
+                 if (!strcmp(word, "Sun") && insertedSun == FALSE)
+                 {
+                     printf ("[%d] Word(%s) is not in dict. adding it first time\n",
+                             tid, *it);
+                 }
+                 else
+                 {
+                     printf ("[%d] Word(%s) is not in dict. adding it ADDL time\n",
+                             tid, *it);
+                 }
+                 printf ("[%d] Word(%s) is not in dict. adding it\n",
+                         tid, *it);
+                 dict->insertWord(word, INITIAL_COUNT);
+                 if (!strcmp(word, "Sun")) insertedSun = TRUE;
+                 if (strcmp(word, "Sun") == 0)
+                 {
+                     dict->print();
+                 }
+             }
+             else
+             {
+                 printf ("[%d] Word(%s) IS in dict. incrementing it\n",
+                         tid, *it);
+                 dict->incrementWordCount(word);
+             }
+#endif
+         } /* end for */
+        if (g_debug_output == TRUE)
+        {
+            printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
+        }
 
         total_bytes += bytes;
     }
 
+    if (g_debug_output == TRUE)
+    {
+        print_read_performance(read_counts);
+    }
+
+
+    //and close it
+    close (fIn);
+
+    printf ("[%d] Finished processing file: %s, %lu bytes\n",
+            tid, filePath.c_str(), total_bytes);
+
+    return;
+}
+
+static void _lock_printing (void)
+{
+    (void) pthread_mutex_lock(&g_printMutex);
+}
+static void _unlock_printing (void)
+{
+    (void) pthread_mutex_unlock(&g_printMutex);
+}
+
+static void print_read_performance (std::vector<int> &read_counts)
+{
     std::sort (read_counts.begin(), read_counts.end(), int_compare);
     printf ("Summarizing file read counts:\n");
     for (std::vector<int>::iterator v_it=read_counts.begin();
@@ -307,7 +483,7 @@ static void processFile(std::string filePath, int tid)
             v_it != read_counts.end();
             ++v_it)
     {
-        
+
         // printf ("---->v_it=%d,  last_count=%d\n", *v_it, last_count);
         if (*v_it == last_count)
         {
@@ -321,22 +497,18 @@ static void processFile(std::string filePath, int tid)
     }
     printf ("\n     +-----------------------------------------------------\n");
     _unlock_printing();
+}
 
-
-    //and close it
-    close (fIn);
-
-    printf ("[%d] Finished processing file: %s, %lu bytes\n",
-            tid, filePath.c_str(), total_bytes);
+void printWordList(list<char*> word_list)
+{
+    printf ("Processed words:  ");
+    for (std::list<char *>::iterator it=word_list.begin();
+            it != word_list.end();
+            ++it)
+    {
+        printf ("%s, ", *it);
+    } /* end for */
+    printf ("\n");
 
     return;
-}
-
-static void _lock_printing (void)
-{
-    (void) pthread_mutex_lock(&g_printMutex);
-}
-static void _unlock_printing (void)
-{
-    (void) pthread_mutex_unlock(&g_printMutex);
 }
