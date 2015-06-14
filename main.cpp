@@ -203,7 +203,8 @@ int main (int argc, char *argv[])
     }
 
 
-    wordDictionary->print();
+    // wordDictionary->print();
+    wordDictionary->printTopX(10);
 
     return 0;
 } /* main */

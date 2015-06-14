@@ -79,7 +79,7 @@ class Word_Dict
         void setDebug(Bool_t enabled);
         Bool_t getDebug(void);
         int getWordCount(char *word);
-        
+        void printTopX(int top_X_counts);
 
 
     private:

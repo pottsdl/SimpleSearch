@@ -22,6 +22,8 @@
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for memset() */
 #include <iostream> /* for cout() */
+#include <vector>
+#include <algorithm> /* for std::sort */
 
 /*******************************************************************************
  * Project Includes
@@ -425,15 +427,9 @@ Bool_t Word_Dict::hasWord(char *word)
     int count = -1;
 
 
-    if (word ==  "Sun")
-    {
-        printf ("Looking for word(%s) in dictionary...\n", word);
-        print();
-    }
     _lock();
     it = _dictionaryMap.find(word);
     _unlock();
-    // if ((it != _dictionaryMap.end()) && (strcmp(it->first, word) == 0))
     if ((it != _dictionaryMap.end()))
     {
         found = TRUE;
@@ -520,6 +516,46 @@ int Word_Dict::getWordCount(char *word)
     _unlock();
 
     return(_word_count);
+}
+
+bool wordCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
+{
+    return (left_count.first < right_count.first);
+}
+
+bool cmp(const pair<char, double>& lhs, const pair<char, double>& rhs)
+{
+      return lhs.second > rhs.second;
+}
+
+void Word_Dict::printTopX(int top_X_counts)
+{
+    vector< pair<char, double> > output;
+    // vector< pair<char, double> > output{{'a', 1.2}, {'b', 3.4}, {'c', 6.7}};
+    output.push_back(pair<char, double>('a', 1.2));
+    output.push_back(pair<char, double>('b', 3.4));
+    output.push_back(pair<char, double>('c', 6.7));
+
+    vector< pair<string,int>   > top_list;
+    string word;
+    int wordCount = -1;
+
+    /* Put dictionary entries into vector for sorting */
+    begin();
+    do
+    {
+        getNextWord(word, &wordCount);
+        if (word.empty() == false)
+        {
+            top_list.push_back(pair<string,int>(word, wordCount));
+        }
+    } while (word != "");
+
+    sort (top_list.begin(), top_list.end(), wordCmp);
+
+    print();
+
+    sort(output.begin(), output.end(), cmp);
 }
 
 /*******************************************************************************
