@@ -367,7 +367,8 @@ void Word_Dict::unlock(void)
     _unlock();
 }
 
-void Word_Dict::insertWord(char *word, int count)
+// void Word_Dict::insertWord(char *word, int count)
+void Word_Dict::insertWord(string word, int count)
 {
     _lock();
     _dictionaryMap.insert(pair<string,int>(word, count));
@@ -419,7 +420,8 @@ error:
 
 }
 
-Bool_t Word_Dict::hasWord(char *word)
+// Bool_t Word_Dict::hasWord(char *word)
+Bool_t Word_Dict::hasWord(string word)
 {
     std::map<string,int>::iterator it;
     Bool_t found = FALSE;
@@ -444,7 +446,8 @@ Bool_t Word_Dict::hasWord(char *word)
     return(found);
 }
 
-void Word_Dict::incrementWordCount(char *word)
+// void Word_Dict::incrementWordCount(char *word)
+void Word_Dict::incrementWordCount(string word)
 {
     std::map<string,int>::iterator it;
     // char *wordFound = NULL;
@@ -559,7 +562,7 @@ void Word_Dict::printTopX(int top_X_counts)
 
     int idx = 0;
     for (vector< pair<string,int> >::iterator it = top_list.begin();
-            it != top_list.end(), idx < top_count;
+            ((it != top_list.end()) && (idx < top_count));
             it++, idx++)
 
     {

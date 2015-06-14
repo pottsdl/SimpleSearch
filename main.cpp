@@ -37,6 +37,7 @@
 #include <list>
 #include <vector>
 #include <algorithm> /* for std::sort */
+#include <mcheck.h>
 
 
 /*******************************************************************************
@@ -195,10 +196,14 @@ int main (int argc, char *argv[])
         DEBUG_PRINTF("Joining thread idx=%d\n", thread_idx);
         pthread_join(thread_array[thread_idx], NULL);
     }
+    free(thread_array);
+    free(args_array);
 
 
     wordDictionary->printTopX(10);
-    // wordDictionary->printTopX(-1);
+
+    delete fileProcessingQueue;
+    delete wordDictionary;
 
     return 0;
 } /* main */
@@ -292,10 +297,11 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
                 it != word_list.end();
                 ++it)
         {
-            char *word = NULL;
+            // char *word = NULL;
+            string word;
 
             word = *it;
-            DEBUG_PRINTF ("Finding word: %s\n", word);
+            DEBUG_PRINTF ("Finding word: %s\n", word.c_str());
 
             if (dict->hasWord(word) == FALSE)
             {
@@ -309,6 +315,7 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
                         tid, *it);
                 dict->incrementWordCount(word);
             }
+            free(*it);
         } /* end for */
         DEBUG_PRINTF ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
 
@@ -396,3 +403,4 @@ void printWordList(list<char*> word_list)
 
     return;
 }
+
