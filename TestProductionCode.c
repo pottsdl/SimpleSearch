@@ -42,12 +42,6 @@ void tearDown(void)
 {
 }
 
-void test_BasicEquality(void)
-{
-    //All of these should pass
-    TEST_ASSERT_EQUAL(0, 0);
-}
-
 void test_createNonZeroLengthQueue(void)
 {
     Work_Queue_t *testQueue = NULL;
@@ -80,14 +74,17 @@ void test_queueLock(void)
 }
 
 
-
+/*
+ ***********************************************************************
+ *                              Work Queue Tests
+ ***********************************************************************
+ */
 void test_newWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
 
     TEST_ASSERT_NOT_NULL(myQueue);
 }
-
 void test_lockWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -97,7 +94,6 @@ void test_lockWorkQueue(void)
     myQueue->lock();
     TEST_ASSERT_EQUAL(myQueue->isLocked(), TRUE);
 }
-
 void test_unlockWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -109,7 +105,6 @@ void test_unlockWorkQueue(void)
     myQueue->unlock();
     TEST_ASSERT_EQUAL(myQueue->isLocked(), FALSE);
 }
-
 void test_pushWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -119,7 +114,6 @@ void test_pushWorkQueue(void)
 
     myQueue->push(testString);
 }
-
 void test_frontWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -134,7 +128,6 @@ void test_frontWorkQueue(void)
     actualStr = myQueue->front().c_str();
     TEST_ASSERT_EQUAL(strcmp(expectedStr, actualStr), 0);
 }
-
 void test_popWorkQueue(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -145,7 +138,6 @@ void test_popWorkQueue(void)
     myQueue->push(testString);
     myQueue->pop();
 }
-
 void test_sizeWorkQueueOneEntry(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -158,7 +150,6 @@ void test_sizeWorkQueueOneEntry(void)
     size = myQueue->size();
     TEST_ASSERT_EQUAL(size, 1);
 }
-
 void test_sizeWorkQueueMoreThanOneEntry(void)
 {
     Work_Queue *myQueue = new Work_Queue();
@@ -257,7 +248,6 @@ void *ReaderThread(void *arg)
         printf ("[%d] Read:%s\n", tid, queueString.c_str());
     }
 }
-
 void *WriterThread(void *arg)
 {
     ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;
@@ -281,6 +271,11 @@ void *WriterThread(void *arg)
 
 }
 
+/*
+ ***********************************************************************
+ *                             Word Parsing Tests
+ ***********************************************************************
+ */
 void test_goodIsLowerWordChars(void)
 {
     char goodList[] = "abcdefghijklmnopqrstuvwxyz";
@@ -299,7 +294,6 @@ void test_goodIsLowerWordChars(void)
         TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), TRUE);
     }
 }
-
 void test_goodIsUpperWordChars(void)
 {
     char goodList[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -318,7 +312,6 @@ void test_goodIsUpperWordChars(void)
         TEST_ASSERT_EQUAL(isWordChar(goodList[charIdx]), TRUE);
     }
 }
-
 void test_goodIsNumWordChars(void)
 {
     char goodList[] = "0123456789";
@@ -356,10 +349,14 @@ void test_badIsWordChars(void)
     }
 }
 
+/*
+ ***********************************************************************
+ *                                Buffer Tests
+ ***********************************************************************
+ */
 void test_bufferWordMultiple(void)
 {
 }
-
 void test_bufferWordOneOnly(void)
 {
     char mybuf[] = "abc";
@@ -474,7 +471,32 @@ void test_bufferWordTwoWordsWithGarbageBothEnds(void)
     TEST_ASSERT_EQUAL(ret, 6);
     return;
 }
+void test_Buffer3WordsNotStart(void)
+{
+    bufferProcThreeWordsNotAtBegin();
+}
+void test_Buffer3WordsAtStart(void)
+{
+    bufferProcThreeWordsAtBegin();
+}
+void test_Buffer1WordsAtStart(void)
+{
+    bufferProcOneWordAtBegin();
+}
+void test_Buffer1WordsAtEnd(void)
+{
+    bufferProcOneWordAtEnd();
+}
+void test_BufferFullOffEnds(void)
+{
+    bufferProcFullBuffer();
+}
 
+/*
+ ***********************************************************************
+ *                                Dictionary Tests
+ ***********************************************************************
+ */
 void test_WordDictConstruct(void)
 {
     wordDictConstruct();
@@ -495,25 +517,15 @@ void test_WordDictIterItems(void)
 {
     wordDictIterItems();
 }
-
-void test_Buffer3WordsNotStart(void)
+void test_WordSearchGoodFind(void)
 {
-    bufferProcThreeWordsNotAtBegin();
+    wordDictGoodFind();
 }
-void test_Buffer3WordsAtStart(void)
+void test_WordSearchGoodNoFind(void)
 {
-    bufferProcThreeWordsAtBegin();
+    wordDictGoodMiss();
 }
-void test_Buffer1WordsAtStart(void)
+void test_wordDictGoodIncrement(void)
 {
-    bufferProcOneWordAtBegin();
-}
-void test_Buffer1WordsAtEnd(void)
-{
-    bufferProcOneWordAtEnd();
-}
-
-void test_BufferFullOffEnds(void)
-{
-    bufferProcFullBuffer();
+    wordDictGoodIncrement();
 }
