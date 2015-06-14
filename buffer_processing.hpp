@@ -33,6 +33,7 @@
  *******************************************************************************
  */
 #include "common_types.h"
+#include "word_dict.hpp"
 
 #if defined(TEST)
 extern "C" {
@@ -69,9 +70,9 @@ extern "C" {
  *******************************************************************************
  */
 Bool_t isWordChar(const char thisOne);
+void processFile(int tid, std::string filePath, Word_Dict *dict);
 int processBufferForWords(char *buffer, int buffer_sz, char **word);
 int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list);
-// int test_processWholeBuffer(char *buffer, char **result_words);
 
 /*******************************************************************************
  * Global Variables

@@ -45,6 +45,8 @@
  * Local Constants 
  *******************************************************************************
  */
+#define DBG(X)
+
 #if defined(TEST)
 static char word1[] = "1";
 static char word2[] = "3";
@@ -301,13 +303,13 @@ Word_Dict::~Word_Dict(void)
 {
     int stat = 0;
 
-    printf ("[%s:%d] deleting myDictionary\n", __FILE__, __LINE__);
+    DBG(printf ("[%s:%d] deleting myDictionary\n", __FILE__, __LINE__));
 
 
     _lock();
     if (!_dictionaryMap.empty())
     {
-        printf ("[%s:%d] Erasing any existing map entries\n", __FILE__, __LINE__);
+        DBG(printf ("[%s:%d] Erasing any existing map entries\n", __FILE__, __LINE__));
         _dictionaryMap.erase(_dictionaryMap.begin(), _dictionaryMap.end());
     }
     else
@@ -317,7 +319,7 @@ Word_Dict::~Word_Dict(void)
     _unlock();
 
 
-    printf ("[%s:%d] Destroying mutex\n", __FILE__, __LINE__);
+    DBG(printf ("[%s:%d] Destroying mutex\n", __FILE__, __LINE__));
     stat = pthread_mutex_destroy(&_mut);
     if (stat != 0)
     {

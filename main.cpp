@@ -23,7 +23,6 @@
  *******************************************************************************
  */
 #include <unistd.h>
-#include <sys/types.h>
 #include <stdio.h>
 
 #include <errno.h> /* for errno */
@@ -32,12 +31,9 @@
 #include <pthread.h> /* for pthread_* calls */
 #include <assert.h>  /* for assert() */
 #include <string.h> /* for strerror() */
-#include <fcntl.h>
 #include <iostream>
 #include <list>
 #include <vector>
-#include <algorithm> /* for std::sort */
-#include <mcheck.h>
 
 
 /*******************************************************************************
@@ -80,17 +76,12 @@ typedef struct
  *******************************************************************************
  */
 void *workerThread(void *arg);
-static void processFile(int tid, std::string filePath, Word_Dict *dict);
-static void _lock_printing (void);
-static void _unlock_printing (void);
-static void print_read_performance (std::vector<int> &read_counts);
 void printWordList(list<char*> word_list);
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
-static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
 Bool_t g_debug_output = false;
 
 /*******************************************************************************
@@ -248,147 +239,6 @@ void *workerThread(void *arg)
     return(NULL);
 }
 
-bool int_compare (int i,int j)
-{
-    return (i<j);
-}
-
-static void processFile(int tid, std::string filePath, Word_Dict *dict)
-{
-    static const int INITIAL_COUNT = 1;
-    char buffer[512] = { 0 };
-
-    int fIn;
-    ssize_t bytes = 0;
-    ssize_t total_bytes = 0;
-    list<char *> word_list;
-    vector<int> read_counts;
-
-    //open a file
-    fIn = open (filePath.c_str(), O_RDONLY);
-    if (fIn == -1) {
-        fprintf(stderr, "Failed to open file: %s, errno=%d,%s",
-               filePath.c_str(), errno, strerror(errno));
-        return;
-    }
-
-    //read from file
-    DEBUG_PRINTF("Processing file: %s\n", filePath.c_str());
-    while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
-    {
-        int processed_bytes = 0;
-
-        read_counts.push_back(bytes);
-        word_list.clear();
-        processed_bytes = processWholeBuffer(buffer, bytes, word_list);
-
-        if (g_debug_output == TRUE)
-        {
-            printWordList(word_list);
-        }
-
-        /*
-         * Foreach word:
-         *     - Try and find it in the list
-         *     - if in the list, increment count
-         *     - otherwise add to the list with a count of 1
-         */
-        for (std::list<char *>::iterator it=word_list.begin();
-                it != word_list.end();
-                ++it)
-        {
-            // char *word = NULL;
-            string word;
-
-            word = *it;
-            DEBUG_PRINTF ("Finding word: %s\n", word.c_str());
-
-            if (dict->hasWord(word) == FALSE)
-            {
-                DEBUG_PRINTF ("[%d] Word(%s) is not in dict. adding it\n",
-                        tid, *it);
-                dict->insertWord(word, INITIAL_COUNT);
-            }
-            else
-            {
-                DEBUG_PRINTF ("[%d] Word(%s) IS in dict. incrementing it\n",
-                        tid, *it);
-                dict->incrementWordCount(word);
-            }
-            free(*it);
-        } /* end for */
-        DEBUG_PRINTF ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
-
-        total_bytes += bytes;
-    }
-
-    if (g_debug_output == TRUE)
-    {
-        print_read_performance(read_counts);
-    }
-
-
-    //and close it
-    close (fIn);
-
-    DEBUG_PRINTF ("[%d] Finished processing file: %s, %lu bytes\n",
-            tid, filePath.c_str(), total_bytes);
-
-    return;
-}
-
-static void _lock_printing (void)
-{
-    (void) pthread_mutex_lock(&g_printMutex);
-}
-static void _unlock_printing (void)
-{
-    (void) pthread_mutex_unlock(&g_printMutex);
-}
-
-static void print_read_performance (std::vector<int> &read_counts)
-{
-    std::sort (read_counts.begin(), read_counts.end(), int_compare);
-    printf ("Summarizing file read counts:\n");
-    for (std::vector<int>::iterator v_it=read_counts.begin();
-            v_it != read_counts.end();
-            ++v_it)
-    {
-        printf (" %d,", *v_it);
-    }
-    printf ("\n");
-
-    /* Histogram */
-    /*
-     * if count == last_count
-     *   print *
-     * else
-     *   print \ncount
-     *
-     */
-    _lock_printing();
-    int last_count = -1;
-    printf ("     Read Counts Histogram\n");
-    printf ("     +-----------------------------------------------------");
-    for (std::vector<int>::iterator v_it=read_counts.begin();
-            v_it != read_counts.end();
-            ++v_it)
-    {
-
-        // printf ("---->v_it=%d,  last_count=%d\n", *v_it, last_count);
-        if (*v_it == last_count)
-        {
-            printf ("*");
-        }
-        else
-        {
-            printf ("\n%4d | *", *v_it);
-            last_count = *v_it;
-        }
-    }
-    printf ("\n     +-----------------------------------------------------\n");
-    _unlock_printing();
-}
 
 void printWordList(list<char*> word_list)
 {

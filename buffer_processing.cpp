@@ -23,6 +23,11 @@
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for strncpy() */
 #include <list> /* for std::list */
+#include <vector>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <errno.h> /* for errno */
+#include <algorithm> /* for std::sort */
 
 /*******************************************************************************
  * Project Includes
@@ -38,6 +43,10 @@
  * Local Function Prototypes 
  *******************************************************************************
  */
+static void print_read_performance (std::vector<int> &read_counts);
+static bool int_compare (int i,int j);
+static void _lock_printing (void);
+static void _unlock_printing (void);
 
 /*******************************************************************************
  * Local Constants 
@@ -49,6 +58,7 @@
  * File Scoped Variables 
  *******************************************************************************
  */
+static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -182,6 +192,81 @@ Bool_t isWordChar(const char thisOne)
     }
 }
 
+void processFile(int tid, std::string filePath, Word_Dict *dict)
+{
+    static const int INITIAL_COUNT = 1;
+    char buffer[512] = { 0 };
+
+    int fIn;
+    ssize_t bytes = 0;
+    ssize_t total_bytes = 0;
+    list<char *> word_list;
+    vector<int> read_counts;
+
+    fIn = open (filePath.c_str(), O_RDONLY);
+    if (fIn == -1) {
+        fprintf(stderr, "Failed to open file: %s, errno=%d,%s",
+               filePath.c_str(), errno, strerror(errno));
+        return;
+    }
+
+    DBG(printf("Processing file: %s\n", filePath.c_str()));
+    while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
+    {
+        int processed_bytes = 0;
+
+        read_counts.push_back(bytes);
+        word_list.clear();
+        processed_bytes = processWholeBuffer(buffer, bytes, word_list);
+
+        DBG(printWordList(word_list));
+
+        /*
+         * Foreach word:
+         *     - Try and find it in the list
+         *     - if in the list, increment count
+         *     - otherwise add to the list with a count of 1
+         */
+        for (std::list<char *>::iterator it=word_list.begin();
+                it != word_list.end();
+                ++it)
+        {
+            // char *word = NULL;
+            string word;
+
+            word = *it;
+            DBG(printf ("Finding word: %s\n", word.c_str()));
+
+            if (dict->hasWord(word) == FALSE)
+            {
+                DBG(printf ("[%d] Word(%s) is not in dict. adding it\n",
+                        tid, *it));
+                dict->insertWord(word, INITIAL_COUNT);
+            }
+            else
+            {
+                DBG(printf ("[%d] Word(%s) IS in dict. incrementing it\n",
+                        tid, *it));
+                dict->incrementWordCount(word);
+            }
+            free(*it);
+        } /* end for */
+        DBG(printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes));
+
+        total_bytes += bytes;
+    }
+
+    DBG(print_read_performance(read_counts));
+
+
+    close (fIn);
+
+    DBG(printf ("[%d] Finished processing file: %s, %lu bytes\n",
+            tid, filePath.c_str(), total_bytes));
+
+    return;
+}
+
 int processBufferForWords(char *buffer, int buffer_sz, char **word)
 {
     int char_index;
@@ -270,3 +355,63 @@ int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list
 
     return(chars_processed);
 }
+
+static bool int_compare (int i,int j)
+{
+    return (i<j);
+}
+
+static void print_read_performance (std::vector<int> &read_counts)
+{
+    std::sort (read_counts.begin(), read_counts.end(), int_compare);
+    printf ("Summarizing file read counts:\n");
+    for (std::vector<int>::iterator v_it=read_counts.begin();
+            v_it != read_counts.end();
+            ++v_it)
+    {
+        printf (" %d,", *v_it);
+    }
+    printf ("\n");
+
+    /* Histogram */
+    /*
+     * if count == last_count
+     *   print *
+     * else
+     *   print \ncount
+     *
+     */
+    _lock_printing();
+    int last_count = -1;
+    printf ("     Read Counts Histogram\n");
+    printf ("     +-----------------------------------------------------");
+    for (std::vector<int>::iterator v_it=read_counts.begin();
+            v_it != read_counts.end();
+            ++v_it)
+    {
+
+        // printf ("---->v_it=%d,  last_count=%d\n", *v_it, last_count);
+        if (*v_it == last_count)
+        {
+            printf ("*");
+        }
+        else
+        {
+            printf ("\n%4d | *", *v_it);
+            last_count = *v_it;
+        }
+    }
+    printf ("\n     +-----------------------------------------------------\n");
+    _unlock_printing();
+}
+
+static void _lock_printing (void)
+{
+    (void) pthread_mutex_lock(&g_printMutex);
+}
+
+static void _unlock_printing (void)
+{
+    (void) pthread_mutex_unlock(&g_printMutex);
+}
+
