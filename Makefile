@@ -9,6 +9,9 @@ CPPFLAGS   = $(CFLAGS) -ansi
 LINK_FLAGS = -lstdc++
 DOXYGEN_BIN = $(shell which doxygen)
 GDB_BIN     = $(shell which gdb)
+SLOCCOUNT_BIN = $(shell which sloccount)
+SLOC_DATADIR = `pwd`/.slocdata
+SLOC_OUTFILE = sloc_count.txt
 
 #	Files to compile
 SRCS       = main.cpp
@@ -69,8 +72,20 @@ gdb_test: $(TEST_TARGET)
 $(UNIT_TEST_AUTOGEN_RUNNER): $(UNIT_TEST_FILE)
 	ruby unity/auto/generate_test_runner.rb $(UNIT_TEST_FILE) $(UNIT_TEST_AUTOGEN_RUNNER)
 
+sloc: sloc_count.txt
+.PHONY: sloc
+
+clean_sloc:
+	@rm -rf $(SLOC_DATADIR) $(SLOC_OUTFILE)
+.PHONY: clean_sloc
+
+sloc_count.txt:
+	@if [ ! -d $(SLOC_DATADIR) ]; then mkdir $(SLOC_DATADIR); fi
+	$(SLOCCOUNT_BIN) --duplicates --datadir $(SLOC_DATADIR) --wide --details . 2> /dev/null > $(SLOC_OUTFILE)
+	@echo "Successfully built SLOC report, located: $(SLOC_OUTFILE)"
+
 clean_buildprods:
 	rm -f $(CLEANFILES) $(PROGS)
 
-clean:  clean_buildprods clean_docs
+clean:  clean_buildprods clean_docs clean_sloc
 .PHONY: clean
