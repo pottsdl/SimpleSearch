@@ -203,7 +203,7 @@ int main (int argc, char *argv[])
     }
 
 
-    // wordDictionary->print();
+    wordDictionary->print();
 #if 0
     printf ("Dumping word dictionary: =================================\n");
     wordDictionary->begin();
@@ -396,7 +396,7 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
 #else
              if (dict->hasWord(word) == FALSE)
              {
-                 if (!strcmp(word, "Sun") && insertedSun == FALSE)
+                 if ((word == "Sun") && insertedSun == FALSE)
                  {
                      printf ("[%d] Word(%s) is not in dict. adding it first time\n",
                              tid, *it);
@@ -409,8 +409,8 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
                  printf ("[%d] Word(%s) is not in dict. adding it\n",
                          tid, *it);
                  dict->insertWord(word, INITIAL_COUNT);
-                 if (!strcmp(word, "Sun")) insertedSun = TRUE;
-                 if (strcmp(word, "Sun") == 0)
+                 if (word == "Sun") insertedSun = TRUE;
+                 if (word == "Sun")
                  {
                      dict->print();
                  }

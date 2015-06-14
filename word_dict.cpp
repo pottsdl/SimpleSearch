@@ -94,7 +94,7 @@ extern "C" {
         myDictionary->insertWord(word3, 7);
         printf ("myDictionary Inserted WORDS:\n");
 
-        std::map<char*,int>::iterator it = myDictionary->getMap().begin();
+        std::map<string,int>::iterator it = myDictionary->getMap().begin();
 
         // showing contents:
         std::cout << "myDictionary contains:\n";
@@ -104,20 +104,21 @@ extern "C" {
         {
 
             std::cout << it->first << " => " << it->second << '\n';
-            char* key = it->first;
+            string key = it->first;
+            const char *key_cstr = key.c_str();
             int val = it->second;
             switch (idx)
             {
                 case 0:
-                    TEST_ASSERT_EQUAL(strcmp(key, "1"), 0);
+                    TEST_ASSERT_EQUAL(strcmp(key_cstr, "1"), 0);
                     TEST_ASSERT_EQUAL(val,  2);
                     break;
                 case 1:
-                    TEST_ASSERT_EQUAL(strcmp(key, "3"), 0);
+                    TEST_ASSERT_EQUAL(strcmp(key_cstr, "3"), 0);
                     TEST_ASSERT_EQUAL(val, 5);
                     break;
                 case 2:
-                    TEST_ASSERT_EQUAL(strcmp(key, "7"), 0);
+                    TEST_ASSERT_EQUAL(strcmp(key_cstr, "7"), 0);
                     TEST_ASSERT_EQUAL(val, 7);
                     break;
             }
@@ -179,7 +180,7 @@ extern "C" {
     {
         int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        char *_word = NULL;
+        string _word;
         int  _wordCount = 0;
         if (myDictionary == NULL)
         {
@@ -197,12 +198,12 @@ extern "C" {
         do
         {
             std::cout << "  getting next word: ";
-            myDictionary->getNextWord(&_word, &_wordCount);
-            if (_word != NULL)
+            myDictionary->getNextWord(_word, &_wordCount);
+            if (_word.empty() == false)
             {
-                std::cout << *_word << " => " << _wordCount << '\n';
+                std::cout << _word << " => " << _wordCount << '\n';
             }
-        } while (_word != NULL);
+        } while (_word.empty() == false);
 
         delete myDictionary;
     }
@@ -210,7 +211,6 @@ extern "C" {
     {
         int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        char *_word = NULL;
         int  _wordCount = 0;
         if (myDictionary == NULL)
         {
@@ -230,7 +230,6 @@ extern "C" {
     {
         int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        char *_word = NULL;
         int  _wordCount = 0;
         if (myDictionary == NULL)
         {
@@ -250,7 +249,6 @@ extern "C" {
     {
         int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        char *_word = NULL;
         int  _wordCount = 0;
 
         if (myDictionary == NULL)
@@ -370,7 +368,7 @@ void Word_Dict::unlock(void)
 void Word_Dict::insertWord(char *word, int count)
 {
     _lock();
-    _dictionaryMap.insert(pair<char*,int>(word, count));
+    _dictionaryMap.insert(pair<string,int>(word, count));
     _unlock();
 }
 
@@ -388,14 +386,13 @@ void Word_Dict::end(void)
     _unlock();
 }
 
-void Word_Dict::getNextWord(char **word, int *count)
+void Word_Dict::getNextWord(string &word, int *count)
 {
-    char *_word = NULL;
     int _count = -1;
     int stat = STATUS_SUCCESS;
 
-    EXIT_ON_NULL_PTR(word, stat);
     EXIT_ON_NULL_PTR(count, stat);
+    word = "";
     _lock();
     if (_it == _dictionaryMap.end())
     {
@@ -404,15 +401,11 @@ void Word_Dict::getNextWord(char **word, int *count)
     }
     else
     {
-        _word = _it->first;
+        word = _it->first;
         _count = _it->second;
         _it++;
     }
 cleanup:
-    if (word != NULL)
-    {
-        *word = _word;
-    }
     if (count != NULL)
     {
         *count = _count;
@@ -426,13 +419,13 @@ error:
 
 Bool_t Word_Dict::hasWord(char *word)
 {
-    std::map<char *,int>::iterator it;
+    std::map<string,int>::iterator it;
     Bool_t found = FALSE;
-    char *wordFound = NULL;
+    string wordFound;
     int count = -1;
 
 
-    if (strcmp(word ,"Sun") == 0)
+    if (word ==  "Sun")
     {
         printf ("Looking for word(%s) in dictionary...\n", word);
         print();
@@ -440,15 +433,15 @@ Bool_t Word_Dict::hasWord(char *word)
     _lock();
     it = _dictionaryMap.find(word);
     _unlock();
-    wordFound = it->first;
-    count = it->second;
     // if ((it != _dictionaryMap.end()) && (strcmp(it->first, word) == 0))
     if ((it != _dictionaryMap.end()))
     {
         found = TRUE;
+        wordFound = it->first;
+        count = it->second;
         if (_showDebugOutput == TRUE)
         {
-            printf ("%s => %d\n", wordFound, count);
+            printf ("%s => %d\n", wordFound.c_str(), count);
         }
     }
 
@@ -457,9 +450,9 @@ Bool_t Word_Dict::hasWord(char *word)
 
 void Word_Dict::incrementWordCount(char *word)
 {
-    std::map<char *,int>::iterator it;
-    char *wordFound = NULL;
-    int count = -1;
+    std::map<string,int>::iterator it;
+    // char *wordFound = NULL;
+    // int count = -1;
 
     _lock();
 
@@ -471,7 +464,7 @@ void Word_Dict::incrementWordCount(char *word)
         // count = it->second;
         // count++;
         // _dictionaryMap.erase(it);
-        // _dictionaryMap.insert(pair<char*,int>(wordFound, count));
+        // _dictionaryMap.insert(pair<string,int>(wordFound, count));
     }
 
     _unlock();
@@ -481,19 +474,19 @@ void Word_Dict::incrementWordCount(char *word)
 
 void Word_Dict::print(void)
 {
-    char *word = NULL;
+    string word;
     int wordCount = -1;
 
     printf ("Dumping word dictionary: =================================\n");
     begin();
     do
     {
-        getNextWord(&word, &wordCount);
-        if (word != NULL)
+        getNextWord(word, &wordCount);
+        if (word != "")
         {
             std::cout << word << " => " << wordCount << '\n';
         }
-    } while (word != NULL);
+    } while (word != "");
     printf ("==========================================================\n");
 
     return;
@@ -519,7 +512,7 @@ int Word_Dict::getWordCount(char *word)
 {
     int _word_count = -1;
     _lock();
-    std::map<char *,int>::iterator it = _dictionaryMap.find(word);
+    std::map<string,int>::iterator it = _dictionaryMap.find(word);
     if (it != _dictionaryMap.end())
     {
         _word_count = it->second;

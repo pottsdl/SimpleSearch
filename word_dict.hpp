@@ -69,10 +69,10 @@ class Word_Dict
         void unlock(void);
         Bool_t isLocked(void) { return(this->_is_locked); };
         void insertWord(char *word, int count);
-        map<char*,int> &getMap(void) { return(this->_dictionaryMap); };
+        map<string,int> &getMap(void) { return(this->_dictionaryMap); };
         void begin(void);
         void end(void);
-        void getNextWord(char **word, int *count);
+        void getNextWord(string &word, int *count);
         Bool_t hasWord(char *word);
         void incrementWordCount(char *word);
         void print(void);
@@ -86,8 +86,8 @@ class Word_Dict
         Bool_t _mut_init;
         Bool_t _is_locked;
         pthread_mutex_t _mut;
-        map<char*,int> _dictionaryMap;
-        map<char*,int>::iterator _it;
+        map<string,int> _dictionaryMap;
+        map<string,int>::iterator _it;
         Bool_t _showDebugOutput;
 
         void _lock(void);
