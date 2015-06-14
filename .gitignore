@@ -8,3 +8,5 @@ tags
 test1.out
 errorfil
 .slocdata/
+cscope.out
+memcheck.txt
