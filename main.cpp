@@ -55,7 +55,18 @@
  */
 #define BASE_TEN (0) /* Used for strtol */
 
+/*******************************************************************************
+ * Local Macros
+ *******************************************************************************
+ */
+#define DEBUG_PRINTF(...) \
+    if (g_debug_output == TRUE) \
+        printf(__VA_ARGS__);
 
+/*******************************************************************************
+ * Local Structs
+ *******************************************************************************
+ */
 typedef struct
 {
     Work_Queue *myQueue;
@@ -142,26 +153,8 @@ int main (int argc, char *argv[])
     }
     first_dir = argv[optind];
 
-    printf ("Number of threads:  %li\n", num_worker_threads);
-    printf ("Based dir:          %s\n", first_dir);
-
-#if 0
-    {
-        char mybuf[] = "!!!zzz=abc!!!555++++Doug";
-        int buflen = strlen(mybuf);
-        std::list<char *> word_list;
-        int ret = -1;
-
-        ret = processWholeBuffer(mybuf, buflen, word_list);
-        printf ("  Processed: %d characters\n", ret);
-        for (std::list<char *>::iterator it=word_list.begin(); it != word_list.end(); ++it)
-        {
-            printf ("Found word: %s\n", *it);
-
-        } /* end for */
-    }
-    exit(0);
-#endif
+    DEBUG_PRINTF ("Number of threads:  %li\n", num_worker_threads);
+    DEBUG_PRINTF ("Based dir:          %s\n", first_dir);
 
     thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));
     args_array = (ReaderWriterArgs_t *) malloc(num_worker_threads * sizeof(ReaderWriterArgs_t));
@@ -198,13 +191,14 @@ int main (int argc, char *argv[])
     }
     for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
     {
-        printf ("Joining thread idx=%d\n", thread_idx);
+        // printf ("Joining thread idx=%d\n", thread_idx);
+        DEBUG_PRINTF("Joining thread idx=%d\n", thread_idx);
         pthread_join(thread_array[thread_idx], NULL);
     }
 
 
-    // wordDictionary->print();
     wordDictionary->printTopX(10);
+    // wordDictionary->printTopX(-1);
 
     return 0;
 } /* main */
@@ -222,29 +216,29 @@ void *workerThread(void *arg)
     string queueString = "";
     int tid = _arg->thread_idx;
 
-    printf ("Worker Thread #%d starting...\n", tid);
+    DEBUG_PRINTF ("Worker Thread #%d starting...\n", tid);
     sleep(1); /* To allow threads to get started */
     while (queueString != "EXIT")
     {
         if (q->empty())
         {
-            printf ("[%d] Waiting for not empty...\n", tid);
+            DEBUG_PRINTF ("[%d] Waiting for not empty...\n", tid);
             q->waitForNotEmpty();
         }
-        printf ("[%d] Queue not empty, popping front\n", tid);
+        DEBUG_PRINTF ("[%d] Queue not empty, popping front\n", tid);
         queueString = q->pop_front();
 
         if (queueString != "EXIT")
         {
-            printf ("[%d] Processing:%s\n", tid, queueString.c_str());
+            DEBUG_PRINTF ("[%d] Processing:%s\n", tid, queueString.c_str());
             processFile(tid, queueString, dict);
         }
         else
         {
-            printf ("[%d] Received EXIT msg\n", tid);
+            DEBUG_PRINTF ("[%d] Received EXIT msg\n", tid);
         }
     }
-    printf ("Worker Thread #%d exitting procesing loop\n", tid);
+    DEBUG_PRINTF ("Worker Thread #%d exitting procesing loop\n", tid);
 
     return(NULL);
 }
@@ -274,7 +268,7 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
     }
 
     //read from file
-    printf("Processing file: %s\n", filePath.c_str());
+    DEBUG_PRINTF("Processing file: %s\n", filePath.c_str());
     while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
     {
         int processed_bytes = 0;
@@ -301,25 +295,22 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
             char *word = NULL;
 
             word = *it;
-            printf ("Finding word: %s\n", word);
+            DEBUG_PRINTF ("Finding word: %s\n", word);
 
             if (dict->hasWord(word) == FALSE)
             {
-                printf ("[%d] Word(%s) is not in dict. adding it\n",
+                DEBUG_PRINTF ("[%d] Word(%s) is not in dict. adding it\n",
                         tid, *it);
                 dict->insertWord(word, INITIAL_COUNT);
             }
             else
             {
-                printf ("[%d] Word(%s) IS in dict. incrementing it\n",
+                DEBUG_PRINTF ("[%d] Word(%s) IS in dict. incrementing it\n",
                         tid, *it);
                 dict->incrementWordCount(word);
             }
         } /* end for */
-        if (g_debug_output == TRUE)
-        {
-            printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
-        }
+        DEBUG_PRINTF ("[%d] Processed %d bytes this loop\n", tid, processed_bytes);
 
         total_bytes += bytes;
     }
@@ -333,7 +324,7 @@ static void processFile(int tid, std::string filePath, Word_Dict *dict)
     //and close it
     close (fIn);
 
-    printf ("[%d] Finished processing file: %s, %lu bytes\n",
+    DEBUG_PRINTF ("[%d] Finished processing file: %s, %lu bytes\n",
             tid, filePath.c_str(), total_bytes);
 
     return;

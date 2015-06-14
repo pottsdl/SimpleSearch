@@ -520,25 +520,21 @@ int Word_Dict::getWordCount(char *word)
 
 bool wordCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
-    return (left_count.first < right_count.first);
+    return (left_count.second < right_count.second);
 }
 
-bool cmp(const pair<char, double>& lhs, const pair<char, double>& rhs)
+bool wordRevCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
-      return lhs.second > rhs.second;
+    return (left_count.second > right_count.second);
 }
+
 
 void Word_Dict::printTopX(int top_X_counts)
 {
-    vector< pair<char, double> > output;
-    // vector< pair<char, double> > output{{'a', 1.2}, {'b', 3.4}, {'c', 6.7}};
-    output.push_back(pair<char, double>('a', 1.2));
-    output.push_back(pair<char, double>('b', 3.4));
-    output.push_back(pair<char, double>('c', 6.7));
-
     vector< pair<string,int>   > top_list;
     string word;
     int wordCount = -1;
+    int top_count = top_X_counts;
 
     /* Put dictionary entries into vector for sorting */
     begin();
@@ -551,11 +547,25 @@ void Word_Dict::printTopX(int top_X_counts)
         }
     } while (word != "");
 
-    sort (top_list.begin(), top_list.end(), wordCmp);
+    /* Special cue to print them all, as sorted */
+    if (top_count == -1)
+    {
+        top_count = top_list.size();
+    }
 
-    print();
 
-    sort(output.begin(), output.end(), cmp);
+    // sort (top_list.begin(), top_list.end(), wordCmp);
+    sort (top_list.begin(), top_list.end(), wordRevCmp);
+
+    int idx = 0;
+    for (vector< pair<string,int> >::iterator it = top_list.begin();
+            it != top_list.end(), idx < top_count;
+            it++, idx++)
+
+    {
+        // printf ("[%d]  %s => %d\n", idx + 1, it->first.c_str(), it->second);
+        printf ("%s\t%d\n", it->first.c_str(), it->second);
+    } /* end for */
 }
 
 /*******************************************************************************

@@ -32,6 +32,7 @@
 #include "unity.h"
 #endif /* defined(TEST) */
 #include "buffer_processing.hpp"
+#include "common_types.h"
 
 /*******************************************************************************
  * Local Function Prototypes 
@@ -42,6 +43,7 @@
  * Local Constants 
  *******************************************************************************
  */
+#define DBG(X)
 
 /*******************************************************************************
  * File Scoped Variables 
@@ -251,21 +253,21 @@ int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list
     char *word_found = NULL;
     int processed_this_round = 0;
 
-    printf ("Buffer size: %d\n", buffer_sz);
+    DBG(printf ("Buffer size: %d\n", buffer_sz));
     while (chars_processed < buffer_sz)
     {
         processed_this_round = processBufferForWords (buffer_start, (buffer_sz - chars_processed),
                 &word_found);
         buffer_start += processed_this_round;
         chars_processed += processed_this_round;
-        printf ("  %d: bytes proceesed this loop\n", processed_this_round);
-        printf ("  %d: total bytes processed\n", chars_processed);
+        DBG(printf ("  %d: bytes proceesed this loop\n", processed_this_round));
+        DBG(printf ("  %d: total bytes processed\n", chars_processed));
         if (word_found != NULL)
         {
-            // printf ("---->Found word: %s\n", word_found);
+            DBG(printf ("---->Found word: %s\n", word_found));
             word_list.push_back(word_found);
         }
-        printf ("\n\n");
+        DBG(printf ("\n\n"));
     }
 
     return(chars_processed);
