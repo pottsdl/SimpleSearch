@@ -120,7 +120,6 @@ extern "C" {
         int buflen = strlen(mybuf);
         std::list<char *> word_list;
         int ret = -1;
-        int idx = 0;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);
@@ -133,7 +132,6 @@ extern "C" {
         int buflen = strlen(mybuf);
         std::list<char *> word_list;
         int ret = -1;
-        int idx = 0;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);

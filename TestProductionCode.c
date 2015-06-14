@@ -174,7 +174,9 @@ void test_multiThreadAdd(void)
     int stat = 0;
 
     stat = pthread_create(&thread1, NULL, ChildThread1, (void*) myQueue);
+    TEST_ASSERT_EQUAL(stat, 0);
     stat = pthread_create(&thread2, NULL, ChildThread2, (void*) myQueue);
+    TEST_ASSERT_EQUAL(stat, 0);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
@@ -216,8 +218,11 @@ void test_queueReaderWriter(void)
     ReaderWriterArgs_t args3 = { myQueue, 3 };
 
     stat = pthread_create(&thread2, NULL, WriterThread, (void*) &args1);
+    TEST_ASSERT_EQUAL(stat, 0);
     stat = pthread_create(&thread1, NULL, ReaderThread, (void*) &args2);
+    TEST_ASSERT_EQUAL(stat, 0);
     stat = pthread_create(&thread3, NULL, ReaderThread, (void*) &args3);
+    TEST_ASSERT_EQUAL(stat, 0);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);

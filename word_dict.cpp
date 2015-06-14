@@ -180,7 +180,6 @@ extern "C" {
     }
     void wordDictIterItems(void)
     {
-        int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
         string _word;
         int  _wordCount = 0;
@@ -211,9 +210,7 @@ extern "C" {
     }
     void wordDictGoodFind(void)
     {
-        int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        int  _wordCount = 0;
         if (myDictionary == NULL)
         {
             printf ("[%s:%d] myDictionary is NULL\n", __FILE__, __LINE__);
@@ -230,9 +227,7 @@ extern "C" {
     }
     void wordDictGoodMiss(void)
     {
-        int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        int  _wordCount = 0;
         if (myDictionary == NULL)
         {
             printf ("[%s:%d] myDictionary is NULL\n", __FILE__, __LINE__);
@@ -249,9 +244,7 @@ extern "C" {
     }
     void wordDictGoodIncrement(void)
     {
-        int idx = 0;
         Word_Dict *myDictionary = new Word_Dict();
-        int  _wordCount = 0;
 
         if (myDictionary == NULL)
         {
@@ -406,7 +399,7 @@ void Word_Dict::getNextWord(string &word, int *count)
     {
         word = _it->first;
         _count = _it->second;
-        _it++;
+        ++_it;
     }
 cleanup:
     if (count != NULL)
@@ -426,7 +419,6 @@ Bool_t Word_Dict::hasWord(string word)
     std::map<string,int>::iterator it;
     Bool_t found = FALSE;
     string wordFound;
-    int count = -1;
 
 
     _lock();
@@ -434,6 +426,8 @@ Bool_t Word_Dict::hasWord(string word)
     _unlock();
     if ((it != _dictionaryMap.end()))
     {
+        int count = -1;
+
         found = TRUE;
         wordFound = it->first;
         count = it->second;
@@ -521,10 +515,13 @@ int Word_Dict::getWordCount(char *word)
     return(_word_count);
 }
 
+#if 0
+/* If we were sorting in least count to most count, we'd use this */
 bool wordCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
     return (left_count.second < right_count.second);
 }
+#endif
 
 bool wordRevCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
@@ -563,7 +560,7 @@ void Word_Dict::printTopX(int top_X_counts)
     int idx = 0;
     for (vector< pair<string,int> >::iterator it = top_list.begin();
             ((it != top_list.end()) && (idx < top_count));
-            it++, idx++)
+            ++it, idx++)
 
     {
         // printf ("[%d]  %s => %d\n", idx + 1, it->first.c_str(), it->second);

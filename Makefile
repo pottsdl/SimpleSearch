@@ -14,6 +14,7 @@ SLOCCOUNT_BIN = $(shell which sloccount)
 SLOC_DATADIR = `pwd`/.slocdata
 SLOC_OUTFILE = sloc_count.txt
 MEMCHECK_FILE = memcheck.txt
+CPPCHECK_BIN = ./do_cppcheck.sh
 
 #	Files to compile
 SRCS       = main.cpp
@@ -90,8 +91,17 @@ sloc_count.txt:
 	$(SLOCCOUNT_BIN) --duplicates --datadir $(SLOC_DATADIR) --wide --details . 2> /dev/null > $(SLOC_OUTFILE)
 	@echo "Successfully built SLOC report, located: $(SLOC_OUTFILE)"
 
+cppcheck.txt: $(UNIT_TEST_FILE) $(SRCS) $(UNITTEST_SRC_FILES)
+	$(CPPCHECK_BIN) .   2>&1 | tee cppcheck.txt
+
+clean_cppcheck:
+	rm cppcheck.txt
+
+cppcheck: cppcheck.txt
+.PHONY: cppcheck
+
 clean_buildprods:
 	rm -f $(CLEANFILES) $(PROGS)
 
-clean:  clean_buildprods clean_docs clean_sloc
+clean:  clean_buildprods clean_docs clean_sloc clean_cppcheck
 .PHONY: clean
