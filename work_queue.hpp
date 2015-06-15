@@ -47,14 +47,6 @@
  */
 using namespace std;
 
-typedef struct
-{
-    Bool_t mut_init;
-    Bool_t con_init;
-    pthread_mutex_t mut;
-    pthread_cond_t  con;
-} Work_Queue_t;
-
 class Work_Queue
 {
     public:
@@ -94,7 +86,6 @@ class Work_Queue
  * External Function Prototypes
  *******************************************************************************
  */
-Work_Queue_t *createWorkQueue(int queue_length);
 
 /*******************************************************************************
  * Global Variables
