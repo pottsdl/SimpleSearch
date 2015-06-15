@@ -2,7 +2,6 @@
 ssfi
 TestProductionCode_Runner.c
 .*.swp
-
 doc
 tags
 test1.out
@@ -10,3 +9,8 @@ errorfil
 .slocdata/
 cscope.out
 memcheck.txt
+*.gcno
+*.gcda
+*.info
+output/
+descriptions

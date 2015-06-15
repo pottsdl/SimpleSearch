@@ -112,6 +112,14 @@ clean_cppcheck:
 cppcheck: cppcheck.txt
 .PHONY: cppcheck
 
+coverage: output
+.PHONY: coverage
+
+clean_coverage:
+	rm -rf *.o *.bb *.bbg *.da *.gcno *.gcda *.info output example \
+	descriptions
+
+
 output: $(PROGS) descriptions test_3thread_testdir test_singlethread_testdir
 	@echo
 	@echo '*'
@@ -164,5 +172,5 @@ test_singlethread_verbose_testdir:
 clean_buildprods:
 	rm -f $(CLEANFILES) $(PROGS)
 
-clean:  clean_buildprods clean_docs clean_sloc clean_cppcheck
+clean:  clean_buildprods clean_docs clean_sloc clean_cppcheck clean_coverage
 .PHONY: clean
