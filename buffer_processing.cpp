@@ -39,11 +39,13 @@
 #include "buffer_processing.hpp"
 #include "common_types.h"
 
+using namespace std;
+
 /*******************************************************************************
  * Local Function Prototypes 
  *******************************************************************************
  */
-static void print_read_performance (std::vector<int> &read_counts);
+static void print_read_performance (vector<int> &read_counts);
 static bool int_compare (int i,int j);
 static void _lock_printing (void);
 static void _unlock_printing (void);
@@ -71,20 +73,77 @@ static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
  */
 
 #if defined(TEST)
+
+static char *g_mock_file_data = NULL;
+static char *g_mock_file_ptr = NULL;
+static char *g_mock_file_end = NULL;
+char mock_set_file_data(char *data_buff, ssize_t count)
+{
+    /* Create buffer to hold file data */
+    g_mock_file_data = (char *) malloc(count * sizeof(char));
+    /* Copy in from source */
+    memcpy(g_mock_file_data, data_buff, count);
+    /* Set file ptr. to the beginning of the buffer */
+    g_mock_file_ptr = g_mock_file_data;
+    g_mock_file_end = g_mock_file_data + count;
+}
+int mock_open(const char *pathname, int flags)
+{
+    return 0;
+}
+ssize_t mock_read(int fd, void *buf, size_t count)
+{
+    ssize_t bytes_used = 0;
+
+    if ((g_mock_file_ptr + count) >= g_mock_file_end)
+    {
+        bytes_used = g_mock_file_end - g_mock_file_ptr;
+    }
+    else
+    {
+        bytes_used = count;
+    }
+
+    if (bytes_used > 0)
+    {
+        /* copy from current file ptr. for 'count' bytes */
+        memcpy(buf, g_mock_file_ptr, bytes_used);
+        /* Now update the file pointer */
+        g_mock_file_ptr += bytes_used;
+    }
+
+    return(bytes_used);
+}
+int mock_close(int fd)
+{
+    /* Free up the bufrer */
+    free(g_mock_file_data);
+
+    /* Reset file-globals to NULL */
+    g_mock_file_data = NULL;
+    g_mock_file_ptr = g_mock_file_data;
+    g_mock_file_end = g_mock_file_data;
+}
+
+#define close mock_close
+#define open mock_open
+#define read mock_read
+#define close mock_close
+
 extern "C" {
 
     void bufferProcThreeWordsNotAtBegin(void)
     {
         char mybuf[] = "!!!zzz=abc!!!555++++Doug";
         int buflen = strlen(mybuf);
-        std::list<char *> word_list;
+        list<char *> word_list;
         int ret = -1;
         int idx = 0;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);
         TEST_ASSERT_EQUAL(word_list.size(), 4);
-        for (std::list<char *>::iterator it=word_list.begin();
+        for (list<char *>::iterator it=word_list.begin();
                 it != word_list.end();
                 ++it, ++idx)
         {
@@ -102,14 +161,14 @@ extern "C" {
     {
         char mybuf[] = "zzz=abc!!!555++++Doug!!!";
         int buflen = strlen(mybuf);
-        std::list<char *> word_list;
+        list<char *> word_list;
         int ret = -1;
         int idx = 0;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);
         TEST_ASSERT_EQUAL(word_list.size(), 4);
-        for (std::list<char *>::iterator it=word_list.begin();
+        for (list<char *>::iterator it=word_list.begin();
                 it != word_list.end();
                 ++it, ++idx)
         {
@@ -128,7 +187,7 @@ extern "C" {
     {
         char mybuf[] = "zzz=!!!++++";
         int buflen = strlen(mybuf);
-        std::list<char *> word_list;
+        list<char *> word_list;
         int ret = -1;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
@@ -140,7 +199,7 @@ extern "C" {
     {
         char mybuf[] = "=!!!++++zzz";
         int buflen = strlen(mybuf);
-        std::list<char *> word_list;
+        list<char *> word_list;
         int ret = -1;
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
@@ -153,7 +212,7 @@ extern "C" {
 #define MYBUF_LEN  512
         char mybuf[MYBUF_LEN] = { 0 };
         int buflen = MYBUF_LEN;
-        std::list<char *> word_list;
+        list<char *> word_list;
         int ret = -1;
         int idx = 0;
         static const char * const BEG_STRING = "ginning"; /*   +------ ... -----+    */
@@ -167,13 +226,53 @@ extern "C" {
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);
         // TEST_ASSERT_EQUAL(word_list.size(), 2);
-        for (std::list<char *>::iterator it=word_list.begin();
+        for (list<char *>::iterator it=word_list.begin();
                 it != word_list.end();
                 ++it, ++idx)
         {
             printf ("Found word: %s\n", *it);
         }
 
+    }
+
+    void fileProcess(void)
+    {
+        int tid = 1; /* Fake thread id */
+        string fakeFilePath = "/usr/local";
+        Word_Dict *testDict = new Word_Dict();
+        char fileData[520];
+        int idx = 0;
+        int bytes = 0;
+
+        /* Init fake file data to ALL non-word char's */
+        memset(fileData, ':', sizeof(fileData));
+        /* Now put a word at the beginning */
+        for (idx = 0; idx < 3; idx++)
+        {
+            switch (idx)
+            {
+                case 0:  fileData[idx] = 'a'; break;
+                case 1:  fileData[idx] = 'b'; break;
+                case 2:  fileData[idx] = 'c'; break;
+            }
+        }
+        /* And at the end */
+        int endOfData = sizeof(fileData) - 1;
+        for (idx = endOfData; idx > endOfData - 3; idx--)
+        {
+            switch (endOfData - idx)
+            {
+                case 0:  fileData[idx] = 'z'; break;
+                case 1:  fileData[idx] = 'y'; break;
+                case 2:  fileData[idx] = 'x'; break;
+            }
+        }
+
+        mock_set_file_data(fileData, 520);
+
+        processFile(tid, fakeFilePath, testDict);
+
+        testDict->print();
     }
 }
 #endif /* defined(TEST) */
@@ -192,7 +291,7 @@ Bool_t isWordChar(const char thisOne)
     }
 }
 
-void processFile(int tid, std::string filePath, Word_Dict *dict)
+void processFile(int tid, string filePath, Word_Dict *dict)
 {
     static const int INITIAL_COUNT = 1;
     char buffer[512] = { 0 };
@@ -227,7 +326,7 @@ void processFile(int tid, std::string filePath, Word_Dict *dict)
          *     - if in the list, increment count
          *     - otherwise add to the list with a count of 1
          */
-        for (std::list<char *>::iterator it=word_list.begin();
+        for (list<char *>::iterator it=word_list.begin();
                 it != word_list.end();
                 ++it)
         {
@@ -329,7 +428,7 @@ cleanup:
     return(num_processed);
 }
 
-int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list)
+int processWholeBuffer(char *buffer, int buffer_sz, list<char *> &word_list)
 {
     int chars_processed = 0;
     char *buffer_start = buffer;
@@ -361,11 +460,11 @@ static bool int_compare (int i,int j)
     return (i<j);
 }
 
-static void print_read_performance (std::vector<int> &read_counts)
+static void print_read_performance (vector<int> &read_counts)
 {
-    std::sort (read_counts.begin(), read_counts.end(), int_compare);
+    sort (read_counts.begin(), read_counts.end(), int_compare);
     printf ("Summarizing file read counts:\n");
-    for (std::vector<int>::iterator v_it=read_counts.begin();
+    for (vector<int>::iterator v_it=read_counts.begin();
             v_it != read_counts.end();
             ++v_it)
     {
@@ -385,7 +484,7 @@ static void print_read_performance (std::vector<int> &read_counts)
     int last_count = -1;
     printf ("     Read Counts Histogram\n");
     printf ("     +-----------------------------------------------------");
-    for (std::vector<int>::iterator v_it=read_counts.begin();
+    for (vector<int>::iterator v_it=read_counts.begin();
             v_it != read_counts.end();
             ++v_it)
     {

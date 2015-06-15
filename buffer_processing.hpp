@@ -42,6 +42,8 @@ extern "C" {
     void bufferProcOneWordAtBegin(void);
     void bufferProcOneWordAtEnd(void);
     void bufferProcFullBuffer(void);
+
+    void fileProcess(void);
 }
 #endif /* defined(TEST) */
 

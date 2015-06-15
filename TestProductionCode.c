@@ -496,6 +496,10 @@ void test_BufferFullOffEnds(void)
 {
     bufferProcFullBuffer();
 }
+void test_fileProcess(void)
+{
+    fileProcess();
+}
 
 /*
  ***********************************************************************
