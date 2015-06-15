@@ -524,11 +524,13 @@ void processFile(int tid, string filePath, Word_Dict *dict)
                 it != word_list.end();
                 ++it)
         {
-            // char *word = NULL;
             string word;
 
             word = *it;
             DBG(printf ("Finding word: %s\n", word.c_str()));
+
+            /* Convert word to lowercase before searching or inserting it */
+            transform(word.begin(), word.end(), word.begin(), ::tolower);
 
             if (dict->hasWord(word) == FALSE)
             {
