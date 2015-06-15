@@ -38,7 +38,7 @@
 #if defined(TEST)
 extern "C" {
     void bufferProcThreeWordsNotAtBegin(void);
-    void bufferProcThreeWordsAtBegin(void);
+    void bufferProcFourWordsAtBegin(void);
     void bufferProcOneWordAtBegin(void);
     void bufferProcOneWordAtEnd(void);
     void bufferProcFullBuffer(void);

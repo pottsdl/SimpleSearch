@@ -4,7 +4,7 @@
  *******************************************************************************
  * File:           main.c
  *
- * Description:    <description>
+ * Description:    Main program for the Super Simple File Indexer program (ssfi)
  *
  * Author:         Douglas L. Potts
  *
@@ -64,11 +64,17 @@
  * Local Structs
  *******************************************************************************
  */
+/**
+ * Convenience structure for passing Work_Queue, Word_Dict, etc. to the worker
+ * threads.
+ */
 typedef struct
 {
-    Work_Queue *myQueue;
-    Word_Dict  *wordDictionary;
-    int thread_idx;
+    Work_Queue *myQueue;        /**< Pointer to Thread-safe signaled work queue to use */
+    Word_Dict  *wordDictionary; /**< Pointer to Thread-safe word dictionary for
+                                  thread */
+    int thread_idx;             /**< Thread index, used in debug output to tell
+                                  which thread is doing what operation */
 } ReaderWriterArgs_t;
 
 /*******************************************************************************
@@ -81,6 +87,8 @@ void *workerThread(void *arg);
  * File Scoped Variables 
  *******************************************************************************
  */
+
+/** If set extending print output will be written to the screen */
 Bool_t g_debug_output = FALSE;
 
 /*******************************************************************************
@@ -100,10 +108,6 @@ int main (int argc, char *argv[])
     int stat = 0;
     int thread_idx = 0;
 
-#if 0
-    char *word = NULL;
-    int wordCount = -1;
-#endif
 
     Work_Queue *fileProcessingQueue = new Work_Queue();
     Word_Dict  *wordDictionary = new Word_Dict();
@@ -204,6 +208,36 @@ int main (int argc, char *argv[])
  *******************************************************************************
  */
 
+/**
+ *******************************************************************************
+ * @brief workerThread - Thread to process a single file path for word count.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      arg            Pointer to structure containing
+ *                                     thread arguments.
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      @pre     Work_Queue and Word_Dict have been already successfully
+ *      constructed.
+ *
+ * @par Global Data:
+ *      @li g_debug_output - Debug output flag
+ *
+ * @par Description:
+ *      Description of what the function does from
+ *      the caller's point of view.
+ *
+ * @par Algorithm:
+ *      Using the Work_Queue, waits to be signaled that there are file paths
+ *      which are read to be searched for words.  Once a path appears, thread
+ *      pulls it off of the queue and starts reading and processing it.  If the
+ *      path is instead the "EXIT" command, then thread gracefullys exits to be
+ *      harvested by thread_join.
+ *******************************************************************************
+ */
 void *workerThread(void *arg)
 {
     ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;

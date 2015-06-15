@@ -279,6 +279,11 @@ extern "C" {
 }
 #endif /* defined(TEST) */
 
+/**
+ *******************************************************************************
+ * @brief Word_Dict - Constructor
+ *******************************************************************************
+ */
 Word_Dict::Word_Dict(void)
 {
     int stat = 0;
@@ -299,6 +304,11 @@ error:
     goto cleanup;
 }
 
+/**
+ *******************************************************************************
+ * @brief ~Word_Dict - Destructor
+ *******************************************************************************
+ */
 Word_Dict::~Word_Dict(void)
 {
     int stat = 0;
@@ -330,6 +340,11 @@ Word_Dict::~Word_Dict(void)
 
 }
 
+/**
+ *******************************************************************************
+ * @brief _lock - Class private lock method, for class access
+ *******************************************************************************
+ */
 void Word_Dict::_lock(void)
 {
     int stat = STATUS_SUCCESS;
@@ -341,11 +356,21 @@ void Word_Dict::_lock(void)
     }
 }
 
+/**
+ *******************************************************************************
+ * @brief lock - Public lock method.
+ *******************************************************************************
+ */
 void Word_Dict::lock(void)
 {
     _lock();
 }
 
+/**
+ *******************************************************************************
+ * @brief _unlock - Class private unlock method, for class access
+ *******************************************************************************
+ */
 void Word_Dict::_unlock(void)
 {
     int stat = STATUS_SUCCESS;
@@ -357,12 +382,39 @@ void Word_Dict::_unlock(void)
     }
 }
 
+/**
+ *******************************************************************************
+ * @brief unlock - Public unlock method.
+ *******************************************************************************
+ */
 void Word_Dict::unlock(void)
 {
     _unlock();
 }
 
-// void Word_Dict::insertWord(char *word, int count)
+/**
+ *******************************************************************************
+ * @brief insertWord - Insert a word and word count pair into the dictionary.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      word           String representation of word for
+ *                                     dictionary.
+ *      @param[in]      count          Initial word count for 'word'
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Using the class access lock, insert the word and word count pair into
+ *      the dictionary.
+ *******************************************************************************
+ */
 void Word_Dict::insertWord(string word, int count)
 {
     _lock();
@@ -370,6 +422,12 @@ void Word_Dict::insertWord(string word, int count)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief begin - Set the Word_Dict instance iterator to the beginning of the
+ * dictionary.
+ *******************************************************************************
+ */
 void Word_Dict::begin(void)
 {
     _lock();
@@ -377,6 +435,12 @@ void Word_Dict::begin(void)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief end - Set the Word_Dict instance iterator to the end of the
+ * dictionary.
+ *******************************************************************************
+ */
 void Word_Dict::end(void)
 {
     _lock();
@@ -384,6 +448,32 @@ void Word_Dict::end(void)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief getNextWord - Using the in-class instance iterator, get the next word
+ * and its count.
+ *
+ * <!-- Parameters -->
+ *      @param[in,out]  word           reference to string in which to put the
+ *                                     word from the dictionary.
+ *      @param[in,out]  count          current word count for this 'word'
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Using the class access lock, and iterator, return the next word and word
+ *      count pair.  Requires that begin() be called prior to calling, and will 
+ *      return a -1 word count, and empty string if at the end of the dictionary
+ *      list.
+ *******************************************************************************
+ */
 void Word_Dict::getNextWord(string &word, int *count)
 {
     int _count = -1;
@@ -415,7 +505,29 @@ error:
 
 }
 
-// Bool_t Word_Dict::hasWord(char *word)
+/**
+ *******************************************************************************
+ * @brief hasWord - Search through dictionary to determine if word is contained.
+ * and its count.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      word           String representation of word
+ *
+ * <!-- Returns -->
+ *      @return TRUE if word is already in the dictionary.
+ *      @return FALSE if word is not in the dictionary.
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Using the class access lock, search for the word, and if already present,
+ *      return TRUE.
+ *******************************************************************************
+ */
 Bool_t Word_Dict::hasWord(string word)
 {
     std::map<string,int>::iterator it;
@@ -442,7 +554,28 @@ Bool_t Word_Dict::hasWord(string word)
     return(found);
 }
 
-// void Word_Dict::incrementWordCount(char *word)
+/**
+ *******************************************************************************
+ * @brief incrementWordCount - Search through dictionary to determine if word is
+ * contained, and if is present increment its word count.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      word           String representation of word
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Using the class access lock, search for the word, and if already present,
+ *      increment its word count.
+ *******************************************************************************
+ */
 void Word_Dict::incrementWordCount(string word)
 {
     std::map<string,int>::iterator it;
@@ -467,6 +600,12 @@ void Word_Dict::incrementWordCount(string word)
     return;
 }
 
+/**
+ *******************************************************************************
+ * @brief print - Iterate through dictionary item list, and print the entries
+ * out.
+ *******************************************************************************
+ */
 void Word_Dict::print(void)
 {
     string word;
@@ -487,6 +626,11 @@ void Word_Dict::print(void)
     return;
 }
 
+/**
+ *******************************************************************************
+ * @brief setDebug - Set current value of instance debug flag.
+ *******************************************************************************
+ */
 void Word_Dict::setDebug(Bool_t enabled)
 {
     _lock();
@@ -494,6 +638,11 @@ void Word_Dict::setDebug(Bool_t enabled)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief getDebug - Get current value of instance debug flag.
+ *******************************************************************************
+ */
 Bool_t Word_Dict::getDebug(void)
 {
     Bool_t isEnabled = FALSE;
@@ -518,6 +667,11 @@ int Word_Dict::getWordCount(char *word)
 }
 
 #if 0
+/**
+ *******************************************************************************
+ * @brief wordCmp - Comparitor for sort
+ *******************************************************************************
+ */
 /* If we were sorting in least count to most count, we'd use this */
 bool wordCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
@@ -525,12 +679,23 @@ bool wordCmp(const pair<string,int> &left_count, const pair<string,int> &right_c
 }
 #endif
 
+/**
+ *******************************************************************************
+ * @brief wordRevCmp - Comparitor for sort, reversed ordering
+ *******************************************************************************
+ */
 bool wordRevCmp(const pair<string,int> &left_count, const pair<string,int> &right_count)
 {
     return (left_count.second > right_count.second);
 }
 
 
+/**
+ *******************************************************************************
+ * @brief printTopX - Go through all of the dictionary entries, and print out
+ * the top 'top_X_counts' counts.
+ *******************************************************************************
+ */
 void Word_Dict::printTopX(int top_X_counts)
 {
     vector< pair<string,int>   > top_list;

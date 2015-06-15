@@ -65,11 +65,18 @@ static void _unlock_printing (void);
  * Local Constants 
  *******************************************************************************
  */
+
+/** @def Used to turn on and off debug print statements. */
 #define DBG(X)
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
+ */
+
+/**
+ * File scoped mutex, to keep multi-threaded printing from interleaving and
+ * becoming unreadable.
  */
 static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -85,10 +92,45 @@ static pthread_mutex_t g_printMutex = PTHREAD_MUTEX_INITIALIZER;
 
 #if defined(TEST)
 
+/** File scope, pointer to mocked file data, loaded by mock_set_file_data */
 static char *g_mock_file_data = NULL;
+/**
+ * File scope, pointer to where in the mocked file data we currently are, meant
+ * to mimic file pointer.
+ */
 static char *g_mock_file_ptr = NULL;
+/** File scope, pointer to the end of the mock file data (EOF) */
 static char *g_mock_file_end = NULL;
-char mock_set_file_data(char *data_buff, ssize_t count)
+
+/**
+ *******************************************************************************
+ * @brief mock_set_file_data - Load the mock file data into the file buffer.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      data_buff      Pointer to character buffer to copy into
+ *                                     the file buffer.
+ *      @param[in]      count          Count of the number of bytes pointed to
+ *                                     by data_buff.
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      @post     Allocates a buffer on the heap containing a copy of the data
+ *      from data_buff.
+ *
+ * @par Global Data:
+ *      @li g_mock_file_data
+ *      @li g_mock_file_ptr
+ *      @li g_mock_file_end
+ *
+ * @par Description:
+ *      NOT thread safe, mean to only be called by the single threaded unit
+ *      tests, to provide for a way to process "files" without having to read
+ *      from the file system.
+ *******************************************************************************
+ */
+void mock_set_file_data(char *data_buff, ssize_t count)
 {
     /* Create buffer to hold file data */
     g_mock_file_data = (char *) malloc(count * sizeof(char));
@@ -98,10 +140,63 @@ char mock_set_file_data(char *data_buff, ssize_t count)
     g_mock_file_ptr = g_mock_file_data;
     g_mock_file_end = g_mock_file_data + count;
 }
+
+/**
+ *******************************************************************************
+ * @brief mock_open - Essentially a no-operation function.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      pathname      String path name to "open" (not used)
+ *      @param[in]      flags         Integer bitmask (not used)
+ *
+ * <!-- Returns -->
+ *      @return 0 - ALWAYS
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Has the same signature as the system open() call.  Doesn't actually do
+ *      anything, as the buffer gets loaded elsewhere, and pointers, etc. are
+ *      set there.
+ *******************************************************************************
+ */
 int mock_open(const char *pathname, int flags)
 {
     return 0;
 }
+/**
+ *******************************************************************************
+ * @brief mock_read - Read a certain number of characters out of the mock file.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      fd            File descriptor (not used)
+ *      @param[in,out]  buf           Pointer to a character buffer to put the
+ *                                    read "file data" into.
+ *      @paran[in]      count         Number of bytes to read from the buffer,
+ *                                    should be <= size of 'buf'
+ *
+ * <!-- Returns -->
+ *      @return number of bytes actually copied into 'buf'
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      @li g_mock_file_data
+ *      @li g_mock_file_ptr
+ *      @li g_mock_file_end
+ *
+ * @par Description:
+ *      Has the same signature as the system read() call.  Reads data from our
+ *      "mocked file", keeping track of the number of bytes copied into the
+ *      buffer and moving the virtual file pointer accordingly.  If the end of
+ *      the "file data" is reached, then actual bytes read is truncated to that.
+ *******************************************************************************
+ */
 ssize_t mock_read(int fd, void *buf, size_t count)
 {
     ssize_t bytes_used = 0;
@@ -125,6 +220,31 @@ ssize_t mock_read(int fd, void *buf, size_t count)
 
     return(bytes_used);
 }
+
+/**
+ *******************************************************************************
+ * @brief mock_close - Close the mock file.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      fd            File descriptor (not used)
+ *
+ * <!-- Returns -->
+ *      @return 0 - ALWAYS
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      @li g_mock_file_data
+ *      @li g_mock_file_ptr
+ *      @li g_mock_file_end
+ *
+ * @par Description:
+ *      Has the same signature as the system close() call.  Cleans up usage of
+ *      the mock file buffer, resetting the pointers and freeing the mock data
+ *      buffer.
+ *******************************************************************************
+ */
 int mock_close(int fd)
 {
     /* Free up the bufrer */
@@ -134,12 +254,47 @@ int mock_close(int fd)
     g_mock_file_data = NULL;
     g_mock_file_ptr = g_mock_file_data;
     g_mock_file_end = g_mock_file_data;
+
+    return(0);
 }
+
+/**
+ *******************************************************************************
+ * @brief mock_lseek - Seek in the mock file.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      fd            File descriptor (not used)
+ *      @param[in]      offset        Byte count to seek into the file.
+ *      @param[in]      whence        Code indicating how 'offset' applies
+ *                                    (not used).
+ *
+ * <!-- Returns -->
+ *      @return 0 - ALWAYS
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      @li g_mock_file_data
+ *      @li g_mock_file_ptr
+ *      @li g_mock_file_end
+ *
+ * @par Description:
+ *      Has the same signature as the system close() call.  Cleans up usage of
+ *      the mock file buffer, resetting the pointers and freeing the mock data
+ *      buffer.
+ *******************************************************************************
+ */
 off_t mock_lseek(int fd, off_t offset, int whence)
 {
     g_mock_file_ptr = g_mock_file_data + offset;
+    return((off_t) g_mock_file_ptr);
 }
 
+/*
+ * When we are in #if defined(TEST), these will replace the system calls in this
+ * file
+ */
 #define close mock_close
 #define open mock_open
 #define read mock_read
@@ -148,38 +303,7 @@ off_t mock_lseek(int fd, off_t offset, int whence)
 
 extern "C" {
 
-#if 0
-    /*
-     * no longer valid, processWholeBuffer() will not process a word at the end
-     * of the buffer, since we can't know that it is the full word at this stage
-     */
-    void bufferProcThreeWordsNotAtBegin(void)
-    {
-        char mybuf[] = "!!!zzz=abc!!!555++++Doug";
-        int buflen = strlen(mybuf);
-        list<char *> word_list;
-        int ret = -1;
-        int idx = 0;
-
-        ret = processWholeBuffer(mybuf, buflen, word_list);
-        printf ("  Processed: %d characters\n", ret);
-        TEST_ASSERT_EQUAL(word_list.size(), 4);
-        for (list<char *>::iterator it=word_list.begin();
-                it != word_list.end();
-                ++it, ++idx)
-        {
-            printf ("Found word: %s\n", *it);
-            switch (idx)
-            {
-                case 0: TEST_ASSERT_EQUAL_STRING(*it, "zzz"); break;
-                case 1: TEST_ASSERT_EQUAL_STRING(*it, "abc"); break;
-                case 2: TEST_ASSERT_EQUAL_STRING(*it, "555"); break;
-                case 3: TEST_ASSERT_EQUAL_STRING(*it, "Doug"); break;
-            }
-        } /* end for */
-    }
-#endif
-    void bufferProcThreeWordsAtBegin(void)
+    void bufferProcFourWordsAtBegin(void)
     {
         char mybuf[] = "zzz=abc!!!555++++Doug!!!";
         int buflen = strlen(mybuf);
@@ -217,24 +341,6 @@ extern "C" {
         TEST_ASSERT_EQUAL(word_list.size(), 1);
         TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
     }
-#if 0
-    /*
-     * no longer valid, processWholeBuffer() will not process a word at the end
-     * of the buffer, since we can't know that it is the full word at this stage
-     */
-    void bufferProcOneWordAtEnd(void)
-    {
-        char mybuf[] = "=!!!++++zzz";
-        int buflen = strlen(mybuf);
-        list<char *> word_list;
-        int ret = -1;
-
-        ret = processWholeBuffer(mybuf, buflen, word_list);
-        printf ("  Processed: %d characters\n", ret);
-        TEST_ASSERT_EQUAL(word_list.size(), 1);
-        TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
-    }
-#endif
     void bufferProcFullBuffer(void)
     {
 #define MYBUF_LEN  512
@@ -278,8 +384,6 @@ extern "C" {
         string fakeFilePath = "/usr/local";
         Word_Dict *testDict = new Word_Dict();
         char fileData[my_buf_len];
-        int idx = 0;
-        int bytes = 0;
 
         /* Init fake file data to ALL non-word char's */
         memset(fileData, ':', sizeof(fileData));
@@ -313,6 +417,28 @@ extern "C" {
 }
 #endif /* defined(TEST) */
 
+/**
+ *******************************************************************************
+ * @brief isWordChar - Check if the given character is considered a "word" char.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      thisOne        Character code to check if it is a "word"
+ *                                     char.
+ *
+ * <!-- Returns -->
+ *      @return TRUE    If thisOne is a "word" character
+ *      @return FALSE   If thisOne is NOT a "word" character
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Check if the character falls between a-z, A-Z, or 0-9.
+ *******************************************************************************
+ */
 Bool_t isWordChar(const char thisOne)
 {
     if ((thisOne >= 'A' && thisOne <= 'Z') ||
@@ -327,6 +453,35 @@ Bool_t isWordChar(const char thisOne)
     }
 }
 
+/**
+ *******************************************************************************
+ * @brief processFile - Take a file path, and parse the file for words putting
+ * them in the dictionary.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      tid            Integer thread index, only used in debug
+ *                                     output to track which thread is
+ *                                     performing what operation.
+ *      @param[in]      filePath       String file path to a ".txt" file
+ *      @param[in]      dict           Pointer to a Word_Dict which any words
+ *                                     processed will be kept.
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Open the file specified by filePath, and read through it, searching for
+ *      words (based on "word char" qualification), and updating the dictionary
+ *      for each.  Updating consists of inserting if the word doesn't already
+ *      exist, and updating the count for that word if it does.
+ *******************************************************************************
+ */
 void processFile(int tid, string filePath, Word_Dict *dict)
 {
     static const int INITIAL_COUNT = 1;
@@ -351,12 +506,10 @@ void processFile(int tid, string filePath, Word_Dict *dict)
     Bool_t already_rewound = FALSE;
     while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
     {
-        int bytes_to_process = bytes;
 
         read_counts.push_back(bytes);
         word_list.clear();
         processed_bytes = processWholeBuffer(buffer, bytes, word_list);
-        bytes_to_process -= processed_bytes;
 
 
         DBG(printWordList(word_list));
@@ -452,6 +605,33 @@ void processFile(int tid, string filePath, Word_Dict *dict)
     return;
 }
 
+/**
+ *******************************************************************************
+ * @brief processBufferForWords - Take a buffer of data read from the file and
+ * parse for words.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      buffer         Pointer to the buffer read from file to
+ *                                     process.
+ *      @param[in]      buffer_sz      Size of 'buffer' in characters
+ *      @param[in]      word           Pointer to location in which to put the
+ *                                     word found.
+ *
+ * <!-- Returns -->
+ *      @return number of bytes processed.
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Search through the buffer character by character to find "runs" of "word
+ *      characters.  Once a run/word is found it, it is returned to the caller
+ *      by setting 'word' to point to it.
+ *******************************************************************************
+ */
 int processBufferForWords(char *buffer, int buffer_sz, char **word)
 {
     int char_index;
@@ -477,11 +657,6 @@ int processBufferForWords(char *buffer, int buffer_sz, char **word)
         {
             if (begin_last_word != -1)
             {
-                /*
-                 * Since we are one char past the last 'good char', need to back
-                 * the index up by one for the copy
-                 */
-                // int length = (char_index - 1) - begin_last_word;
                 int length = char_index - begin_last_word;
                 char *tmp_word = (char *) calloc(length, sizeof(char));
 
@@ -514,6 +689,34 @@ cleanup:
     return(num_processed);
 }
 
+/**
+ *******************************************************************************
+ * @brief processWholeBuffer - Process a whole buffer's worth of data for all of
+ * the words contained therein.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      buffer         Pointer to the buffer read from file to
+ *                                     process.
+ *      @param[in]      buffer_sz      Size of 'buffer' in characters
+ *      @param[in]      word_list      Reference to a stl::list in which to
+ *                                     insert all words found in the buffer.
+ *
+ * <!-- Returns -->
+ *      @return count of bytes processed from the buffer.
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Takes a file read buffer's worth of data, passes it off to
+ *      processBufferForWords() to get individual words from the buffer, and add
+ *      them to the word_list vector (they will get coallated with the other
+ *      words in the caller.
+ *******************************************************************************
+ */
 int processWholeBuffer(char *buffer, int buffer_sz, list<char *> &word_list)
 {
     int chars_processed = 0;
@@ -559,11 +762,41 @@ int processWholeBuffer(char *buffer, int buffer_sz, list<char *> &word_list)
     return(chars_processed);
 }
 
+/**
+ *******************************************************************************
+ * @brief int_compare - comparitor used by vector sort operation.
+ *******************************************************************************
+ */
 static bool int_compare (int i,int j)
 {
     return (i<j);
 }
 
+/**
+ *******************************************************************************
+ * @brief print_read_performance - Function to go through the file read byte
+ * counts and plot the histogram.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      read_counts    Vector of all of the read operations on a
+ *                                     particular file thread.
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      For each file read operation, the size of the buffer returned is stored
+ *      in a vector, and then at file close, this function is called to plot the
+ *      read peformance.
+ *
+ *******************************************************************************
+ */
 static void print_read_performance (vector<int> &read_counts)
 {
     sort (read_counts.begin(), read_counts.end(), int_compare);
@@ -608,11 +841,22 @@ static void print_read_performance (vector<int> &read_counts)
     _unlock_printing();
 }
 
+/**
+ *******************************************************************************
+ * @brief _lock_printing - Grab the local file mutex for printing debug output.
+ *******************************************************************************
+ */
 static void _lock_printing (void)
 {
     (void) pthread_mutex_lock(&g_printMutex);
 }
 
+/**
+ *******************************************************************************
+ * @brief _unlock_printing - Release the local file mutex for printing debug
+ * output.
+ *******************************************************************************
+ */
 static void _unlock_printing (void)
 {
     (void) pthread_mutex_unlock(&g_printMutex);

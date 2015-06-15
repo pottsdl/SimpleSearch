@@ -49,6 +49,12 @@
  ********************* E X T E R N A L  F U N C T I O N S **********************
  *******************************************************************************
  */
+
+/**
+ *******************************************************************************
+ * @brief Work_Queue - Constructor
+ *******************************************************************************
+ */
 Work_Queue::Work_Queue(void)
 {
     int stat = 0;
@@ -71,6 +77,11 @@ error:
     goto cleanup;
 }
 
+/**
+ *******************************************************************************
+ * @brief ~Work_Queue - Destructor
+ *******************************************************************************
+ */
 Work_Queue::~Work_Queue(void)
 {
     int stat = 0;
@@ -100,6 +111,11 @@ Work_Queue::~Work_Queue(void)
 
 }
 
+/**
+ *******************************************************************************
+ * @brief _lock - Class private lock method, for class access
+ *******************************************************************************
+ */
 void Work_Queue::_lock(void)
 {
     int stat = STATUS_SUCCESS;
@@ -111,11 +127,21 @@ void Work_Queue::_lock(void)
     }
 }
 
+/**
+ *******************************************************************************
+ * @brief lock - Public lock method.
+ *******************************************************************************
+ */
 void Work_Queue::lock(void)
 {
     _lock();
 }
 
+/**
+ *******************************************************************************
+ * @brief _unlock - Class private unlock method, for class access
+ *******************************************************************************
+ */
 void Work_Queue::_unlock(void)
 {
     int stat = STATUS_SUCCESS;
@@ -126,17 +152,34 @@ void Work_Queue::_unlock(void)
         _is_locked = FALSE;
     }
 }
+
+/**
+ *******************************************************************************
+ * @brief unlock - Public unlock method.
+ *******************************************************************************
+ */
 void Work_Queue::unlock(void)
 {
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief _signal - Class private condition variable signal method, for class access
+ *******************************************************************************
+ */
 void Work_Queue::_signal(void)
 {
     _lock();
     pthread_cond_signal(&_con);
     _unlock();
 }
+
+/**
+ *******************************************************************************
+ * @brief _wait - Class private condition variable wait method, for class access
+ *******************************************************************************
+ */
 void Work_Queue::_wait(void)
 {
     _lock();
@@ -144,6 +187,11 @@ void Work_Queue::_wait(void)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief push - Public push method.
+ *******************************************************************************
+ */
 void Work_Queue::push(string filePath)
 {
     _lock();
@@ -152,6 +200,11 @@ void Work_Queue::push(string filePath)
     _signal();
 }
 
+/**
+ *******************************************************************************
+ * @brief pop - Public pop method.
+ *******************************************************************************
+ */
 void Work_Queue::pop(void)
 {
     _lock();
@@ -159,6 +212,12 @@ void Work_Queue::pop(void)
     _unlock();
 }
 
+/**
+ *******************************************************************************
+ * @brief waitForNotEmpty - Public method to pend on an empty queue until new
+ * item(s) have appeared.
+ *******************************************************************************
+ */
 void Work_Queue::waitForNotEmpty(void)
 {
     if (empty() == TRUE)
@@ -167,6 +226,11 @@ void Work_Queue::waitForNotEmpty(void)
     }
 }
 
+/**
+ *******************************************************************************
+ * @brief pop_front - Public method to pop_front for underlying data structure.
+ *******************************************************************************
+ */
 string Work_Queue::pop_front(void)
 {
     string front_item;
@@ -178,6 +242,11 @@ string Work_Queue::pop_front(void)
     return(front_item);
 }
 
+/**
+ *******************************************************************************
+ * @brief front - Public method to get front for underlying data structure.
+ *******************************************************************************
+ */
 string Work_Queue::front(void)
 {
     string front_item;
@@ -188,6 +257,11 @@ string Work_Queue::front(void)
     return(front_item);
 }
 
+/**
+ *******************************************************************************
+ * @brief size - Public method to get size for underlying data structure.
+ *******************************************************************************
+ */
 unsigned int Work_Queue::size(void)
 {
     unsigned int size = 0;
@@ -197,6 +271,11 @@ unsigned int Work_Queue::size(void)
     return(size);
 }
 
+/**
+ *******************************************************************************
+ * @brief empty - Public method to determine if queue is empty.
+ *******************************************************************************
+ */
 Bool_t Work_Queue::empty()
 {
     Bool_t isEmpty = 0;

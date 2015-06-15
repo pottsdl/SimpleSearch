@@ -50,6 +50,32 @@
  *******************************************************************************
  */
 
+/**
+ *******************************************************************************
+ * @brief listdir - Take a base file path, recurse through the tree and add any
+ * .txt file to the work queue.
+ *
+ * <!-- Parameters -->
+ *      @param[in]      dir_name       C-String representation of base directory
+ *                                     name.
+ *      @param[out]     fileQueue      Pointer to the Work_Queue, on which to
+ *                                     put any (*.txt) matching file path.
+ *
+ * <!-- Returns -->
+ *      None (if return type is void)
+ *
+ * @par Pre/Post Conditions:
+ *      None (if entry/exit conditions do not apply)
+ *
+ * @par Global Data:
+ *      None (if no global data)
+ *
+ * @par Description:
+ *      Recurse from base directory (dir_name) on down, and for each file
+ *      matching the ".txt" extension, add the full path and file name to the
+ *      work queue.
+ *******************************************************************************
+ */
 extern void listdir(const char *dir_name, Work_Queue *fileQueue)
 {
     DIR * directory_handle;
