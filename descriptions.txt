@@ -7,3 +7,5 @@ test_singlethread_testdir
 test_singlethread_verbose_testdir
         Test calling the program with flags for single worker thread, and operate on test data dir but with verbose output.
 
+test_unittest
+        Test calling the unit tests for coverage.
