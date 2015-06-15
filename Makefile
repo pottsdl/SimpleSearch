@@ -29,6 +29,8 @@ SLOC_OUTFILE = sloc_count.txt
 MEMCHECK_FILE = memcheck.txt
 CPPCHECK_BIN = ./do_cppcheck.sh
 
+DIVIDER_STR := "+-------------------------------------------------------------------+"
+
 #	Files to compile
 SRCS       = main.cpp
 
@@ -46,8 +48,8 @@ CLEANFILES = core core*.* *.core *.o temp.* *.out typescript* \
 #	OUTPUTTED Executables
 PROGS      = ssfi
 
-all :	$(LIB_FILES) $(PROGS) $(TEST_TARGET) 
-	./$(TEST_TARGET)
+all :	$(LIB_FILES) $(PROGS) 
+.PHONY: all
 
 # Build the executable, and run with a simple parameter list
 exe :	$(LIB_FILES) $(PROGS)
@@ -200,3 +202,35 @@ clean_buildprods:
 
 clean:  clean_buildprods clean_docs clean_sloc clean_cppcheck clean_coverage
 .PHONY: clean
+
+help:
+	@echo $(DIVIDER_STR)
+	@echo "| Help file for Super Simple File Indexer project"
+	@echo $(DIVIDER_STR)
+	@echo "| Targets supported:"
+	@echo "|  "
+	@echo "|     DEFAULT      $(.DEFAULT_GOAL)"
+	@echo "|     all          Builds the ssfi program"
+	@echo "|     clean        Cleans the build artifacts"
+	@echo "|     help         This help menu"
+	@echo "|     exe          Build 'ssfi' and execute with 3 threads on testdir dat directory."
+	@echo "|     memcheck     Run valgrind memcheck tool over ssfi, and open the report in EDITOR"
+	@echo "|     docs         Run doxygen tool over the source code, output is in:"
+	@echo "|                  output is in: `pwd`/doc/html/index.html"
+	@echo "|     test         Build and run the unit tests."
+	@echo "|     gdb_test     Build and run the unit tests in gdb."
+	@echo "|     sloc         Generate a Source Lines of Code (SLoC) report, output is in: sloc_count.txt"
+	@echo "|     cppcheck     Run cppcheck, a lint-like static analysis of source code, output is in: cppcheck.txt"
+	@echo "|     coverage     Build and run 'ssfi' and unit tests tracking code coverage,"
+	@echo "|                  output is in: `pwd`/output/index.html"
+	@echo $(DIVIDER_STR)
+	@echo "| Example invocations:"
+	@echo "|  "
+	@echo "|     make"
+	@echo "|                Makes the default target (all) with the default options"
+	@echo "|     make exe"
+	@echo "|                Makes the default target (all) and runs a test instance"
+	@echo $(DIVIDER_STR)
+.PHONY: help
+	
+.DEFAULT_GOAL = all
