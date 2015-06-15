@@ -76,13 +76,12 @@ typedef struct
  *******************************************************************************
  */
 void *workerThread(void *arg);
-void printWordList(list<char*> word_list);
 
 /*******************************************************************************
  * File Scoped Variables 
  *******************************************************************************
  */
-Bool_t g_debug_output = false;
+Bool_t g_debug_output = FALSE;
 
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
@@ -129,6 +128,7 @@ int main (int argc, char *argv[])
                 break;
             case 'v':
                 g_debug_output = TRUE;
+                printf("=========== VERBOSE DEBUG OUPUT SET ===========\n");
                 break;
             default:
                 fprintf(stderr, "Usage: %s [-t num_threads] <first_dir_path>\n", argv[0]);
@@ -154,13 +154,13 @@ int main (int argc, char *argv[])
     {
         fprintf(stderr, "ERROR: Failed to allocate thread_array, exitting. (%d, %s)\n",
                 errno, strerror(errno));
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     if (args_array == NULL)
     {
         fprintf(stderr, "ERROR: Failed to allocate args_array, exitting. (%d, %s)\n",
                 errno, strerror(errno));
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     for (thread_idx = 0; thread_idx < num_worker_threads; thread_idx++) 
     {
@@ -238,19 +238,3 @@ void *workerThread(void *arg)
 
     return(NULL);
 }
-
-
-void printWordList(list<char*> word_list)
-{
-    printf ("Processed words:  ");
-    for (std::list<char *>::iterator it=word_list.begin();
-            it != word_list.end();
-            ++it)
-    {
-        printf ("%s, ", *it);
-    } /* end for */
-    printf ("\n");
-
-    return;
-}
-
