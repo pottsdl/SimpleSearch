@@ -3,8 +3,21 @@ CPP        = g++
 
 INC_DIRS   = -I. -Iunity
 LIBFLAGS   = -L/usr/lib -L /usr/local/lib -L/usr/lib/x86_64-linux-gnu
-CFLAGS     = -g -D_REENTRANT -pedantic -Wall -pthread $(LIBFLAGS)
+CFLAGS     = -g --coverage -ftest-coverage -D_REENTRANT -pedantic -Wall -pthread $(LIBFLAGS)
 CPPFLAGS   = $(CFLAGS) -ansi
+LCOV       = $(shell which lcov)
+GENHTML    = $(shell which genhtml)
+GENDESC    = $(shell which gendesc)
+GENPNG     = $(shell which genpng)
+# Depending on the presence of the GD.pm perl module, we can use the
+# special option '--frames' for genhtml
+USE_GENPNG := $(shell $(GENPNG) --help >/dev/null 2>/dev/null; echo $$?)
+ifeq ($(USE_GENPNG),0)
+  FRAMES := --frames
+else
+  FRAMES :=
+endif
+
 
 LINK_FLAGS = -lstdc++
 DOXYGEN_BIN = $(shell which doxygen)
@@ -52,7 +65,6 @@ memcheck: $(LIB_FILES) $(PROGS)
 ssfi : $(LIB_FILES)
 	$(CPP) $(CPPFLAGS) $(LINK_FLAGS) -o ssfi $(LIB_FILES)
 
-#test: $(TEST_TARGET)
 test: run_test
 .PHONY: test
 
@@ -95,10 +107,59 @@ cppcheck.txt: $(UNIT_TEST_FILE) $(SRCS) $(UNITTEST_SRC_FILES)
 	$(CPPCHECK_BIN) .   2>&1 | tee cppcheck.txt
 
 clean_cppcheck:
-	rm cppcheck.txt
+	@rm -ff cppcheck.txt
 
 cppcheck: cppcheck.txt
 .PHONY: cppcheck
+
+output: $(PROGS) descriptions test_3thread_testdir test_singlethread_testdir
+	@echo
+	@echo '*'
+	@echo '* Generating HTML output'
+	@echo '*'
+	@echo
+	$(GENHTML) trace_3thread.info trace_singlethread.info \
+		   --output-directory output --title "Basic example" \
+		   --show-details --description-file descriptions $(FRAMES) \
+		   --legend
+	@echo
+	@echo '*'
+	@echo '* See '`pwd`/output/index.html
+	@echo '*'
+	@echo
+descriptions: descriptions.txt
+	$(GENDESC) descriptions.txt -o descriptions
+
+
+test_3thread_testdir:
+	@echo
+	@echo '*'
+	@echo '* Test case 1: running ./ssfi -t 3 testdir'
+	@echo '*'
+	@echo
+	$(LCOV) --zerocounters --directory .
+	./$(PROGS) -t 3 testdir/
+	$(LCOV) --capture --directory . --output-file trace_3thread.info --test-name test_noargs --no-external
+
+test_singlethread_testdir:
+	@echo
+	@echo '*'
+	@echo '* Test case 2: running ./ssfi -t 3 testdir' 
+	@echo '*'
+	@echo
+	$(LCOV) --zerocounters --directory .
+	./$(PROGS) -t 1 testdir/
+	$(LCOV) --capture --directory . --output-file trace_singlethread.info --test-name test_noargs --no-external
+
+test_singlethread_verbose_testdir:
+	@echo
+	@echo '*'
+	@echo '* Test case 2: running ./ssfi -t 3 testdir' 
+	@echo '*'
+	@echo
+	$(LCOV) --zerocounters --directory .
+	./$(PROGS) -t 1 -v testdir/
+	$(LCOV) --capture --directory . --output-file trace_singlethread.info --test-name test_noargs --no-external
 
 clean_buildprods:
 	rm -f $(CLEANFILES) $(PROGS)
