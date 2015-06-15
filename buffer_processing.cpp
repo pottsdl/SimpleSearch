@@ -42,6 +42,17 @@
 using namespace std;
 
 /*******************************************************************************
+ * External Variables
+ *******************************************************************************
+ */
+#if defined(TEST)
+/* Need this for Unit Test code, no main */
+Bool_t g_debug_output = FALSE;
+#else
+extern Bool_t g_debug_output;
+#endif
+
+/*******************************************************************************
  * Local Function Prototypes 
  *******************************************************************************
  */
@@ -137,6 +148,11 @@ off_t mock_lseek(int fd, off_t offset, int whence)
 
 extern "C" {
 
+#if 0
+    /*
+     * no longer valid, processWholeBuffer() will not process a word at the end
+     * of the buffer, since we can't know that it is the full word at this stage
+     */
     void bufferProcThreeWordsNotAtBegin(void)
     {
         char mybuf[] = "!!!zzz=abc!!!555++++Doug";
@@ -162,6 +178,7 @@ extern "C" {
             }
         } /* end for */
     }
+#endif
     void bufferProcThreeWordsAtBegin(void)
     {
         char mybuf[] = "zzz=abc!!!555++++Doug!!!";
@@ -200,6 +217,11 @@ extern "C" {
         TEST_ASSERT_EQUAL(word_list.size(), 1);
         TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
     }
+#if 0
+    /*
+     * no longer valid, processWholeBuffer() will not process a word at the end
+     * of the buffer, since we can't know that it is the full word at this stage
+     */
     void bufferProcOneWordAtEnd(void)
     {
         char mybuf[] = "=!!!++++zzz";
@@ -212,6 +234,7 @@ extern "C" {
         TEST_ASSERT_EQUAL(word_list.size(), 1);
         TEST_ASSERT_EQUAL_STRING(word_list.front(), "zzz");
     }
+#endif
     void bufferProcFullBuffer(void)
     {
 #define MYBUF_LEN  512
@@ -230,54 +253,62 @@ extern "C" {
 
         ret = processWholeBuffer(mybuf, buflen, word_list);
         printf ("  Processed: %d characters\n", ret);
-        // TEST_ASSERT_EQUAL(word_list.size(), 2);
+        TEST_ASSERT_EQUAL(word_list.size(), 1);
         for (list<char *>::iterator it=word_list.begin();
                 it != word_list.end();
                 ++it, ++idx)
         {
-            printf ("Found word: %s\n", *it);
+            switch (idx)
+            {
+                case 0:
+                    TEST_ASSERT_EQUAL_STRING(*it, "ginning");
+                    break;
+                default:
+                    TEST_FAIL_MESSAGE("Unexpected Word FOUND");
+                    break;
+            }
         }
 
     }
 
     void fileProcess(void)
     {
+        static const int my_buf_len = 520;
         int tid = 1; /* Fake thread id */
         string fakeFilePath = "/usr/local";
         Word_Dict *testDict = new Word_Dict();
-        char fileData[520];
+        char fileData[my_buf_len];
         int idx = 0;
         int bytes = 0;
 
         /* Init fake file data to ALL non-word char's */
         memset(fileData, ':', sizeof(fileData));
-        /* Now put a word at the beginning */
-        for (idx = 0; idx < 3; idx++)
-        {
-            switch (idx)
-            {
-                case 0:  fileData[idx] = 'a'; break;
-                case 1:  fileData[idx] = 'b'; break;
-                case 2:  fileData[idx] = 'c'; break;
-            }
-        }
-        /* And at the end */
-        int endOfData = sizeof(fileData) - 1;
-        for (idx = endOfData; idx > endOfData - 3; idx--)
-        {
-            switch (endOfData - idx)
-            {
-                case 0:  fileData[idx] = 'z'; break;
-                case 1:  fileData[idx] = 'y'; break;
-                case 2:  fileData[idx] = 'x'; break;
-            }
-        }
+        strncpy(fileData, "abc", strlen("abc"));
+        strncpy(&fileData[MYBUF_LEN - strlen("xyz")], "xyz", strlen("xyz"));
 
-        mock_set_file_data(fileData, 520);
+        mock_set_file_data(fileData, my_buf_len);
 
         processFile(tid, fakeFilePath, testDict);
 
         testDict->print();
+        int dict_entry_count = 0;
+        string word;
+        int wordCount;
+        testDict->begin();
+        do
+        {
+            testDict->getNextWord(word, &wordCount);
+            if (word != "")
+            {
+                switch (dict_entry_count)
+                {
+                    case 0: TEST_ASSERT_EQUAL_STRING(word.c_str(), "abc"); break;
+                    case 1: TEST_ASSERT_EQUAL_STRING(word.c_str(), "xyz"); break;
+                }
+                dict_entry_count++;
+            }
+        } while (word != "");
+        TEST_ASSERT_EQUAL(dict_entry_count, 2);
     }
 }
 #endif /* defined(TEST) */
@@ -306,6 +337,8 @@ void processFile(int tid, string filePath, Word_Dict *dict)
     ssize_t total_bytes = 0;
     list<char *> word_list;
     vector<int> read_counts;
+    int processed_bytes = 0;
+    int leftover_bytes = 0;
 
     fIn = open (filePath.c_str(), O_RDONLY);
     if (fIn == -1) {
@@ -315,18 +348,15 @@ void processFile(int tid, string filePath, Word_Dict *dict)
     }
 
     DBG(printf("Processing file: %s\n", filePath.c_str()));
+    Bool_t already_rewound = FALSE;
     while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
     {
-        int processed_bytes = 0;
         int bytes_to_process = bytes;
 
         read_counts.push_back(bytes);
         word_list.clear();
-        do
-        {
-            processed_bytes = processWholeBuffer(buffer, bytes, word_list);
-            bytes_to_process -= processed_bytes;
-        } while (bytes_to_process > 0);
+        processed_bytes = processWholeBuffer(buffer, bytes, word_list);
+        bytes_to_process -= processed_bytes;
 
 
         DBG(printWordList(word_list));
@@ -364,21 +394,54 @@ void processFile(int tid, string filePath, Word_Dict *dict)
         DBG(printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes));
 
         /*
-         * If we didn't process all of it, then only count what we did process,
-         * and reset spot in the file to reflect where we are
+         * If we didn't process all of it, then only count what we did process
          */
         if (processed_bytes < bytes)
         {
             total_bytes += processed_bytes;
-            lseek(fIn, total_bytes, SEEK_SET);
+            leftover_bytes = bytes - processed_bytes;
+            if (already_rewound == FALSE)
+            {
+                lseek(fIn, total_bytes, SEEK_SET);
+                already_rewound = TRUE;
+            }
         }
         else
         {
             total_bytes += bytes;
         }
     }
+    /* Process anything left in the buffer, at end of file */
+    if ((bytes == 0) && (leftover_bytes > 0))
+    {
+        int chars_processed = 0;
+        char *buffer_start = buffer;
+        int buffer_sz_to_process = leftover_bytes;
+        char *word_found = NULL;
+        int processed_this_round = 0;
 
-    DBG(print_read_performance(read_counts));
+        while (chars_processed < buffer_sz_to_process)
+        {
+            processed_this_round = processBufferForWords (buffer_start,
+                    buffer_sz_to_process,
+                    &word_found);
+            buffer_start += processed_this_round;
+            chars_processed += processed_this_round;
+            DBG(printf ("  %d: bytes proceesed this loop\n", processed_this_round));
+            DBG(printf ("  %d: total bytes processed\n", chars_processed));
+            if (word_found != NULL)
+            {
+                DBG(printf ("---->Found word: %s\n", word_found));
+                word_list.push_back(word_found);
+            }
+            DBG(printf ("\n\n"));
+        }
+    }
+
+    if (g_debug_output == TRUE)
+    {
+        print_read_performance(read_counts);
+    }
 
 
     close (fIn);
@@ -458,8 +521,24 @@ int processWholeBuffer(char *buffer, int buffer_sz, list<char *> &word_list)
     char *word_found = NULL;
     int processed_this_round = 0;
     int buffer_sz_to_process = buffer_sz;
+    int idx = 0;
 
     DBG(printf ("Buffer size: %d\n", buffer_sz));
+    /*
+     * If very last of buffer looks like a word, back off until we are at the
+     * beginning of it, and then only process up until that point
+     */
+    if (isWordChar(buffer[buffer_sz - 1]))
+    {
+        for (idx = buffer_sz - 1; idx >= 0; idx--) 
+        {
+            if (isWordChar(buffer[idx]) == FALSE)
+            {
+                buffer_sz_to_process = idx;
+                break;
+            }
+        } /* end for */
+    }
     while (chars_processed < buffer_sz_to_process)
     {
         processed_this_round = processBufferForWords (buffer_start,
