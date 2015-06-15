@@ -79,7 +79,7 @@ clean_docs:
 	@rm -rf doc
 
 $(TEST_TARGET): $(UNITTEST_SRC_FILES)
-	$(CPP) -g -pthread $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
+	$(CPP) -g -pthread --coverage -ftest-coverage $(INC_DIRS) -DTEST $(UNITTEST_SRC_FILES) -o $(TEST_TARGET)
 
 run_test: $(TEST_TARGET)
 	./$(TEST_TARGET)
@@ -115,18 +115,24 @@ cppcheck: cppcheck.txt
 coverage: output
 .PHONY: coverage
 
+tags: $(UNIT_TEST_FILE) $(SRCS) $(UNITTEST_SRC_FILES)
+	ctags -R .
+
+cscope.out: $(UNIT_TEST_FILE) $(SRCS) $(UNITTEST_SRC_FILES)
+	cscope -Rb
+
 clean_coverage:
 	rm -rf *.o *.bb *.bbg *.da *.gcno *.gcda *.info output example \
 	descriptions
 
 
-output: $(PROGS) descriptions test_3thread_testdir test_singlethread_testdir
+output: $(PROGS) $(TEST_TARGET) descriptions test_3thread_testdir test_singlethread_testdir test_singlethread_notdir test_singlethread_verbose_testdir test_unittest
 	@echo
 	@echo '*'
 	@echo '* Generating HTML output'
 	@echo '*'
 	@echo
-	$(GENHTML) trace_3thread.info trace_singlethread.info \
+	$(GENHTML) trace_3thread.info trace_singlethread.info trace_singlethread_notdir.info trace_singlethread_verbose.info trace_unittest.info \
 		   --output-directory output --title "Basic example" \
 		   --show-details --description-file descriptions $(FRAMES) \
 		   --legend
@@ -147,27 +153,47 @@ test_3thread_testdir:
 	@echo
 	$(LCOV) --zerocounters --directory .
 	./$(PROGS) -t 3 testdir/
-	$(LCOV) --capture --directory . --output-file trace_3thread.info --test-name test_noargs --no-external
+	$(LCOV) --capture --directory . --output-file trace_3thread.info --test-name test_3thread_testdir --no-external
 
 test_singlethread_testdir:
 	@echo
 	@echo '*'
-	@echo '* Test case 2: running ./ssfi -t 3 testdir' 
+	@echo '* Test case 2: running ./ssfi -t 1 testdir' 
 	@echo '*'
 	@echo
 	$(LCOV) --zerocounters --directory .
 	./$(PROGS) -t 1 testdir/
-	$(LCOV) --capture --directory . --output-file trace_singlethread.info --test-name test_noargs --no-external
+	$(LCOV) --capture --directory . --output-file trace_singlethread.info --test-name test_singlethread_testdir --no-external
+
+test_singlethread_notdir:
+	@echo
+	@echo '*'
+	@echo '* Test case 3: running ./ssfi -t 1 testdir/myfile' 
+	@echo '*'
+	@echo
+	$(LCOV) --zerocounters --directory .
+	-./$(PROGS) -t 1 testdir/myfile
+	$(LCOV) --capture --directory . --output-file trace_singlethread_notdir.info --test-name test_singlethread_notdir --no-external
 
 test_singlethread_verbose_testdir:
 	@echo
 	@echo '*'
-	@echo '* Test case 2: running ./ssfi -t 3 testdir' 
+	@echo '* Test case 4: running ./ssfi -t 1 -v testdir' 
 	@echo '*'
 	@echo
 	$(LCOV) --zerocounters --directory .
 	./$(PROGS) -t 1 -v testdir/
-	$(LCOV) --capture --directory . --output-file trace_singlethread.info --test-name test_noargs --no-external
+	$(LCOV) --capture --directory . --output-file trace_singlethread_verbose.info --test-name test_singlethread_verbose_testdir --no-external
+
+test_unittest:
+	@echo
+	@echo '*'
+	@echo '* Test case 4: running ./test1.out' 
+	@echo '*'
+	@echo
+	$(LCOV) --zerocounters --directory .
+	./$(TEST_TARGET)
+	$(LCOV) --capture --directory . --output-file trace_unittest.info --test-name test_unittest --no-external
 
 clean_buildprods:
 	rm -f $(CLEANFILES) $(PROGS)
