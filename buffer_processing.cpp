@@ -124,11 +124,16 @@ int mock_close(int fd)
     g_mock_file_ptr = g_mock_file_data;
     g_mock_file_end = g_mock_file_data;
 }
+off_t mock_lseek(int fd, off_t offset, int whence)
+{
+    g_mock_file_ptr = g_mock_file_data + offset;
+}
 
 #define close mock_close
 #define open mock_open
 #define read mock_read
 #define close mock_close
+#define lseek mock_lseek
 
 extern "C" {
 
@@ -313,10 +318,16 @@ void processFile(int tid, string filePath, Word_Dict *dict)
     while ((bytes = read (fIn, buffer, sizeof(buffer))) > 0)
     {
         int processed_bytes = 0;
+        int bytes_to_process = bytes;
 
         read_counts.push_back(bytes);
         word_list.clear();
-        processed_bytes = processWholeBuffer(buffer, bytes, word_list);
+        do
+        {
+            processed_bytes = processWholeBuffer(buffer, bytes, word_list);
+            bytes_to_process -= processed_bytes;
+        } while (bytes_to_process > 0);
+
 
         DBG(printWordList(word_list));
 
@@ -352,7 +363,19 @@ void processFile(int tid, string filePath, Word_Dict *dict)
         } /* end for */
         DBG(printf ("[%d] Processed %d bytes this loop\n", tid, processed_bytes));
 
-        total_bytes += bytes;
+        /*
+         * If we didn't process all of it, then only count what we did process,
+         * and reset spot in the file to reflect where we are
+         */
+        if (processed_bytes < bytes)
+        {
+            total_bytes += processed_bytes;
+            lseek(fIn, total_bytes, SEEK_SET);
+        }
+        else
+        {
+            total_bytes += bytes;
+        }
     }
 
     DBG(print_read_performance(read_counts));
@@ -434,11 +457,13 @@ int processWholeBuffer(char *buffer, int buffer_sz, list<char *> &word_list)
     char *buffer_start = buffer;
     char *word_found = NULL;
     int processed_this_round = 0;
+    int buffer_sz_to_process = buffer_sz;
 
     DBG(printf ("Buffer size: %d\n", buffer_sz));
-    while (chars_processed < buffer_sz)
+    while (chars_processed < buffer_sz_to_process)
     {
-        processed_this_round = processBufferForWords (buffer_start, (buffer_sz - chars_processed),
+        processed_this_round = processBufferForWords (buffer_start,
+                (buffer_sz_to_process - chars_processed),
                 &word_found);
         buffer_start += processed_this_round;
         chars_processed += processed_this_round;
