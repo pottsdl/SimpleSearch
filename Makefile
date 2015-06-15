@@ -203,6 +203,9 @@ clean_buildprods:
 clean:  clean_buildprods clean_docs clean_sloc clean_cppcheck clean_coverage
 .PHONY: clean
 
+world: exe test memcheck docs sloc cppcheck coverage
+.PHONY: world
+
 help:
 	@echo $(DIVIDER_STR)
 	@echo "| Help file for Super Simple File Indexer project"
@@ -213,6 +216,7 @@ help:
 	@echo "|     all          Builds the ssfi program"
 	@echo "|     clean        Cleans the build artifacts"
 	@echo "|     help         This help menu"
+	@echo "|     world        Build 'ssfi' and all associated doc, check, test, etc. targets"
 	@echo "|     exe          Build 'ssfi' and execute with 3 threads on testdir dat directory."
 	@echo "|     memcheck     Run valgrind memcheck tool over ssfi, and open the report in EDITOR"
 	@echo "|     docs         Run doxygen tool over the source code, output is in:"
