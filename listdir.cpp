@@ -140,32 +140,15 @@ extern void listdir(const char *dir_name, Work_Queue *fileQueue)
             /* If we have a file extension, AND that extension is ".txt" */
             if ((extension != NULL) && (strcmp(extension, ".txt") == 0))
             {
-                /*
-                 * Make space for a copy of the full file path:
-                 * dir_name + '/' + d_name + '\0';
-                 */
-                int pathLen =
-                    strlen(dir_name) + /* For dir_name                   */
-                    strlen(d_name) +   /* For file name (d_name)         */
-                    1 +                /* For slash between dir and file */
-                    1;                 /* For '\0'                       */
-                char *pathCopy = (char *) calloc(pathLen, sizeof(char));
 
                 /*
                  * Construct the full path to the file, appending file name to
                  * path
                  */
-                snprintf(pathCopy, pathLen, "%s/%s", dir_name, d_name);
-
-                /* Convert from C-string to C++ string */
-                // string pathString = pathCopy;
-                string pathString = dir_name + "/" + d_name;
+                string pathString = string(dir_name) + "/" + string(d_name);
 
                 /* Add new file to the processing queue */
                 fileQueue->push(pathString);
-
-                /* Free up temp string area */
-                free(pathCopy);
             }
         }
         else /* We have a dir, do checks & call recursively to process next */
