@@ -21,7 +21,7 @@
  * System Includes
  *******************************************************************************
  */
-#include <pthread.h> /* for pthread_* calls */
+#include <pthread.h>            /* for pthread_* calls */
 #include <map>
 #include <string>
 
@@ -32,17 +32,18 @@
 #include "common_types.h"
 
 #if defined(TEST)
-extern "C" {
-    void wordDictConstruct(void);
-    void wordDictAddItems(void);
-    void wordDictLock(void);
-    void wordDictUnlock(void);
-    void wordDictIterItems(void);
-    void wordDictGoodFind(void);
-    void wordDictGoodMiss(void);
-    void wordDictGoodIncrement(void);
+extern "C"
+{
+    void wordDictConstruct (void);
+    void wordDictAddItems (void);
+    void wordDictLock (void);
+    void wordDictUnlock (void);
+    void wordDictIterItems (void);
+    void wordDictGoodFind (void);
+    void wordDictGoodMiss (void);
+    void wordDictGoodIncrement (void);
 }
-#endif /* defined(TEST) */
+#endif                          /* defined(TEST) */
 
 /*******************************************************************************
  * Typedefs
@@ -62,39 +63,48 @@ using namespace std;
 
 class Word_Dict
 {
-    public:
-        Word_Dict(void);
-        virtual ~Word_Dict(void);
-        void lock(void);
-        void unlock(void);
-        Bool_t isLocked(void) { return(this->_is_locked); };
-        // void insertWord(char *word, int count);
-        void insertWord(string word, int count);
-        map<string,int> &getMap(void) { return(this->_dictionaryMap); };
-        void begin(void);
-        void end(void);
-        void getNextWord(string &word, int *count);
-        // Bool_t hasWord(char *word);
-        Bool_t hasWord(string word);
-        // void incrementWordCount(char *word);
-        void incrementWordCount(string word);
-        void print(void);
-        void setDebug(Bool_t enabled);
-        Bool_t getDebug(void);
-        int getWordCount(char *word);
-        void printTopX(int top_X_counts);
+  public:
+    Word_Dict (void);
+      virtual ~ Word_Dict (void);
+    void lock (void);
+    void unlock (void);
+    Bool_t isLocked (void)
+    {
+        return (this->_is_locked);
+    };
+
+    // void insertWord(char *word, int count);
+    void insertWord (string word, int count);
+    map < string, int >&getMap (void)
+    {
+        return (this->_dictionaryMap);
+    };
+    void begin (void);
+    void end (void);
+    void getNextWord (string & word, int *count);
+
+    // Bool_t hasWord(char *word);
+    Bool_t hasWord (string word);
+
+    // void incrementWordCount(char *word);
+    void incrementWordCount (string word);
+    void print (void);
+    void setDebug (Bool_t enabled);
+    Bool_t getDebug (void);
+    int getWordCount (char *word);
+    void printTopX (int top_X_counts);
 
 
-    private:
-        Bool_t _mut_init;
-        Bool_t _is_locked;
-        pthread_mutex_t _mut;
-        map<string,int> _dictionaryMap;
-        map<string,int>::iterator _it;
-        Bool_t _showDebugOutput;
+  private:
+    Bool_t _mut_init;
+    Bool_t _is_locked;
+    pthread_mutex_t _mut;
+    map < string, int >_dictionaryMap;
+    map < string, int >::iterator _it;
+    Bool_t _showDebugOutput;
 
-        void _lock(void);
-        void _unlock(void);
+    void _lock (void);
+    void _unlock (void);
 };
 
 /*******************************************************************************
@@ -118,4 +128,3 @@ class Word_Dict
 #endif /* _MAIN_ */
 
 #endif /* __WORD_DICT_H__ */
-

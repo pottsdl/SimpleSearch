@@ -36,16 +36,17 @@
 #include "word_dict.hpp"
 
 #if defined(TEST)
-extern "C" {
-    void bufferProcThreeWordsNotAtBegin(void);
-    void bufferProcFourWordsAtBegin(void);
-    void bufferProcOneWordAtBegin(void);
-    void bufferProcOneWordAtEnd(void);
-    void bufferProcFullBuffer(void);
+extern "C"
+{
+    void bufferProcThreeWordsNotAtBegin (void);
+    void bufferProcFourWordsAtBegin (void);
+    void bufferProcOneWordAtBegin (void);
+    void bufferProcOneWordAtEnd (void);
+    void bufferProcFullBuffer (void);
 
-    void fileProcess(void);
+    void fileProcess (void);
 }
-#endif /* defined(TEST) */
+#endif                          /* defined(TEST) */
 
 /*******************************************************************************
  * Typedefs
@@ -71,10 +72,11 @@ extern "C" {
  * External Function Prototypes
  *******************************************************************************
  */
-Bool_t isWordChar(const char thisOne);
-void processFile(int tid, std::string filePath, Word_Dict *dict);
-int processBufferForWords(char *buffer, int buffer_sz, char **word);
-int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list);
+Bool_t isWordChar (const char thisOne);
+void processFile (int tid, std::string filePath, Word_Dict * dict);
+int processBufferForWords (char *buffer, int buffer_sz, char **word);
+int processWholeBuffer (char *buffer, int buffer_sz,
+                        std::list < char *>&word_list);
 
 /*******************************************************************************
  * Global Variables
@@ -87,4 +89,3 @@ int processWholeBuffer(char *buffer, int buffer_sz, std::list<char *> &word_list
 #endif /* _MAIN_ */
 
 #endif /* __BUFFER_PROCESSING_H__ */
-

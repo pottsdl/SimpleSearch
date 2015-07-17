@@ -21,8 +21,8 @@
  * System Includes
  *******************************************************************************
  */
-#include <stdio.h> /* for fprintf() */
-#include <errno.h> /* for errno() */
+#include <stdio.h>              /* for fprintf() */
+#include <errno.h>              /* for errno() */
 
 /*******************************************************************************
  * Project Includes
@@ -91,4 +91,3 @@ typedef enum
 #endif /* _MAIN_ */
 
 #endif /* __ERROR_MACROS_H__ */
-

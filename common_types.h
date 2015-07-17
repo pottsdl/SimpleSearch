@@ -67,4 +67,3 @@ typedef unsigned char Bool_t;
 #endif /* _MAIN_ */
 
 #endif /* __COMMON_TYPES_H__ */
-

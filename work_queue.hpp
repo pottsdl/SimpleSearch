@@ -21,7 +21,7 @@
  * System Includes
  *******************************************************************************
  */
-#include <pthread.h> /* for pthread_* calls */
+#include <pthread.h>            /* for pthread_* calls */
 #include <queue>
 #include <string>
 
@@ -49,32 +49,36 @@ using namespace std;
 
 class Work_Queue
 {
-    public:
-        Work_Queue(void);
-        virtual ~Work_Queue(void);
-        void lock(void);
-        void unlock(void);
-        Bool_t isLocked(void) { return(_is_locked); };
-        void push(string filePath);
-        void pop(void);
-        void waitForNotEmpty(void);
-        string pop_front(void);
-        string front(void);
-        unsigned int size(void);
-        Bool_t empty();
+  public:
+    Work_Queue (void);
+      virtual ~ Work_Queue (void);
+    void lock (void);
+    void unlock (void);
+    Bool_t isLocked (void)
+    {
+        return (_is_locked);
+    };
+    void push (string filePath);
+    void pop (void);
+    void waitForNotEmpty (void);
+    string pop_front (void);
+    string front (void);
+    unsigned int size (void);
+    Bool_t empty ();
 
 
-    private:
-        Bool_t _mut_init;
-        Bool_t _con_init;
-        Bool_t _is_locked;
-        pthread_mutex_t _mut;
-        pthread_cond_t  _con;
-        queue<string> _filePathQueue;
-        void _lock(void);
-        void _unlock(void);
-        void _signal(void);
-        void _wait(void);
+  private:
+    Bool_t _mut_init;
+    Bool_t _con_init;
+    Bool_t _is_locked;
+    pthread_mutex_t _mut;
+    pthread_cond_t _con;
+
+    queue < string > _filePathQueue;
+    void _lock (void);
+    void _unlock (void);
+    void _signal (void);
+    void _wait (void);
 };
 
 /*******************************************************************************
@@ -98,4 +102,3 @@ class Work_Queue
 #endif /* _MAIN_ */
 
 #endif /* __WORK_QUEUE_H__ */
-
