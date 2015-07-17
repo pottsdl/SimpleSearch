@@ -738,7 +738,7 @@ bool wordRevCmp (const pair < string, int >&left_count, const pair < string,
  */
 void Word_Dict::printTopX (int top_X_counts)
 {
-    vector < pair < string, int >>top_list;
+    vector< pair<string,int>   > top_list;
     string word;
     int wordCount = -1;
     int top_count = top_X_counts;
