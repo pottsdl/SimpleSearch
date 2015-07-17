@@ -58,6 +58,8 @@
  *******************************************************************************
  */
 
+using namespace std;
+
 /*******************************************************************************
  ********************* E X T E R N A L  F U N C T I O N S **********************
  *******************************************************************************
@@ -96,81 +98,101 @@
  */
 extern void listdir(const char *dir_name, Work_Queue *fileQueue)
 {
-    DIR * directory_handle;
+    DIR *directory_handle;
 
     /* Open the directory specified by "dir_name". */
-
     directory_handle = opendir (dir_name);
 
     /* Check it was opened. */
-    if (! directory_handle) {
+    if (directory_handle == NULL)
+    {
         fprintf (stderr, "Cannot open directory '%s': %s\n",
                  dir_name, strerror (errno));
         exit (EXIT_FAILURE);
     }
-    while (1) {
-        struct dirent * entry;
-        const char * d_name;
+
+    while (1)
+    {
+        struct dirent *entry; /* directory entry struct */
+        const char *d_name;   /* shortcut pointer to name in entry struct */
 
         /* "Readdir" gets subsequent entries from "directory_handle". */
         entry = readdir (directory_handle);
-        if (! entry) {
-            /* There are no more entries in this directory, so break
-               out of the while loop. */
+
+        /*
+         * There are no more entries in this directory, so break out of the while loop.
+         * NOTE:  This is the recursion exit condition.
+         */
+        if (entry == NULL)
+        {
             break;
         }
+
+        /* Now that we know entry is safe, point to 'd_name' in it */
         d_name = entry->d_name;
-#if 0
-        /* Print the name of the file and directory. */
-        printf ("%s/%s\n", dir_name, d_name);
 
-#else
-        /* If you don't want to print the directories, use the
-           following line: */
-
-        if (! (entry->d_type & DT_DIR)) {
+        /* Only need to check for extension if this is a file */
+        if ((entry->d_type & DT_DIR) > 0)
+        {
+            /* Find first '.' starting at the end */
             const char *extension = strrchr(d_name, '.');
+
+            /* If we have a file extension, AND that extension is ".txt" */
             if ((extension != NULL) && (strcmp(extension, ".txt") == 0))
             {
-                // printf ("[%c] %s/%s\n", 'f', dir_name, d_name);
                 /*
-                 * Make space for a copy of the full file path
+                 * Make space for a copy of the full file path:
                  * dir_name + '/' + d_name + '\0';
                  */
-                int pathLen = strlen(dir_name) + strlen(d_name) + 1 + 1;
+                int pathLen =
+                    strlen(dir_name) + /* For dir_name                   */
+                    strlen(d_name) +   /* For file name (d_name)         */
+                    1 +                /* For slash between dir and file */
+                    1;                 /* For '\0'                       */
                 char *pathCopy = (char *) calloc(pathLen, sizeof(char));
+
+                /*
+                 * Construct the full path to the file, appending file name to
+                 * path
+                 */
                 snprintf(pathCopy, pathLen, "%s/%s", dir_name, d_name);
-                std::string pathString = pathCopy;
+
+                /* Convert from C-string to C++ string */
+                // string pathString = pathCopy;
+                string pathString = dir_name + "/" + d_name;
+
+                /* Add new file to the processing queue */
                 fileQueue->push(pathString);
+
+                /* Free up temp string area */
                 free(pathCopy);
             }
         }
-#endif /* 0 */
-
-
-        if (entry->d_type & DT_DIR) {
-
+        else /* We have a dir, do checks & call recursively to process next */
+        {
             /* Check that the directory is not "directory_handle" or directory_handle's parent. */
-            
-            if (strcmp (d_name, "..") != 0 &&
-                strcmp (d_name, ".") != 0) {
+            if ((strcmp (d_name, "..") != 0 &&
+                        strcmp (d_name, ".") != 0))
+            {
                 int path_length;
                 char path[PATH_MAX];
  
                 path_length = snprintf (path, PATH_MAX,
                                         "%s/%s", dir_name, d_name);
-                /* printf ("[%c] %s\n", 'd', path); */
-                if (path_length >= PATH_MAX) {
+                if (path_length >= PATH_MAX)
+                {
                     fprintf (stderr, "Path length has got too long.\n");
                     exit (EXIT_FAILURE);
                 }
+
                 /* Recursively call "listdir" with the new path. */
                 listdir (path, fileQueue);
             }
-	}
+        }
     }
     /* After going through all the entries, close the directory. */
-    if (closedir (directory_handle)) {
+    if (closedir (directory_handle))
+    {
         fprintf (stderr, "Could not close '%s': %s\n",
                  dir_name, strerror (errno));
         exit (EXIT_FAILURE);
