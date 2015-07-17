@@ -1,0 +1,827 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - Basic example - search_with_git/word_dict.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">search_with_git</a> - word_dict.cpp<span style="font-size: 80%;"> (source / <a href="word_dict.cpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">Basic example ( <span style="font-size:80%;"><a href="../descriptions.html" target="_parent">view descriptions</a></span> )</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">236</td>
+            <td class="headerCovTableEntry">280</td>
+            <td class="headerCovTableEntryMed">84.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-06-15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryMed">86.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+</td>
+            <td></td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**</a>
+<span class="lineNum">       2 </span>            :  * @file           word_dict.cpp
+<span class="lineNum">       3 </span>            :  * @brief:         &lt;description&gt;
+<span class="lineNum">       4 </span>            :  * @verbatim
+<a name="5"><span class="lineNum">       5 </span>            :  *******************************************************************************</a>
+<span class="lineNum">       6 </span>            :  * Author:         Douglas L. Potts
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  * Date:           06/10/2015, &lt;SCR #&gt;
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<span class="lineNum">      10 </span>            :  * History:
+<span class="lineNum">      11 </span>            :  * Date        SCR #  Name  Description
+<span class="lineNum">      12 </span>            :  * -----------------------------------------------------------------------------
+<a name="13"><span class="lineNum">      13 </span>            :  *</a>
+<span class="lineNum">      14 </span>            :  *******************************************************************************
+<span class="lineNum">      15 </span>            :  * @endverbatim
+<span class="lineNum">      16 </span>            :  */
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<span class="lineNum">      18 </span>            : /*******************************************************************************
+<span class="lineNum">      19 </span>            :  * System Includes
+<span class="lineNum">      20 </span>            :  *******************************************************************************
+<a name="21"><span class="lineNum">      21 </span>            :  */</a>
+<span class="lineNum">      22 </span>            : #include &lt;stdlib.h&gt; /* for malloc() */
+<span class="lineNum">      23 </span>            : #include &lt;string.h&gt; /* for memset() */
+<span class="lineNum">      24 </span>            : #include &lt;iostream&gt; /* for cout() */
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;vector&gt;</a>
+<span class="lineNum">      26 </span>            : #include &lt;algorithm&gt; /* for std::sort */
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /*******************************************************************************
+<a name="29"><span class="lineNum">      29 </span>            :  * Project Includes</a>
+<span class="lineNum">      30 </span>            :  *******************************************************************************
+<span class="lineNum">      31 </span>            :  */
+<span class="lineNum">      32 </span>            : #include &quot;common_types.h&quot;
+<a name="33"><span class="lineNum">      33 </span>            : #include &quot;error_macros.h&quot;</a>
+<span class="lineNum">      34 </span>            : #include &quot;word_dict.hpp&quot;
+<span class="lineNum">      35 </span>            : #if defined(TEST)
+<span class="lineNum">      36 </span>            : #include &quot;unity.h&quot;
+<a name="37"><span class="lineNum">      37 </span>            : #endif /* defined(TEST) */</a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*******************************************************************************
+<span class="lineNum">      40 </span>            :  * Local Function Prototypes 
+<a name="41"><span class="lineNum">      41 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      42 </span>            :  */
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : /*******************************************************************************
+<a name="45"><span class="lineNum">      45 </span>            :  * Local Constants </a>
+<span class="lineNum">      46 </span>            :  *******************************************************************************
+<span class="lineNum">      47 </span>            :  */
+<span class="lineNum">      48 </span>            : #define DBG(X)
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span>            : #if defined(TEST)
+<span class="lineNum">      51 </span>            : static char word1[] = &quot;1&quot;;
+<span class="lineNum">      52 </span>            : static char word2[] = &quot;3&quot;;
+<a name="53"><span class="lineNum">      53 </span>            : static char word3[] = &quot;7&quot;;</a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : static char APPLES[] = &quot;apples&quot;;
+<span class="lineNum">      56 </span>            : static char ORANGES[] = &quot;oranges&quot;;
+<a name="57"><span class="lineNum">      57 </span>            : static char CHERRIES[] = &quot;cherries&quot;;</a>
+<span class="lineNum">      58 </span>            : static char PEARS[] = &quot;pears&quot;;
+<span class="lineNum">      59 </span>            : #endif /* defined(TEST) */
+<span class="lineNum">      60 </span>            : 
+<a name="61"><span class="lineNum">      61 </span>            : /*******************************************************************************</a>
+<span class="lineNum">      62 </span>            :  * File Scoped Variables 
+<span class="lineNum">      63 </span>            :  *******************************************************************************
+<span class="lineNum">      64 </span>            :  */
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span>            : /*******************************************************************************
+<span class="lineNum">      67 </span>            :  ********************* E X T E R N A L  F U N C T I O N S **********************
+<span class="lineNum">      68 </span>            :  *******************************************************************************
+<a name="69"><span class="lineNum">      69 </span>            :  */</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : #if defined(TEST)
+<a name="72"><span class="lineNum">      72 </span>            : extern &quot;C&quot; {</a>
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     void wordDictConstruct(void)</span>
+<span class="lineNum">      75 </span>            :     {
+<span class="lineNum">      76 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_EQUAL(myDictionary, NULL);</span></a>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :         if (myDictionary-&gt;isLocked())</span>
+<span class="lineNum">      79 </span>            :         {
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary isLocked\n&quot;, __FILE__, __LINE__);</span>
+<a name="81"><span class="lineNum">      81 </span>            :         }</a>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :         TEST_ASSERT_EQUAL(myDictionary-&gt;isLocked(), FALSE);</span>
+<span class="lineNum">      83 </span>            : 
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          1 :     }</span></a>
+<span class="lineNum">      86 </span><span class="lineCov">          1 :     void wordDictAddItems(void)</span>
+<span class="lineNum">      87 </span>            :     {
+<span class="lineNum">      88 </span><span class="lineCov">          1 :         int idx = 0;</span>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span></a>
+<span class="lineNum">      90 </span><span class="lineCov">          1 :         if (myDictionary == NULL)</span>
+<span class="lineNum">      91 </span>            :         {
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is NULL\n&quot;, __FILE__, __LINE__);</span>
+<a name="93"><span class="lineNum">      93 </span>            :         }</a>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_NULL(myDictionary);</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word1, 2);</span>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word2, 5);</span></a>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word3, 7);</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :         printf (&quot;myDictionary Inserted WORDS:\n&quot;);</span>
+<span class="lineNum">     100 </span>            : 
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          1 :         std::map&lt;string,int&gt;::iterator it = myDictionary-&gt;getMap().begin();</span></a>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :         // showing contents:
+<span class="lineNum">     104 </span><span class="lineCov">          1 :         std::cout &lt;&lt; &quot;myDictionary contains:\n&quot;;</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          8 :         for (idx = 0, it = myDictionary-&gt;getMap().begin();</span></a>
+<span class="lineNum">     106 </span><span class="lineCov">          4 :                 it != myDictionary-&gt;getMap().end();</span>
+<span class="lineNum">     107 </span>            :                 ++it, idx++)
+<span class="lineNum">     108 </span>            :         {
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<span class="lineNum">     110 </span><span class="lineCov">          3 :             std::cout &lt;&lt; it-&gt;first &lt;&lt; &quot; =&gt; &quot; &lt;&lt; it-&gt;second &lt;&lt; '\n';</span>
+<span class="lineNum">     111 </span><span class="lineCov">          3 :             string key = it-&gt;first;</span>
+<span class="lineNum">     112 </span><span class="lineCov">          3 :             const char *key_cstr = key.c_str();</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          3 :             int val = it-&gt;second;</span></a>
+<span class="lineNum">     114 </span><span class="lineCov">          3 :             switch (idx)</span>
+<span class="lineNum">     115 </span>            :             {
+<span class="lineNum">     116 </span>            :                 case 0:
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(strcmp(key_cstr, &quot;1&quot;), 0);</span></a>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(val,  2);</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :                     break;</span>
+<span class="lineNum">     120 </span>            :                 case 1:
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(strcmp(key_cstr, &quot;3&quot;), 0);</span></a>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(val, 5);</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :                     break;</span>
+<span class="lineNum">     124 </span>            :                 case 2:
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(strcmp(key_cstr, &quot;7&quot;), 0);</span></a>
+<span class="lineNum">     126 </span><span class="lineCov">          1 :                     TEST_ASSERT_EQUAL(val, 7);</span>
+<span class="lineNum">     127 </span><span class="lineCov">          1 :                     break;</span>
+<span class="lineNum">     128 </span>            :             }
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">          3 :         }</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     131 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     132 </span><span class="lineCov">          1 :     void wordDictLock(void)</span>
+<a name="133"><span class="lineNum">     133 </span>            :     {</a>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :         Bool_t isLocked = FALSE;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_EQUAL(myDictionary, NULL);</span>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          1 :         printf (&quot;Successfully constructed myDictionary\n&quot;);</span></a>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">          1 :         printf (&quot;[%s:%d] locking myDictionary\n&quot;, __FILE__,__LINE__);</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :         myDictionary-&gt;lock();</span>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">          1 :         printf (&quot;checking if myDictionary is locked\n&quot;);</span></a>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :         isLocked = myDictionary-&gt;isLocked();</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :         if (isLocked)</span>
+<span class="lineNum">     144 </span>            :         {
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          1 :             printf (&quot;[%s:%d] myDictionary is locked\n&quot;, __FILE__, __LINE__);</span></a>
+<span class="lineNum">     146 </span>            :         }
+<span class="lineNum">     147 </span>            :         else
+<span class="lineNum">     148 </span>            :         {
+<a name="149"><span class="lineNum">     149 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is UNLOCKED\n&quot;, __FILE__, __LINE__);</span></a>
+<span class="lineNum">     150 </span>            :         }
+<span class="lineNum">     151 </span><span class="lineCov">          1 :         printf (&quot;unlocking myDictionary\n&quot;);</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :         myDictionary-&gt;unlock();</span>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          1 :         printf (&quot;myDictionary is UNLOCKED\n&quot;);</span></a>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :         TEST_ASSERT_EQUAL(isLocked, TRUE);</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineCov">          1 :         printf (&quot;deleting myDictionary\n&quot;);</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     158 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     void wordDictUnlock(void)</span>
+<span class="lineNum">     160 </span>            :     {
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">          1 :         Bool_t isLocked = FALSE;</span></a>
+<span class="lineNum">     162 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span>
+<span class="lineNum">     163 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_EQUAL(myDictionary, NULL);</span>
+<span class="lineNum">     164 </span>            : 
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">          1 :         printf (&quot;[%s:%d] locking myDictionary\n&quot;, __FILE__,__LINE__);</span></a>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         myDictionary-&gt;lock();</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :         isLocked = myDictionary-&gt;isLocked();</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :         if (isLocked)</span>
+<a name="169"><span class="lineNum">     169 </span>            :         {</a>
+<span class="lineNum">     170 </span><span class="lineCov">          1 :             printf (&quot;[%s:%d] myDictionary is locked\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     171 </span>            :         }
+<span class="lineNum">     172 </span>            :         else
+<a name="173"><span class="lineNum">     173 </span>            :         {</a>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is UNLOCKED\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     175 </span>            :         }
+<span class="lineNum">     176 </span><span class="lineCov">          1 :         TEST_ASSERT_EQUAL(myDictionary-&gt;isLocked(), TRUE);</span>
+<a name="177"><span class="lineNum">     177 </span>            : </a>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :         printf (&quot;[%s:%d] unlocking myDictionary\n&quot;, __FILE__,__LINE__);</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :         myDictionary-&gt;unlock();</span>
+<span class="lineNum">     180 </span>            : 
+<a name="181"><span class="lineNum">     181 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     182 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     183 </span><span class="lineCov">          1 :     void wordDictIterItems(void)</span>
+<span class="lineNum">     184 </span>            :     {
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span></a>
+<span class="lineNum">     186 </span><span class="lineCov">          1 :         string _word;</span>
+<span class="lineNum">     187 </span><span class="lineCov">          1 :         int  _wordCount = 0;</span>
+<span class="lineNum">     188 </span><span class="lineCov">          1 :         if (myDictionary == NULL)</span>
+<a name="189"><span class="lineNum">     189 </span>            :         {</a>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is NULL\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     191 </span>            :         }
+<span class="lineNum">     192 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_NULL(myDictionary);</span>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<span class="lineNum">     194 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word1, 2);</span>
+<span class="lineNum">     195 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word2, 5);</span>
+<span class="lineNum">     196 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(word3, 7);</span>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          1 :         printf (&quot;myDictionary Inserted WORDS:\n&quot;);</span></a>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">          1 :         std::cout &lt;&lt; &quot;myDictionary contains:\n&quot;;</span>
+<span class="lineNum">     200 </span><span class="lineCov">          1 :         myDictionary-&gt;begin();</span>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          4 :         do</span></a>
+<span class="lineNum">     202 </span>            :         {
+<span class="lineNum">     203 </span><span class="lineCov">          4 :             std::cout &lt;&lt; &quot;  getting next word: &quot;;</span>
+<span class="lineNum">     204 </span><span class="lineCov">          4 :             myDictionary-&gt;getNextWord(_word, &amp;_wordCount);</span>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">          4 :             if (_word.empty() == false)</span></a>
+<span class="lineNum">     206 </span>            :             {
+<span class="lineNum">     207 </span><span class="lineCov">          3 :                 std::cout &lt;&lt; _word &lt;&lt; &quot; =&gt; &quot; &lt;&lt; _wordCount &lt;&lt; '\n';</span>
+<span class="lineNum">     208 </span>            :             }
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">          4 :         } while (_word.empty() == false);</span></a>
+<span class="lineNum">     210 </span>            : 
+<a name="211"><span class="lineNum">     211 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :     }</span>
+<a name="213"><span class="lineNum">     213 </span><span class="lineCov">          1 :     void wordDictGoodFind(void)</span></a>
+<span class="lineNum">     214 </span>            :     {
+<span class="lineNum">     215 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :         if (myDictionary == NULL)</span>
+<a name="217"><span class="lineNum">     217 </span>            :         {</a>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is NULL\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     219 </span>            :         }
+<span class="lineNum">     220 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_NULL(myDictionary);</span>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<span class="lineNum">     222 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(APPLES, 2);</span>
+<span class="lineNum">     223 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(ORANGES, 5);</span>
+<span class="lineNum">     224 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(CHERRIES, 7);</span>
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :         TEST_ASSERT_TRUE(myDictionary-&gt;hasWord(APPLES));</span>
+<span class="lineNum">     227 </span>            : 
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">          1 :     }</span></a>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :     void wordDictGoodMiss(void)</span>
+<span class="lineNum">     231 </span>            :     {
+<span class="lineNum">     232 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">          1 :         if (myDictionary == NULL)</span></a>
+<span class="lineNum">     234 </span>            :         {
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is NULL\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     236 </span>            :         }
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_NULL(myDictionary);</span></a>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(APPLES, 2);</span>
+<span class="lineNum">     240 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(ORANGES, 5);</span>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(CHERRIES, 7);</span></a>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span><span class="lineCov">          1 :         TEST_ASSERT_FALSE(myDictionary-&gt;hasWord(PEARS));</span>
+<span class="lineNum">     244 </span>            : 
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     246 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :     void wordDictGoodIncrement(void)</span>
+<span class="lineNum">     248 </span>            :     {
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          1 :         Word_Dict *myDictionary = new Word_Dict();</span></a>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">          1 :         if (myDictionary == NULL)</span>
+<span class="lineNum">     252 </span>            :         {
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 :             printf (&quot;[%s:%d] myDictionary is NULL\n&quot;, __FILE__, __LINE__);</span></a>
+<span class="lineNum">     254 </span>            :         }
+<span class="lineNum">     255 </span><span class="lineCov">          1 :         TEST_ASSERT_NOT_NULL(myDictionary);</span>
+<span class="lineNum">     256 </span><span class="lineCov">          1 :         myDictionary-&gt;setDebug(TRUE);</span>
+<a name="257"><span class="lineNum">     257 </span>            : </a>
+<span class="lineNum">     258 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(APPLES, 2);</span>
+<span class="lineNum">     259 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(ORANGES, 5);</span>
+<span class="lineNum">     260 </span><span class="lineCov">          1 :         myDictionary-&gt;insertWord(CHERRIES, 7);</span>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<span class="lineNum">     262 </span><span class="lineCov">          1 :         myDictionary-&gt;print();</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          1 :         if (myDictionary-&gt;hasWord(APPLES) == FALSE)</span>
+<a name="265"><span class="lineNum">     265 </span>            :         {</a>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             printf (&quot;Word(%s) is not in dict. adding it\n&quot;, APPLES);</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :             myDictionary-&gt;insertWord(APPLES, 1);</span>
+<span class="lineNum">     268 </span>            :         }
+<a name="269"><span class="lineNum">     269 </span>            :         else</a>
+<span class="lineNum">     270 </span>            :         {
+<span class="lineNum">     271 </span><span class="lineCov">          1 :             printf (&quot;Word(%s) IS in dict. INCREMENTING COUNT\n&quot;, APPLES);</span>
+<span class="lineNum">     272 </span><span class="lineCov">          1 :             myDictionary-&gt;incrementWordCount(APPLES);</span>
+<a name="273"><span class="lineNum">     273 </span>            :         }</a>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :         myDictionary-&gt;print();</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :         TEST_ASSERT_EQUAL(myDictionary-&gt;getWordCount(APPLES), 3);</span>
+<span class="lineNum">     276 </span>            : 
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">          1 :         delete myDictionary;</span></a>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">     279 </span>            : }
+<span class="lineNum">     280 </span>            : #endif /* defined(TEST) */
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<span class="lineNum">     282 </span>            : /**
+<span class="lineNum">     283 </span>            :  *******************************************************************************
+<span class="lineNum">     284 </span>            :  * @brief Word_Dict - Constructor
+<a name="285"><span class="lineNum">     285 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     286 </span>            :  */
+<span class="lineNum">     287 </span><span class="lineCov">          9 : Word_Dict::Word_Dict(void)</span>
+<span class="lineNum">     288 </span>            : {
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">          9 :     int stat = 0;</span></a>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">          9 :     _mut_init = FALSE;</span>
+<span class="lineNum">     292 </span><span class="lineCov">          9 :     _is_locked = FALSE;</span>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<span class="lineNum">     294 </span><span class="lineCov">          9 :     stat = pthread_mutex_init(&amp;_mut, NULL);</span>
+<span class="lineNum">     295 </span><span class="lineCov">          9 :     EXIT_EARLY_ON_ERROR(stat);</span>
+<span class="lineNum">     296 </span><span class="lineCov">          9 :     _mut_init = TRUE;</span>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">          9 :     _it = _dictionaryMap.begin();</span></a>
+<span class="lineNum">     298 </span><span class="lineCov">          9 :     _showDebugOutput = FALSE;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            : cleanup:
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">          9 :     return;</span></a>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            : error:
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :     goto cleanup;</span>
+<a name="305"><span class="lineNum">     305 </span>            : }</a>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : /**
+<span class="lineNum">     308 </span>            :  *******************************************************************************
+<a name="309"><span class="lineNum">     309 </span>            :  * @brief ~Word_Dict - Destructor</a>
+<a name="310"><span class="lineNum">     310 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     311 </span>            :  */
+<span class="lineNum">     312 </span><span class="lineCov">         24 : Word_Dict::~Word_Dict(void)</span>
+<a name="313"><span class="lineNum">     313 </span>            : {</a>
+<span class="lineNum">     314 </span><span class="lineCov">          8 :     int stat = 0;</span>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            :     DBG(printf (&quot;[%s:%d] deleting myDictionary\n&quot;, __FILE__, __LINE__));
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">          8 :     _lock();</span>
+<span class="lineNum">     320 </span><span class="lineCov">          8 :     if (!_dictionaryMap.empty())</span>
+<a name="321"><span class="lineNum">     321 </span>            :     {</a>
+<span class="lineNum">     322 </span>            :         DBG(printf (&quot;[%s:%d] Erasing any existing map entries\n&quot;, __FILE__, __LINE__));
+<span class="lineNum">     323 </span><span class="lineCov">          5 :         _dictionaryMap.erase(_dictionaryMap.begin(), _dictionaryMap.end());</span>
+<span class="lineNum">     324 </span>            :     }
+<a name="325"><span class="lineNum">     325 </span>            :     else</a>
+<span class="lineNum">     326 </span>            :     {
+<span class="lineNum">     327 </span><span class="lineCov">          3 :         printf (&quot;[%s:%d] No map entries to erase\n&quot;, __FILE__, __LINE__);</span>
+<span class="lineNum">     328 </span>            :     }
+<a name="329"><span class="lineNum">     329 </span><span class="lineCov">          8 :     _unlock();</span></a>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            :     DBG(printf (&quot;[%s:%d] Destroying mutex\n&quot;, __FILE__, __LINE__));
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">          8 :     stat = pthread_mutex_destroy(&amp;_mut);</span></a>
+<span class="lineNum">     334 </span><span class="lineCov">          8 :     if (stat != 0)</span>
+<span class="lineNum">     335 </span>            :     {
+<span class="lineNum">     336 </span>            :         fprintf(stderr, &quot;[%s, %d:%s] failed, stat=%d, errno=%d, %s\n&quot;,
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 __FILE__, __LINE__, __FUNCTION__, stat, errno, strerror(errno));</span></a>
+<span class="lineNum">     338 </span>            :     }
+<span class="lineNum">     339 </span><span class="lineCov">          8 :     _mut_init = FALSE;</span>
+<span class="lineNum">     340 </span>            : 
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">         16 : }</span></a>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            : /**
+<span class="lineNum">     344 </span>            :  *******************************************************************************
+<a name="345"><span class="lineNum">     345 </span>            :  * @brief _lock - Class private lock method, for class access</a>
+<a name="346"><span class="lineNum">     346 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     347 </span>            :  */
+<span class="lineNum">     348 </span><span class="lineCov">         58 : void Word_Dict::_lock(void)</span>
+<a name="349"><span class="lineNum">     349 </span>            : {</a>
+<span class="lineNum">     350 </span><span class="lineCov">         58 :     int stat = STATUS_SUCCESS;</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineCov">         58 :     stat = pthread_mutex_lock (&amp;_mut);</span>
+<a name="353"><span class="lineNum">     353 </span><span class="lineCov">         58 :     if (stat == STATUS_SUCCESS)</span></a>
+<span class="lineNum">     354 </span>            :     {
+<span class="lineNum">     355 </span><span class="lineCov">         58 :         _is_locked = TRUE;</span>
+<span class="lineNum">     356 </span>            :     }
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">         58 : }</span></a>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            : /**
+<span class="lineNum">     360 </span>            :  *******************************************************************************
+<a name="361"><span class="lineNum">     361 </span>            :  * @brief lock - Public lock method.</a>
+<a name="362"><span class="lineNum">     362 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     363 </span>            :  */
+<span class="lineNum">     364 </span><span class="lineCov">          2 : void Word_Dict::lock(void)</span>
+<a name="365"><span class="lineNum">     365 </span>            : {</a>
+<span class="lineNum">     366 </span><span class="lineCov">          2 :     _lock();</span>
+<span class="lineNum">     367 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     368 </span>            : 
+<a name="369"><span class="lineNum">     369 </span>            : /**</a>
+<span class="lineNum">     370 </span>            :  *******************************************************************************
+<span class="lineNum">     371 </span>            :  * @brief _unlock - Class private unlock method, for class access
+<a name="372"><span class="lineNum">     372 </span>            :  *******************************************************************************</a>
+<a name="373"><span class="lineNum">     373 </span>            :  */</a>
+<span class="lineNum">     374 </span><span class="lineCov">         58 : void Word_Dict::_unlock(void)</span>
+<span class="lineNum">     375 </span>            : {
+<span class="lineNum">     376 </span><span class="lineCov">         58 :     int stat = STATUS_SUCCESS;</span>
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<span class="lineNum">     378 </span><span class="lineCov">         58 :     stat = pthread_mutex_unlock (&amp;_mut);</span>
+<span class="lineNum">     379 </span><span class="lineCov">         58 :     if (stat == STATUS_SUCCESS)</span>
+<span class="lineNum">     380 </span>            :     {
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">         58 :         _is_locked = FALSE;</span></a>
+<span class="lineNum">     382 </span>            :     }
+<span class="lineNum">     383 </span><span class="lineCov">         58 : }</span>
+<span class="lineNum">     384 </span>            : 
+<a name="385"><span class="lineNum">     385 </span>            : /**</a>
+<span class="lineNum">     386 </span>            :  *******************************************************************************
+<span class="lineNum">     387 </span>            :  * @brief unlock - Public unlock method.
+<a name="388"><span class="lineNum">     388 </span>            :  *******************************************************************************</a>
+<a name="389"><span class="lineNum">     389 </span>            :  */</a>
+<span class="lineNum">     390 </span><span class="lineCov">          2 : void Word_Dict::unlock(void)</span>
+<span class="lineNum">     391 </span>            : {
+<span class="lineNum">     392 </span><span class="lineCov">          2 :     _unlock();</span>
+<a name="393"><span class="lineNum">     393 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            : /**
+<span class="lineNum">     396 </span>            :  *******************************************************************************
+<a name="397"><span class="lineNum">     397 </span>            :  * @brief insertWord - Insert a word and word count pair into the dictionary.</a>
+<span class="lineNum">     398 </span>            :  *
+<span class="lineNum">     399 </span>            :  * &lt;!-- Parameters --&gt;
+<span class="lineNum">     400 </span>            :  *      @param[in]      word           String representation of word for
+<a name="401"><span class="lineNum">     401 </span>            :  *                                     dictionary.</a>
+<span class="lineNum">     402 </span>            :  *      @param[in]      count          Initial word count for 'word'
+<span class="lineNum">     403 </span>            :  *
+<span class="lineNum">     404 </span>            :  * &lt;!-- Returns --&gt;
+<a name="405"><span class="lineNum">     405 </span>            :  *      None (if return type is void)</a>
+<span class="lineNum">     406 </span>            :  *
+<span class="lineNum">     407 </span>            :  * @par Pre/Post Conditions:
+<span class="lineNum">     408 </span>            :  *      None (if entry/exit conditions do not apply)
+<a name="409"><span class="lineNum">     409 </span>            :  *</a>
+<span class="lineNum">     410 </span>            :  * @par Global Data:
+<span class="lineNum">     411 </span>            :  *      None (if no global data)
+<span class="lineNum">     412 </span>            :  *
+<a name="413"><span class="lineNum">     413 </span>            :  * @par Description:</a>
+<span class="lineNum">     414 </span>            :  *      Using the class access lock, insert the word and word count pair into
+<span class="lineNum">     415 </span>            :  *      the dictionary.
+<a name="416"><span class="lineNum">     416 </span>            :  *******************************************************************************</a>
+<a name="417"><span class="lineNum">     417 </span>            :  */</a>
+<span class="lineNum">     418 </span><span class="lineCov">         17 : void Word_Dict::insertWord(string word, int count)</span>
+<span class="lineNum">     419 </span>            : {
+<span class="lineNum">     420 </span><span class="lineCov">         17 :     _lock();</span>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">         17 :     _dictionaryMap.insert(pair&lt;string,int&gt;(word, count));</span></a>
+<span class="lineNum">     422 </span><span class="lineCov">         17 :     _unlock();</span>
+<span class="lineNum">     423 </span><span class="lineCov">         17 : }</span>
+<span class="lineNum">     424 </span>            : 
+<a name="425"><span class="lineNum">     425 </span>            : /**</a>
+<span class="lineNum">     426 </span>            :  *******************************************************************************
+<span class="lineNum">     427 </span>            :  * @brief begin - Set the Word_Dict instance iterator to the beginning of the
+<span class="lineNum">     428 </span>            :  * dictionary.
+<a name="429"><span class="lineNum">     429 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     430 </span>            :  */
+<span class="lineNum">     431 </span><span class="lineCov">          5 : void Word_Dict::begin(void)</span>
+<span class="lineNum">     432 </span>            : {
+<a name="433"><span class="lineNum">     433 </span><span class="lineCov">          5 :     _lock();</span></a>
+<span class="lineNum">     434 </span><span class="lineCov">          5 :     _it = _dictionaryMap.begin(); </span>
+<span class="lineNum">     435 </span><span class="lineCov">          5 :     _unlock();</span>
+<span class="lineNum">     436 </span><span class="lineCov">          5 : }</span>
+<a name="437"><span class="lineNum">     437 </span>            : </a>
+<span class="lineNum">     438 </span>            : /**
+<span class="lineNum">     439 </span>            :  *******************************************************************************
+<span class="lineNum">     440 </span>            :  * @brief end - Set the Word_Dict instance iterator to the end of the
+<a name="441"><span class="lineNum">     441 </span>            :  * dictionary.</a>
+<a name="442"><span class="lineNum">     442 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     443 </span>            :  */
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 : void Word_Dict::end(void)</span>
+<a name="445"><span class="lineNum">     445 </span>            : {</a>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :     _lock();</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     _it = _dictionaryMap.begin(); </span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :     _unlock();</span>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            : /**
+<span class="lineNum">     452 </span>            :  *******************************************************************************
+<a name="453"><span class="lineNum">     453 </span>            :  * @brief getNextWord - Using the in-class instance iterator, get the next word</a>
+<span class="lineNum">     454 </span>            :  * and its count.
+<span class="lineNum">     455 </span>            :  *
+<span class="lineNum">     456 </span>            :  * &lt;!-- Parameters --&gt;
+<a name="457"><span class="lineNum">     457 </span>            :  *      @param[in,out]  word           reference to string in which to put the</a>
+<span class="lineNum">     458 </span>            :  *                                     word from the dictionary.
+<span class="lineNum">     459 </span>            :  *      @param[in,out]  count          current word count for this 'word'
+<span class="lineNum">     460 </span>            :  *
+<a name="461"><span class="lineNum">     461 </span>            :  * &lt;!-- Returns --&gt;</a>
+<span class="lineNum">     462 </span>            :  *      None (if return type is void)
+<span class="lineNum">     463 </span>            :  *
+<span class="lineNum">     464 </span>            :  * @par Pre/Post Conditions:
+<a name="465"><span class="lineNum">     465 </span>            :  *      None (if entry/exit conditions do not apply)</a>
+<span class="lineNum">     466 </span>            :  *
+<span class="lineNum">     467 </span>            :  * @par Global Data:
+<span class="lineNum">     468 </span>            :  *      None (if no global data)
+<a name="469"><span class="lineNum">     469 </span>            :  *</a>
+<span class="lineNum">     470 </span>            :  * @par Description:
+<span class="lineNum">     471 </span>            :  *      Using the class access lock, and iterator, return the next word and word
+<span class="lineNum">     472 </span>            :  *      count pair.  Requires that begin() be called prior to calling, and will 
+<a name="473"><span class="lineNum">     473 </span>            :  *      return a -1 word count, and empty string if at the end of the dictionary</a>
+<span class="lineNum">     474 </span>            :  *      list.
+<a name="475"><span class="lineNum">     475 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     476 </span>            :  */
+<a name="477"><span class="lineNum">     477 </span><span class="lineCov">         18 : void Word_Dict::getNextWord(string &amp;word, int *count)</span></a>
+<span class="lineNum">     478 </span>            : {
+<span class="lineNum">     479 </span><span class="lineCov">         18 :     int _count = -1;</span>
+<span class="lineNum">     480 </span><span class="lineCov">         18 :     int stat = STATUS_SUCCESS;</span>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<span class="lineNum">     482 </span><span class="lineCov">         18 :     EXIT_ON_NULL_PTR(count, stat);</span>
+<span class="lineNum">     483 </span><span class="lineCov">         18 :     word = &quot;&quot;;</span>
+<span class="lineNum">     484 </span><span class="lineCov">         18 :     _lock();</span>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">         18 :     if (_it == _dictionaryMap.end())</span></a>
+<span class="lineNum">     486 </span>            :     {
+<span class="lineNum">     487 </span>            :         // fprintf(stderr, &quot;[%s, %d:%s] failed to get next, iterator at end\n&quot;,
+<span class="lineNum">     488 </span>            :                 // __FILE__, __LINE__, __FUNCTION__);
+<a name="489"><span class="lineNum">     489 </span>            :     }</a>
+<span class="lineNum">     490 </span>            :     else
+<span class="lineNum">     491 </span>            :     {
+<span class="lineNum">     492 </span><span class="lineCov">         13 :         word = _it-&gt;first;</span>
+<a name="493"><span class="lineNum">     493 </span><span class="lineCov">         13 :         _count = _it-&gt;second;</span></a>
+<span class="lineNum">     494 </span><span class="lineCov">         13 :         ++_it;</span>
+<span class="lineNum">     495 </span>            :     }
+<span class="lineNum">     496 </span>            : cleanup:
+<a name="497"><span class="lineNum">     497 </span><span class="lineCov">         18 :     if (count != NULL)</span></a>
+<span class="lineNum">     498 </span>            :     {
+<span class="lineNum">     499 </span><span class="lineCov">         18 :         *count = _count;</span>
+<span class="lineNum">     500 </span>            :     }
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">         18 :     _unlock();</span></a>
+<span class="lineNum">     502 </span><span class="lineCov">         18 :     return;</span>
+<span class="lineNum">     503 </span>            : error:
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :     goto cleanup;</span>
+<a name="505"><span class="lineNum">     505 </span>            : </a>
+<span class="lineNum">     506 </span>            : }
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            : /**
+<a name="509"><span class="lineNum">     509 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     510 </span>            :  * @brief hasWord - Search through dictionary to determine if word is contained.
+<span class="lineNum">     511 </span>            :  * and its count.
+<span class="lineNum">     512 </span>            :  *
+<a name="513"><span class="lineNum">     513 </span>            :  * &lt;!-- Parameters --&gt;</a>
+<span class="lineNum">     514 </span>            :  *      @param[in]      word           String representation of word
+<span class="lineNum">     515 </span>            :  *
+<span class="lineNum">     516 </span>            :  * &lt;!-- Returns --&gt;
+<a name="517"><span class="lineNum">     517 </span>            :  *      @return TRUE if word is already in the dictionary.</a>
+<span class="lineNum">     518 </span>            :  *      @return FALSE if word is not in the dictionary.
+<span class="lineNum">     519 </span>            :  *
+<span class="lineNum">     520 </span>            :  * @par Pre/Post Conditions:
+<a name="521"><span class="lineNum">     521 </span>            :  *      None (if entry/exit conditions do not apply)</a>
+<span class="lineNum">     522 </span>            :  *
+<span class="lineNum">     523 </span>            :  * @par Global Data:
+<span class="lineNum">     524 </span>            :  *      None (if no global data)
+<a name="525"><span class="lineNum">     525 </span>            :  *</a>
+<span class="lineNum">     526 </span>            :  * @par Description:
+<span class="lineNum">     527 </span>            :  *      Using the class access lock, search for the word, and if already present,
+<span class="lineNum">     528 </span>            :  *      return TRUE.
+<a name="529"><span class="lineNum">     529 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     530 </span>            :  */
+<span class="lineNum">     531 </span><span class="lineCov">          5 : Bool_t Word_Dict::hasWord(string word)</span>
+<span class="lineNum">     532 </span>            : {
+<a name="533"><span class="lineNum">     533 </span><span class="lineCov">          5 :     std::map&lt;string,int&gt;::iterator it;</span></a>
+<span class="lineNum">     534 </span><span class="lineCov">          5 :     Bool_t found = FALSE;</span>
+<span class="lineNum">     535 </span><span class="lineCov">          5 :     string wordFound;</span>
+<span class="lineNum">     536 </span>            : 
+<a name="537"><span class="lineNum">     537 </span>            : </a>
+<span class="lineNum">     538 </span><span class="lineCov">          5 :     _lock();</span>
+<span class="lineNum">     539 </span><span class="lineCov">          5 :     it = _dictionaryMap.find(word);</span>
+<span class="lineNum">     540 </span><span class="lineCov">          5 :     _unlock();</span>
+<a name="541"><span class="lineNum">     541 </span><span class="lineCov">          5 :     if ((it != _dictionaryMap.end()))</span></a>
+<span class="lineNum">     542 </span>            :     {
+<span class="lineNum">     543 </span><span class="lineCov">          2 :         int count = -1;</span>
+<span class="lineNum">     544 </span>            : 
+<a name="545"><span class="lineNum">     545 </span><span class="lineCov">          2 :         found = TRUE;</span></a>
+<span class="lineNum">     546 </span><span class="lineCov">          2 :         wordFound = it-&gt;first;</span>
+<span class="lineNum">     547 </span><span class="lineCov">          2 :         count = it-&gt;second;</span>
+<span class="lineNum">     548 </span><span class="lineCov">          2 :         if (_showDebugOutput == TRUE)</span>
+<a name="549"><span class="lineNum">     549 </span>            :         {</a>
+<span class="lineNum">     550 </span><span class="lineCov">          1 :             printf (&quot;%s =&gt; %d\n&quot;, wordFound.c_str(), count);</span>
+<span class="lineNum">     551 </span>            :         }
+<span class="lineNum">     552 </span>            :     }
+<a name="553"><span class="lineNum">     553 </span>            : </a>
+<span class="lineNum">     554 </span><span class="lineCov">          5 :     return(found);</span>
+<span class="lineNum">     555 </span>            : }
+<span class="lineNum">     556 </span>            : 
+<a name="557"><span class="lineNum">     557 </span>            : /**</a>
+<span class="lineNum">     558 </span>            :  *******************************************************************************
+<span class="lineNum">     559 </span>            :  * @brief incrementWordCount - Search through dictionary to determine if word is
+<span class="lineNum">     560 </span>            :  * contained, and if is present increment its word count.
+<a name="561"><span class="lineNum">     561 </span>            :  *</a>
+<span class="lineNum">     562 </span>            :  * &lt;!-- Parameters --&gt;
+<span class="lineNum">     563 </span>            :  *      @param[in]      word           String representation of word
+<span class="lineNum">     564 </span>            :  *
+<a name="565"><span class="lineNum">     565 </span>            :  * &lt;!-- Returns --&gt;</a>
+<span class="lineNum">     566 </span>            :  *      None (if return type is void)
+<span class="lineNum">     567 </span>            :  *
+<span class="lineNum">     568 </span>            :  * @par Pre/Post Conditions:
+<a name="569"><span class="lineNum">     569 </span>            :  *      None (if entry/exit conditions do not apply)</a>
+<span class="lineNum">     570 </span>            :  *
+<span class="lineNum">     571 </span>            :  * @par Global Data:
+<span class="lineNum">     572 </span>            :  *      None (if no global data)
+<a name="573"><span class="lineNum">     573 </span>            :  *</a>
+<span class="lineNum">     574 </span>            :  * @par Description:
+<span class="lineNum">     575 </span>            :  *      Using the class access lock, search for the word, and if already present,
+<span class="lineNum">     576 </span>            :  *      increment its word count.
+<a name="577"><span class="lineNum">     577 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     578 </span>            :  */
+<span class="lineNum">     579 </span><span class="lineCov">          1 : void Word_Dict::incrementWordCount(string word)</span>
+<span class="lineNum">     580 </span>            : {
+<a name="581"><span class="lineNum">     581 </span><span class="lineCov">          1 :     std::map&lt;string,int&gt;::iterator it;</span></a>
+<span class="lineNum">     582 </span>            :     // char *wordFound = NULL;
+<span class="lineNum">     583 </span>            :     // int count = -1;
+<span class="lineNum">     584 </span>            : 
+<a name="585"><span class="lineNum">     585 </span><span class="lineCov">          1 :     _lock();</span></a>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineCov">          1 :     it = _dictionaryMap.find(word);</span>
+<span class="lineNum">     588 </span><span class="lineCov">          1 :     if (it != _dictionaryMap.end())</span>
+<a name="589"><span class="lineNum">     589 </span>            :     {</a>
+<span class="lineNum">     590 </span><span class="lineCov">          1 :         it-&gt;second++;</span>
+<span class="lineNum">     591 </span>            :         // wordFound = it-&gt;first;
+<span class="lineNum">     592 </span>            :         // count = it-&gt;second;
+<a name="593"><span class="lineNum">     593 </span>            :         // count++;</a>
+<span class="lineNum">     594 </span>            :         // _dictionaryMap.erase(it);
+<span class="lineNum">     595 </span>            :         // _dictionaryMap.insert(pair&lt;string,int&gt;(wordFound, count));
+<span class="lineNum">     596 </span>            :     }
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<span class="lineNum">     598 </span><span class="lineCov">          1 :     _unlock();</span>
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span><span class="lineCov">          1 :     return;</span>
+<a name="601"><span class="lineNum">     601 </span>            : }</a>
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span>            : /**
+<span class="lineNum">     604 </span>            :  *******************************************************************************
+<a name="605"><span class="lineNum">     605 </span>            :  * @brief print - Iterate through dictionary item list, and print the entries</a>
+<span class="lineNum">     606 </span>            :  * out.
+<a name="607"><span class="lineNum">     607 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     608 </span>            :  */
+<a name="609"><span class="lineNum">     609 </span><span class="lineCov">          3 : void Word_Dict::print(void)</span></a>
+<span class="lineNum">     610 </span>            : {
+<span class="lineNum">     611 </span><span class="lineCov">          3 :     string word;</span>
+<span class="lineNum">     612 </span><span class="lineCov">          3 :     int wordCount = -1;</span>
+<a name="613"><span class="lineNum">     613 </span>            : </a>
+<span class="lineNum">     614 </span><span class="lineCov">          3 :     printf (&quot;Dumping word dictionary: =================================\n&quot;);</span>
+<span class="lineNum">     615 </span><span class="lineCov">          3 :     begin();</span>
+<span class="lineNum">     616 </span><span class="lineCov">         11 :     do</span>
+<a name="617"><span class="lineNum">     617 </span>            :     {</a>
+<span class="lineNum">     618 </span><span class="lineCov">         11 :         getNextWord(word, &amp;wordCount);</span>
+<span class="lineNum">     619 </span><span class="lineCov">         11 :         if (word != &quot;&quot;)</span>
+<span class="lineNum">     620 </span>            :         {
+<a name="621"><span class="lineNum">     621 </span><span class="lineCov">          8 :             std::cout &lt;&lt; word &lt;&lt; &quot; =&gt; &quot; &lt;&lt; wordCount &lt;&lt; '\n';</span></a>
+<span class="lineNum">     622 </span>            :         }
+<span class="lineNum">     623 </span>            :     } while (word != &quot;&quot;);
+<span class="lineNum">     624 </span><span class="lineCov">          3 :     printf (&quot;==========================================================\n&quot;);</span>
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<span class="lineNum">     626 </span><span class="lineCov">          3 :     return;</span>
+<span class="lineNum">     627 </span>            : }
+<span class="lineNum">     628 </span>            : 
+<a name="629"><span class="lineNum">     629 </span>            : /**</a>
+<span class="lineNum">     630 </span>            :  *******************************************************************************
+<span class="lineNum">     631 </span>            :  * @brief setDebug - Set current value of instance debug flag.
+<a name="632"><span class="lineNum">     632 </span>            :  *******************************************************************************</a>
+<a name="633"><span class="lineNum">     633 </span>            :  */</a>
+<span class="lineNum">     634 </span><span class="lineCov">          1 : void Word_Dict::setDebug(Bool_t enabled)</span>
+<span class="lineNum">     635 </span>            : {
+<span class="lineNum">     636 </span><span class="lineCov">          1 :     _lock();</span>
+<a name="637"><span class="lineNum">     637 </span><span class="lineCov">          1 :     _showDebugOutput = enabled;</span></a>
+<span class="lineNum">     638 </span><span class="lineCov">          1 :     _unlock();</span>
+<span class="lineNum">     639 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     640 </span>            : 
+<a name="641"><span class="lineNum">     641 </span>            : /**</a>
+<span class="lineNum">     642 </span>            :  *******************************************************************************
+<span class="lineNum">     643 </span>            :  * @brief getDebug - Get current value of instance debug flag.
+<a name="644"><span class="lineNum">     644 </span>            :  *******************************************************************************</a>
+<a name="645"><span class="lineNum">     645 </span>            :  */</a>
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 : Bool_t Word_Dict::getDebug(void)</span>
+<span class="lineNum">     647 </span>            : {
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :     Bool_t isEnabled = FALSE;</span>
+<a name="649"><span class="lineNum">     649 </span><span class="lineNoCov">          0 :     _lock();</span></a>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :     isEnabled = _showDebugOutput;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :     _unlock();</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :     return(isEnabled);</span>
+<a name="653"><span class="lineNum">     653 </span>            : }</a>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineCov">          1 : int Word_Dict::getWordCount(char *word)</span>
+<span class="lineNum">     656 </span>            : {
+<a name="657"><span class="lineNum">     657 </span><span class="lineCov">          1 :     int _word_count = -1;</span></a>
+<span class="lineNum">     658 </span><span class="lineCov">          1 :     _lock();</span>
+<span class="lineNum">     659 </span><span class="lineCov">          1 :     std::map&lt;string,int&gt;::iterator it = _dictionaryMap.find(word);</span>
+<span class="lineNum">     660 </span><span class="lineCov">          1 :     if (it != _dictionaryMap.end())</span>
+<a name="661"><span class="lineNum">     661 </span>            :     {</a>
+<span class="lineNum">     662 </span><span class="lineCov">          1 :         _word_count = it-&gt;second;</span>
+<span class="lineNum">     663 </span>            :     }
+<span class="lineNum">     664 </span><span class="lineCov">          1 :     _unlock();</span>
+<a name="665"><span class="lineNum">     665 </span>            : </a>
+<span class="lineNum">     666 </span><span class="lineCov">          1 :     return(_word_count);</span>
+<span class="lineNum">     667 </span>            : }
+<span class="lineNum">     668 </span>            : 
+<a name="669"><span class="lineNum">     669 </span>            : #if 0</a>
+<span class="lineNum">     670 </span>            : /**
+<span class="lineNum">     671 </span>            :  *******************************************************************************
+<span class="lineNum">     672 </span>            :  * @brief wordCmp - Comparitor for sort
+<a name="673"><span class="lineNum">     673 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     674 </span>            :  */
+<span class="lineNum">     675 </span>            : /* If we were sorting in least count to most count, we'd use this */
+<span class="lineNum">     676 </span>            : bool wordCmp(const pair&lt;string,int&gt; &amp;left_count, const pair&lt;string,int&gt; &amp;right_count)
+<a name="677"><span class="lineNum">     677 </span>            : {</a>
+<span class="lineNum">     678 </span>            :     return (left_count.second &lt; right_count.second);
+<span class="lineNum">     679 </span>            : }
+<span class="lineNum">     680 </span>            : #endif
+<a name="681"><span class="lineNum">     681 </span>            : </a>
+<span class="lineNum">     682 </span>            : /**
+<span class="lineNum">     683 </span>            :  *******************************************************************************
+<span class="lineNum">     684 </span>            :  * @brief wordRevCmp - Comparitor for sort, reversed ordering
+<a name="685"><span class="lineNum">     685 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     686 </span>            :  */
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 : bool wordRevCmp(const pair&lt;string,int&gt; &amp;left_count, const pair&lt;string,int&gt; &amp;right_count)</span>
+<span class="lineNum">     688 </span>            : {
+<a name="689"><span class="lineNum">     689 </span><span class="lineNoCov">          0 :     return (left_count.second &gt; right_count.second);</span></a>
+<span class="lineNum">     690 </span>            : }
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span>            : 
+<a name="693"><span class="lineNum">     693 </span>            : /**</a>
+<span class="lineNum">     694 </span>            :  *******************************************************************************
+<span class="lineNum">     695 </span>            :  * @brief printTopX - Go through all of the dictionary entries, and print out
+<span class="lineNum">     696 </span>            :  * the top 'top_X_counts' counts.
+<a name="697"><span class="lineNum">     697 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     698 </span>            :  */
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 : void Word_Dict::printTopX(int top_X_counts)</span>
+<span class="lineNum">     700 </span>            : {
+<a name="701"><span class="lineNum">     701 </span><span class="lineNoCov">          0 :     vector&lt; pair&lt;string,int&gt;   &gt; top_list;</span></a>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :     string word;</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :     int wordCount = -1;</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :     int top_count = top_X_counts;</span>
+<a name="705"><span class="lineNum">     705 </span>            : </a>
+<span class="lineNum">     706 </span>            :     /* Put dictionary entries into vector for sorting */
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :     begin();</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :     do</span>
+<a name="709"><span class="lineNum">     709 </span>            :     {</a>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :         getNextWord(word, &amp;wordCount);</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :         if (word.empty() == false)</span>
+<span class="lineNum">     712 </span>            :         {
+<a name="713"><span class="lineNum">     713 </span><span class="lineNoCov">          0 :             top_list.push_back(pair&lt;string,int&gt;(word, wordCount));</span></a>
+<span class="lineNum">     714 </span>            :         }
+<span class="lineNum">     715 </span>            :     } while (word != &quot;&quot;);
+<span class="lineNum">     716 </span>            : 
+<a name="717"><span class="lineNum">     717 </span>            :     /* Special cue to print them all, as sorted */</a>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :     if (top_count == -1)</span>
+<span class="lineNum">     719 </span>            :     {
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :         top_count = top_list.size();</span>
+<a name="721"><span class="lineNum">     721 </span>            :     }</a>
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            :     // sort (top_list.begin(), top_list.end(), wordCmp);
+<a name="725"><span class="lineNum">     725 </span><span class="lineNoCov">          0 :     sort (top_list.begin(), top_list.end(), wordRevCmp);</span></a>
+<span class="lineNum">     726 </span>            : 
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :     int idx = 0;</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :     for (vector&lt; pair&lt;string,int&gt; &gt;::iterator it = top_list.begin();</span>
+<a name="729"><span class="lineNum">     729 </span><span class="lineNoCov">          0 :             ((it != top_list.end()) &amp;&amp; (idx &lt; top_count));</span></a>
+<span class="lineNum">     730 </span>            :             ++it, idx++)
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :     {
+<a name="733"><span class="lineNum">     733 </span>            :         // printf (&quot;[%d]  %s =&gt; %d\n&quot;, idx + 1, it-&gt;first.c_str(), it-&gt;second);</a>
+<a name="734"><span class="lineNum">     734 </span><span class="lineNoCov">          0 :         printf (&quot;%s\t%d\n&quot;, it-&gt;first.c_str(), it-&gt;second);</span></a>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :     } /* end for */</span>
+<span class="lineNum">     736 </span><span class="lineCov">          3 : }</span>
+<a name="737"><span class="lineNum">     737 </span>            : </a>
+<span class="lineNum">     738 </span>            : /*******************************************************************************
+<span class="lineNum">     739 </span>            :  ************************ L O C A L  F U N C T I O N S *************************
+<span class="lineNum">     740 </span>            :  *******************************************************************************
+<a name="741"><span class="lineNum">     741 </span>            :  */</a>
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

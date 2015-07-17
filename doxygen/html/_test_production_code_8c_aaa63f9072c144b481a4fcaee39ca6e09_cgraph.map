@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_work___queue.html#a96130099b851a0779225f1344779a587" title="empty &#45; Public method to determine if queue is empty." alt="" coords="415,5,556,35"/>
+<area shape="rect" id="node5" href="$class_work___queue.html#adf86a3b60361f4d22e0f34912dcfda8f" title="waitForNotEmpty &#45; Public method to pend on an empty queue until new item(s) have appeared." alt="" coords="157,31,365,60"/>
+<area shape="rect" id="node8" href="$class_work___queue.html#af7a7461cbe09fc8653423b30c7ea5536" title="pop_front &#45; Public method to pop_front for underlying data structure." alt="" coords="181,84,341,113"/>
+</map>

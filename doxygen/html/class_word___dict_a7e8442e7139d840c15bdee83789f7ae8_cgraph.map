@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$class_word___dict.html#aad78931e44ce43c9b9c460dba7c9bbb7" title="begin &#45; Set the Word_Dict instance iterator to the beginning of the dictionary." alt="" coords="124,5,177,35"/>
+<area shape="rect" id="node5" href="$class_word___dict.html#a8137a2a1d113e41c0de5d58679a3031f" title="getNextWord &#45; Using the in&#45;class instance iterator, get the next word and its count." alt="" coords="101,59,200,88"/>
+</map>

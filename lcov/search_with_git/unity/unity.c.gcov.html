@@ -1,0 +1,1064 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - Basic example - search_with_git/unity/unity.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">search_with_git/unity</a> - unity.c<span style="font-size: 80%;"> (source / <a href="unity.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">Basic example ( <span style="font-size:80%;"><a href="../../descriptions.html" target="_parent">view descriptions</a></span> )</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntry">403</td>
+            <td class="headerCovTableEntryLo">17.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-06-15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">32.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+</td>
+            <td></td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* ==========================================</a>
+<span class="lineNum">       2 </span>            :     Unity Project - A Test Framework for C
+<span class="lineNum">       3 </span>            :     Copyright (c) 2007 Mike Karlesky, Mark VanderVoord, Greg Williams
+<span class="lineNum">       4 </span>            :     [Released under MIT License. Please refer to license.txt for details]
+<a name="5"><span class="lineNum">       5 </span>            : ========================================== */</a>
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;unity.h&quot;
+<span class="lineNum">       8 </span>            : #include &lt;stdio.h&gt;
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;string.h&gt;</a>
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #define UNITY_FAIL_AND_BAIL   { Unity.CurrentTestFailed  = 1; UNITY_OUTPUT_CHAR('\n'); longjmp(Unity.AbortFrame, 1); }
+<span class="lineNum">      12 </span>            : #define UNITY_IGNORE_AND_BAIL { Unity.CurrentTestIgnored = 1; UNITY_OUTPUT_CHAR('\n'); longjmp(Unity.AbortFrame, 1); }
+<a name="13"><span class="lineNum">      13 </span>            : /// return prematurely if we are already in failure or ignore state</a>
+<span class="lineNum">      14 </span>            : #define UNITY_SKIP_EXECUTION  { if ((Unity.CurrentTestFailed != 0) || (Unity.CurrentTestIgnored != 0)) {return;} }
+<span class="lineNum">      15 </span>            : #define UNITY_PRINT_EOL       { UNITY_OUTPUT_CHAR('\n'); }
+<span class="lineNum">      16 </span>            : 
+<a name="17"><span class="lineNum">      17 </span>            : struct _Unity Unity = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , { 0 } };</a>
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : const char* UnityStrNull     = &quot;NULL&quot;;
+<span class="lineNum">      20 </span>            : const char* UnityStrSpacer   = &quot;. &quot;;
+<a name="21"><span class="lineNum">      21 </span>            : const char* UnityStrExpected = &quot; Expected &quot;;</a>
+<span class="lineNum">      22 </span>            : const char* UnityStrWas      = &quot; Was &quot;;
+<span class="lineNum">      23 </span>            : const char* UnityStrTo       = &quot; To &quot;;
+<span class="lineNum">      24 </span>            : const char* UnityStrElement  = &quot; Element &quot;;
+<a name="25"><span class="lineNum">      25 </span>            : const char* UnityStrByte     = &quot; Byte &quot;;</a>
+<span class="lineNum">      26 </span>            : const char* UnityStrMemory   = &quot; Memory Mismatch.&quot;;
+<span class="lineNum">      27 </span>            : const char* UnityStrDelta    = &quot; Values Not Within Delta &quot;;
+<span class="lineNum">      28 </span>            : const char* UnityStrPointless= &quot; You Asked Me To Compare Nothing, Which Was Pointless.&quot;;
+<a name="29"><span class="lineNum">      29 </span>            : const char* UnityStrNullPointerForExpected= &quot; Expected pointer to be NULL&quot;;</a>
+<span class="lineNum">      30 </span>            : const char* UnityStrNullPointerForActual  = &quot; Actual pointer was NULL&quot;;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : // compiler-generic print formatting masks
+<a name="33"><span class="lineNum">      33 </span>            : const _U_UINT UnitySizeMask[] = </a>
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span>            :     255u,         // 0xFF
+<span class="lineNum">      36 </span>            :     65535u,       // 0xFFFF
+<a name="37"><span class="lineNum">      37 </span>            :     65535u,</a>
+<span class="lineNum">      38 </span>            :     4294967295u,  // 0xFFFFFFFF
+<span class="lineNum">      39 </span>            :     4294967295u,
+<span class="lineNum">      40 </span>            :     4294967295u,
+<a name="41"><span class="lineNum">      41 </span>            :     4294967295u</a>
+<span class="lineNum">      42 </span>            : #ifdef UNITY_SUPPORT_64
+<span class="lineNum">      43 </span>            :     ,0xFFFFFFFFFFFFFFFF
+<span class="lineNum">      44 </span>            : #endif
+<a name="45"><span class="lineNum">      45 </span>            : };</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : void UnityPrintFail(void);
+<span class="lineNum">      48 </span>            : void UnityPrintOk(void);
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span>            : //-----------------------------------------------
+<span class="lineNum">      51 </span>            : // Pretty Printers &amp; Test Result Output Handlers
+<a name="52"><span class="lineNum">      52 </span>            : //-----------------------------------------------</a>
+<a name="53"><span class="lineNum">      53 </span>            : </a>
+<span class="lineNum">      54 </span><span class="lineCov">        101 : void UnityPrint(const char* string)</span>
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span><span class="lineCov">        101 :     const char* pch = string;</span>
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<span class="lineNum">      58 </span><span class="lineCov">        101 :     if (pch != NULL)</span>
+<span class="lineNum">      59 </span>            :     {
+<span class="lineNum">      60 </span><span class="lineCov">       1765 :         while (*pch)</span>
+<a name="61"><span class="lineNum">      61 </span>            :         {</a>
+<span class="lineNum">      62 </span>            :             // printable characters plus CR &amp; LF are printed
+<span class="lineNum">      63 </span><span class="lineCov">       1563 :             if ((*pch &lt;= 126) &amp;&amp; (*pch &gt;= 32))</span>
+<span class="lineNum">      64 </span>            :             {
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">       1563 :                 UNITY_OUTPUT_CHAR(*pch);</span></a>
+<span class="lineNum">      66 </span>            :             }
+<span class="lineNum">      67 </span>            :             //write escaped carriage returns
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :             else if (*pch == 13)</span>
+<a name="69"><span class="lineNum">      69 </span>            :             {</a>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('\\');</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('r');</span>
+<span class="lineNum">      72 </span>            :             }
+<a name="73"><span class="lineNum">      73 </span>            :             //write escaped line feeds</a>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :             else if (*pch == 10)</span>
+<span class="lineNum">      75 </span>            :             {
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('\\');</span>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('n');</span></a>
+<span class="lineNum">      78 </span>            :             }
+<span class="lineNum">      79 </span>            :             // unprintable characters are shown as codes
+<span class="lineNum">      80 </span>            :             else
+<a name="81"><span class="lineNum">      81 </span>            :             {</a>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('\\');</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 UnityPrintNumberHex((_U_SINT)*pch, 2);</span>
+<span class="lineNum">      84 </span>            :             }
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">       1563 :             pch++;</span></a>
+<span class="lineNum">      86 </span>            :         }
+<span class="lineNum">      87 </span>            :     }
+<span class="lineNum">      88 </span><span class="lineCov">        101 : }</span>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<span class="lineNum">      90 </span>            : //-----------------------------------------------
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 : void UnityPrintNumberByStyle(const _U_SINT number, const UNITY_DISPLAY_STYLE_T style)</span>
+<span class="lineNum">      92 </span>            : {
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :     if ((style &amp; UNITY_DISPLAY_RANGE_INT) == UNITY_DISPLAY_RANGE_INT)</span></a>
+<span class="lineNum">      94 </span>            :     {
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         UnityPrintNumber(number);</span>
+<span class="lineNum">      96 </span>            :     }
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :     else if ((style &amp; UNITY_DISPLAY_RANGE_UINT) == UNITY_DISPLAY_RANGE_UINT)</span></a>
+<span class="lineNum">      98 </span>            :     {
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         UnityPrintNumberUnsigned(  (_U_UINT)number  &amp;  UnitySizeMask[((_U_UINT)style &amp; (_U_UINT)0x0F) - 1]  );</span>
+<span class="lineNum">     100 </span>            :     }
+<a name="101"><span class="lineNum">     101 </span>            :     else</a>
+<span class="lineNum">     102 </span>            :     {
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         UnityPrintNumberHex((_U_UINT)number, (style &amp; 0x000F) &lt;&lt; 1);</span>
+<span class="lineNum">     104 </span>            :     }
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     106 </span>            : 
+<a name="107"><span class="lineNum">     107 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     108 </span>            : /// basically do an itoa using as little ram as possible
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         35 : void UnityPrintNumber(const _U_SINT number_to_print)</span></a>
+<span class="lineNum">     110 </span>            : {
+<span class="lineNum">     111 </span><span class="lineCov">         35 :     _U_SINT divisor = 1;</span>
+<span class="lineNum">     112 </span>            :     _U_SINT next_divisor;
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">         35 :     _U_SINT number = number_to_print;</span></a>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">         35 :     if (number &lt; 0)</span>
+<span class="lineNum">     116 </span>            :     {
+<a name="117"><span class="lineNum">     117 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR('-');</span></a>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         number = -number;</span>
+<span class="lineNum">     119 </span>            :     }
+<span class="lineNum">     120 </span>            : 
+<a name="121"><span class="lineNum">     121 </span>            :     // figure out initial divisor</a>
+<span class="lineNum">     122 </span><span class="lineCov">        131 :     while (number / divisor &gt; 9)</span>
+<span class="lineNum">     123 </span>            :     {
+<span class="lineNum">     124 </span><span class="lineCov">         61 :         next_divisor = divisor * 10;</span>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">         61 :         if (next_divisor &gt; divisor)</span></a>
+<span class="lineNum">     126 </span><span class="lineCov">         61 :             divisor = next_divisor;</span>
+<span class="lineNum">     127 </span>            :         else
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :             break;</span>
+<a name="129"><span class="lineNum">     129 </span>            :     }</a>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :     // now mod and print, then divide divisor
+<span class="lineNum">     132 </span><span class="lineCov">         96 :     do</span>
+<a name="133"><span class="lineNum">     133 </span>            :     {</a>
+<span class="lineNum">     134 </span><span class="lineCov">         96 :         UNITY_OUTPUT_CHAR((char)('0' + (number / divisor % 10)));</span>
+<span class="lineNum">     135 </span><span class="lineCov">         96 :         divisor /= 10;</span>
+<span class="lineNum">     136 </span>            :     }
+<a name="137"><span class="lineNum">     137 </span>            :     while (divisor &gt; 0);</a>
+<span class="lineNum">     138 </span><span class="lineCov">         35 : }</span>
+<span class="lineNum">     139 </span>            : 
+<a name="140"><span class="lineNum">     140 </span>            : //-----------------------------------------------</a>
+<a name="141"><span class="lineNum">     141 </span>            : /// basically do an itoa using as little ram as possible</a>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 : void UnityPrintNumberUnsigned(const _U_UINT number)</span>
+<span class="lineNum">     143 </span>            : {
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :     _U_UINT divisor = 1;</span>
+<a name="145"><span class="lineNum">     145 </span>            :     _U_UINT next_divisor;</a>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :     // figure out initial divisor
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :     while (number / divisor &gt; 9)</span>
+<a name="149"><span class="lineNum">     149 </span>            :     {</a>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         next_divisor = divisor * 10;</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         if (next_divisor &gt; divisor)</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :             divisor = next_divisor;</span>
+<a name="153"><span class="lineNum">     153 </span>            :         else</a>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     155 </span>            :     }
+<span class="lineNum">     156 </span>            : 
+<a name="157"><span class="lineNum">     157 </span>            :     // now mod and print, then divide divisor</a>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :     do</span>
+<span class="lineNum">     159 </span>            :     {
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR((char)('0' + (number / divisor % 10)));</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :         divisor /= 10;</span></a>
+<span class="lineNum">     162 </span>            :     }
+<span class="lineNum">     163 </span>            :     while (divisor &gt; 0);
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 : }</span>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            : //-----------------------------------------------
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 : void UnityPrintNumberHex(const _U_UINT number, const char nibbles_to_print)</span>
+<span class="lineNum">     168 </span>            : {
+<a name="169"><span class="lineNum">     169 </span>            :     _U_UINT nibble;</a>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :     char nibbles = nibbles_to_print;</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :     UNITY_OUTPUT_CHAR('0');</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     UNITY_OUTPUT_CHAR('x');</span>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     while (nibbles &gt; 0)</span>
+<span class="lineNum">     175 </span>            :     {
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         nibble = (number &gt;&gt; (--nibbles &lt;&lt; 2)) &amp; 0x0000000F;</span>
+<a name="177"><span class="lineNum">     177 </span><span class="lineNoCov">          0 :         if (nibble &lt;= 9)</span></a>
+<span class="lineNum">     178 </span>            :         {
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :             UNITY_OUTPUT_CHAR((char)('0' + nibble));</span>
+<span class="lineNum">     180 </span>            :         }
+<a name="181"><span class="lineNum">     181 </span>            :         else</a>
+<span class="lineNum">     182 </span>            :         {
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :             UNITY_OUTPUT_CHAR((char)('A' - 10 + nibble));</span>
+<span class="lineNum">     184 </span>            :         }
+<a name="185"><span class="lineNum">     185 </span>            :     }</a>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 : }</span>
+<a name="187"><span class="lineNum">     187 </span>            : </a>
+<span class="lineNum">     188 </span>            : //-----------------------------------------------
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 : void UnityPrintMask(const _U_UINT mask, const _U_UINT number)</span></a>
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :     _U_UINT current_bit = (_U_UINT)1 &lt;&lt; (UNITY_INT_WIDTH - 1);</span>
+<span class="lineNum">     192 </span>            :     _US32 i;
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; UNITY_INT_WIDTH; i++)</span>
+<span class="lineNum">     195 </span>            :     {
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         if (current_bit &amp; mask)</span>
+<a name="197"><span class="lineNum">     197 </span>            :         {</a>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :             if (current_bit &amp; number)</span>
+<span class="lineNum">     199 </span>            :             {
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('1');</span>
+<a name="201"><span class="lineNum">     201 </span>            :             }</a>
+<span class="lineNum">     202 </span>            :             else
+<span class="lineNum">     203 </span>            :             {
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                 UNITY_OUTPUT_CHAR('0');</span>
+<a name="205"><span class="lineNum">     205 </span>            :             }</a>
+<span class="lineNum">     206 </span>            :         }
+<span class="lineNum">     207 </span>            :         else
+<span class="lineNum">     208 </span>            :         {
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 :             UNITY_OUTPUT_CHAR('X');</span></a>
+<span class="lineNum">     210 </span>            :         }
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         current_bit = current_bit &gt;&gt; 1;</span>
+<span class="lineNum">     212 </span>            :     }
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : //-----------------------------------------------
+<span class="lineNum">     216 </span>            : #ifdef UNITY_FLOAT_VERBOSE
+<a name="217"><span class="lineNum">     217 </span>            : void UnityPrintFloat(_UF number)</a>
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span>            :     char TempBuffer[32];
+<span class="lineNum">     220 </span>            :     sprintf(TempBuffer, &quot;%.6f&quot;, number);
+<a name="221"><span class="lineNum">     221 </span>            :     UnityPrint(TempBuffer);</a>
+<span class="lineNum">     222 </span>            : }
+<span class="lineNum">     223 </span>            : #endif
+<span class="lineNum">     224 </span>            : 
+<a name="225"><span class="lineNum">     225 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 : void UnityPrintFail(void)</span>
+<span class="lineNum">     228 </span>            : {
+<a name="229"><span class="lineNum">     229 </span><span class="lineNoCov">          0 :     UnityPrint(&quot;FAIL&quot;);</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">          1 : void UnityPrintOk(void)</span>
+<a name="233"><span class="lineNum">     233 </span>            : {</a>
+<span class="lineNum">     234 </span><span class="lineCov">          1 :     UnityPrint(&quot;OK&quot;);</span>
+<span class="lineNum">     235 </span><span class="lineCov">          1 : }</span>
+<a name="236"><span class="lineNum">     236 </span>            : </a>
+<a name="237"><span class="lineNum">     237 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     238 </span><span class="lineCov">         32 : void UnityTestResultsBegin(const char* file, const UNITY_LINE_TYPE line)</span>
+<span class="lineNum">     239 </span>            : {
+<span class="lineNum">     240 </span><span class="lineCov">         32 :     UnityPrint(file);</span>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">         32 :     UNITY_OUTPUT_CHAR(':');</span></a>
+<span class="lineNum">     242 </span><span class="lineCov">         32 :     UnityPrintNumber(line);</span>
+<span class="lineNum">     243 </span><span class="lineCov">         32 :     UNITY_OUTPUT_CHAR(':');</span>
+<span class="lineNum">     244 </span><span class="lineCov">         32 :     UnityPrint(Unity.CurrentTestName);</span>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         32 :     UNITY_OUTPUT_CHAR(':');</span></a>
+<span class="lineNum">     246 </span><span class="lineCov">         32 : }</span>
+<a name="247"><span class="lineNum">     247 </span>            : </a>
+<span class="lineNum">     248 </span>            : //-----------------------------------------------
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 : void UnityTestResultsFailBegin(const UNITY_LINE_TYPE line)</span></a>
+<span class="lineNum">     250 </span>            : {
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :     UnityTestResultsBegin(Unity.TestFile, line);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     UnityPrint(&quot;FAIL:&quot;);</span>
+<a name="253"><span class="lineNum">     253 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<span class="lineNum">     255 </span>            : //-----------------------------------------------
+<span class="lineNum">     256 </span><span class="lineCov">         32 : void UnityConcludeTest(void)</span>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<span class="lineNum">     258 </span><span class="lineCov">         32 :     if (Unity.CurrentTestIgnored)</span>
+<span class="lineNum">     259 </span>            :     {
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         Unity.TestIgnores++;</span>
+<a name="261"><span class="lineNum">     261 </span>            :     }</a>
+<span class="lineNum">     262 </span><span class="lineCov">         32 :     else if (!Unity.CurrentTestFailed)</span>
+<span class="lineNum">     263 </span>            :     {
+<span class="lineNum">     264 </span><span class="lineCov">         32 :         UnityTestResultsBegin(Unity.TestFile, Unity.CurrentTestLineNumber);</span>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">         32 :         UnityPrint(&quot;PASS&quot;);</span></a>
+<span class="lineNum">     266 </span><span class="lineCov">         32 :         UNITY_PRINT_EOL;</span>
+<span class="lineNum">     267 </span>            :     }
+<span class="lineNum">     268 </span>            :     else
+<a name="269"><span class="lineNum">     269 </span>            :     {</a>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :         Unity.TestFailures++;</span>
+<span class="lineNum">     271 </span>            :     }
+<span class="lineNum">     272 </span>            : 
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">         32 :     Unity.CurrentTestFailed = 0;</span></a>
+<span class="lineNum">     274 </span><span class="lineCov">         32 :     Unity.CurrentTestIgnored = 0;</span>
+<span class="lineNum">     275 </span><span class="lineCov">         32 : }</span>
+<a name="276"><span class="lineNum">     276 </span>            : </a>
+<a name="277"><span class="lineNum">     277 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 : void UnityAddMsgIfSpecified(const char* msg)</span>
+<span class="lineNum">     279 </span>            : {
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :     if (msg)</span>
+<a name="281"><span class="lineNum">     281 </span>            :     {</a>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrSpacer);</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         UnityPrint(msg);</span>
+<span class="lineNum">     284 </span>            :     }
+<a name="285"><span class="lineNum">     285 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="286"><span class="lineNum">     286 </span>            : </a>
+<span class="lineNum">     287 </span>            : //-----------------------------------------------
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 : void UnityPrintExpectedAndActualStrings(const char* expected, const char* actual)</span>
+<a name="289"><span class="lineNum">     289 </span>            : {</a>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :     UnityPrint(UnityStrExpected);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :     if (expected != NULL)</span>
+<span class="lineNum">     292 </span>            :     {
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR('\'');</span></a>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         UnityPrint(expected);</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR('\'');</span>
+<span class="lineNum">     296 </span>            :     }
+<a name="297"><span class="lineNum">     297 </span>            :     else</a>
+<span class="lineNum">     298 </span>            :     {
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :       UnityPrint(UnityStrNull);          </span>
+<span class="lineNum">     300 </span>            :     }
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 :     UnityPrint(UnityStrWas);</span></a>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :     if (actual != NULL)</span>
+<span class="lineNum">     303 </span>            :     {
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR('\'');</span>
+<a name="305"><span class="lineNum">     305 </span><span class="lineNoCov">          0 :         UnityPrint(actual);</span></a>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR('\'');</span>
+<span class="lineNum">     307 </span>            :     }
+<span class="lineNum">     308 </span>            :     else
+<a name="309"><span class="lineNum">     309 </span>            :     {</a>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :       UnityPrint(UnityStrNull);          </span>
+<span class="lineNum">     311 </span>            :     }
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 : }</span>
+<a name="313"><span class="lineNum">     313 </span>            : </a>
+<span class="lineNum">     314 </span>            : //-----------------------------------------------
+<span class="lineNum">     315 </span>            : // Assertion &amp; Control Helpers
+<a name="316"><span class="lineNum">     316 </span>            : //-----------------------------------------------</a>
+<a name="317"><span class="lineNum">     317 </span>            : </a>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 : int UnityCheckArraysForNull(const void* expected, const void* actual, const UNITY_LINE_TYPE lineNumber, const char* msg)</span>
+<span class="lineNum">     319 </span>            : {
+<span class="lineNum">     320 </span>            :     //return true if they are both NULL
+<a name="321"><span class="lineNum">     321 </span><span class="lineNoCov">          0 :     if ((expected == NULL) &amp;&amp; (actual == NULL))</span></a>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     323 </span>            :         
+<span class="lineNum">     324 </span>            :     //throw error if just expected is NULL
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :     if (expected == NULL)</span></a>
+<span class="lineNum">     326 </span>            :     {
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrNullPointerForExpected);</span>
+<a name="329"><span class="lineNum">     329 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span></a>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     331 </span>            :     }
+<span class="lineNum">     332 </span>            : 
+<a name="333"><span class="lineNum">     333 </span>            :     //throw error if just actual is NULL</a>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :     if (actual == NULL)</span>
+<span class="lineNum">     335 </span>            :     {
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrNullPointerForActual);</span></a>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     340 </span>            :     }
+<a name="341"><span class="lineNum">     341 </span>            :     </a>
+<span class="lineNum">     342 </span>            :     //return false if neither is NULL
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">     344 </span>            : }
+<a name="345"><span class="lineNum">     345 </span>            : </a>
+<span class="lineNum">     346 </span>            : //-----------------------------------------------
+<span class="lineNum">     347 </span>            : // Assertion Functions
+<a name="348"><span class="lineNum">     348 </span>            : //-----------------------------------------------</a>
+<a name="349"><span class="lineNum">     349 </span>            : </a>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 : void UnityAssertBits(const _U_SINT mask,</span>
+<span class="lineNum">     351 </span>            :                      const _U_SINT expected,
+<span class="lineNum">     352 </span>            :                      const _U_SINT actual,
+<a name="353"><span class="lineNum">     353 </span>            :                      const char* msg,</a>
+<span class="lineNum">     354 </span>            :                      const UNITY_LINE_TYPE lineNumber)
+<span class="lineNum">     355 </span>            : {
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<a name="357"><span class="lineNum">     357 </span>            :   </a>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :     if ((mask &amp; expected) != (mask &amp; actual))</span>
+<span class="lineNum">     359 </span>            :     {
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrExpected);</span></a>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         UnityPrintMask(mask, expected);</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrWas);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         UnityPrintMask(mask, actual);</span>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span></a>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     367 </span>            :     }
+<span class="lineNum">     368 </span>            : }
+<a name="369"><span class="lineNum">     369 </span>            : </a>
+<span class="lineNum">     370 </span>            : //-----------------------------------------------
+<span class="lineNum">     371 </span><span class="lineCov">        113 : void UnityAssertEqualNumber(const _U_SINT expected,</span>
+<span class="lineNum">     372 </span>            :                             const _U_SINT actual,
+<a name="373"><span class="lineNum">     373 </span>            :                             const char* msg,</a>
+<span class="lineNum">     374 </span>            :                             const UNITY_LINE_TYPE lineNumber,
+<span class="lineNum">     375 </span>            :                             const UNITY_DISPLAY_STYLE_T style)
+<span class="lineNum">     376 </span>            : {
+<a name="377"><span class="lineNum">     377 </span><span class="lineCov">        226 :     UNITY_SKIP_EXECUTION;</span></a>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineCov">        113 :     if (expected != actual)</span>
+<span class="lineNum">     380 </span>            :     {
+<a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrExpected);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         UnityPrintNumberByStyle(expected, style);</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrWas);</span>
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 :         UnityPrintNumberByStyle(actual, style);</span></a>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     388 </span>            :     }
+<a name="389"><span class="lineNum">     389 </span>            : }</a>
+<a name="390"><span class="lineNum">     390 </span>            : </a>
+<span class="lineNum">     391 </span>            : //-----------------------------------------------
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 : void UnityAssertEqualIntArray(const _U_SINT* expected,</span>
+<a name="393"><span class="lineNum">     393 </span>            :                               const _U_SINT* actual,</a>
+<span class="lineNum">     394 </span>            :                               const _UU32 num_elements,
+<span class="lineNum">     395 </span>            :                               const char* msg,
+<span class="lineNum">     396 </span>            :                               const UNITY_LINE_TYPE lineNumber,
+<a name="397"><span class="lineNum">     397 </span>            :                               const UNITY_DISPLAY_STYLE_T style)</a>
+<span class="lineNum">     398 </span>            : {
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :     _UU32 elements = num_elements;</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :     const _US8* ptr_exp = (_US8*)expected;</span>
+<a name="401"><span class="lineNum">     401 </span><span class="lineNoCov">          0 :     const _US8* ptr_act = (_US8*)actual;</span></a>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<span class="lineNum">     404 </span>            :   
+<a name="405"><span class="lineNum">     405 </span><span class="lineNoCov">          0 :     if (elements == 0)</span></a>
+<span class="lineNum">     406 </span>            :     {
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrPointless);</span>
+<a name="409"><span class="lineNum">     409 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span></a>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     411 </span>            :     }
+<span class="lineNum">     412 </span>            :     
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 :     if (UnityCheckArraysForNull((void*)expected, (void*)actual, lineNumber, msg) == 1)</span></a>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :     switch(style)</span>
+<a name="417"><span class="lineNum">     417 </span>            :     {</a>
+<span class="lineNum">     418 </span>            :         case UNITY_DISPLAY_STYLE_HEX8:
+<span class="lineNum">     419 </span>            :         case UNITY_DISPLAY_STYLE_INT8:
+<span class="lineNum">     420 </span>            :         case UNITY_DISPLAY_STYLE_UINT8:
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :             while (elements--)</span></a>
+<span class="lineNum">     422 </span>            :             {
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 if (*ptr_exp != *ptr_act)</span>
+<span class="lineNum">     424 </span>            :                 {
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :                     UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrElement);</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrExpected);</span>
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*ptr_exp, style);</span></a>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrWas);</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*ptr_act, style);</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                     UnityAddMsgIfSpecified(msg);</span>
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :                     UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     434 </span>            :                 }
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :                 ptr_exp += 1;</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                 ptr_act += 1;</span>
+<a name="437"><span class="lineNum">     437 </span>            :             }</a>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     439 </span>            :         case UNITY_DISPLAY_STYLE_HEX16:
+<span class="lineNum">     440 </span>            :         case UNITY_DISPLAY_STYLE_INT16:
+<a name="441"><span class="lineNum">     441 </span>            :         case UNITY_DISPLAY_STYLE_UINT16:</a>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :             while (elements--)</span>
+<span class="lineNum">     443 </span>            :             {
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                 if (*(_US16*)ptr_exp != *(_US16*)ptr_act)</span>
+<a name="445"><span class="lineNum">     445 </span>            :                 {</a>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                     UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrElement);</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrExpected);</span></a>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US16*)ptr_exp, style);</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrWas);</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US16*)ptr_act, style);</span>
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :                     UnityAddMsgIfSpecified(msg);</span></a>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                     UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     455 </span>            :                 }
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                 ptr_exp += 2;</span>
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 ptr_act += 2;</span></a>
+<span class="lineNum">     458 </span>            :             }
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     460 </span>            : #ifdef UNITY_SUPPORT_64
+<a name="461"><span class="lineNum">     461 </span>            :         case UNITY_DISPLAY_STYLE_HEX64:</a>
+<span class="lineNum">     462 </span>            :         case UNITY_DISPLAY_STYLE_INT64:
+<span class="lineNum">     463 </span>            :         case UNITY_DISPLAY_STYLE_UINT64:
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :             while (elements--)</span>
+<a name="465"><span class="lineNum">     465 </span>            :             {</a>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 if (*(_US64*)ptr_exp != *(_US64*)ptr_act)</span>
+<span class="lineNum">     467 </span>            :                 {
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                     UnityTestResultsFailBegin(lineNumber);</span>
+<a name="469"><span class="lineNum">     469 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrElement);</span></a>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrExpected);</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US64*)ptr_exp, style);</span>
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrWas);</span></a>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US64*)ptr_act, style);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                     UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                     UNITY_FAIL_AND_BAIL;</span>
+<a name="477"><span class="lineNum">     477 </span>            :                 }</a>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 ptr_exp += 8;</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 ptr_act += 8;</span>
+<span class="lineNum">     480 </span>            :             }
+<a name="481"><span class="lineNum">     481 </span><span class="lineNoCov">          0 :             break;</span></a>
+<span class="lineNum">     482 </span>            : #endif
+<span class="lineNum">     483 </span>            :         default:
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :             while (elements--)</span>
+<a name="485"><span class="lineNum">     485 </span>            :             {</a>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                 if (*(_US32*)ptr_exp != *(_US32*)ptr_act)</span>
+<span class="lineNum">     487 </span>            :                 {
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                     UnityTestResultsFailBegin(lineNumber);</span>
+<a name="489"><span class="lineNum">     489 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrElement);</span></a>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrExpected);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US32*)ptr_exp, style);</span>
+<a name="493"><span class="lineNum">     493 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrWas);</span></a>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle(*(_US32*)ptr_act, style);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                     UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                     UNITY_FAIL_AND_BAIL;</span>
+<a name="497"><span class="lineNum">     497 </span>            :                 }</a>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                 ptr_exp += 4;</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                 ptr_act += 4;</span>
+<span class="lineNum">     500 </span>            :             }
+<a name="501"><span class="lineNum">     501 </span><span class="lineNoCov">          0 :             break;</span></a>
+<span class="lineNum">     502 </span>            :     }
+<span class="lineNum">     503 </span>            : }
+<span class="lineNum">     504 </span>            : 
+<a name="505"><span class="lineNum">     505 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     506 </span>            : #ifndef UNITY_EXCLUDE_FLOAT
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 : void UnityAssertEqualFloatArray(const _UF* expected,</span>
+<span class="lineNum">     508 </span>            :                                 const _UF* actual,
+<a name="509"><span class="lineNum">     509 </span>            :                                 const _UU32 num_elements,</a>
+<span class="lineNum">     510 </span>            :                                 const char* msg,
+<span class="lineNum">     511 </span>            :                                 const UNITY_LINE_TYPE lineNumber)
+<span class="lineNum">     512 </span>            : {
+<a name="513"><span class="lineNum">     513 </span><span class="lineNoCov">          0 :     _UU32 elements = num_elements;</span></a>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :     const _UF* ptr_expected = expected;</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :     const _UF* ptr_actual = actual;</span>
+<span class="lineNum">     516 </span>            :     _UF diff, tol;
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<span class="lineNum">     519 </span>            :   
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :     if (elements == 0)</span>
+<a name="521"><span class="lineNum">     521 </span>            :     {</a>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrPointless);</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     526 </span>            :     }
+<span class="lineNum">     527 </span>            :     
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :     if (UnityCheckArraysForNull((void*)expected, (void*)actual, lineNumber, msg) == 1)</span>
+<a name="529"><span class="lineNum">     529 </span><span class="lineNoCov">          0 :         return;</span></a>
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :     while (elements--)</span>
+<span class="lineNum">     532 </span>            :     {
+<a name="533"><span class="lineNum">     533 </span><span class="lineNoCov">          0 :         diff = *ptr_expected - *ptr_actual;</span></a>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         if (diff &lt; 0.0)</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :           diff = 0.0 - diff;</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :         tol = UNITY_FLOAT_PRECISION * *ptr_expected;</span>
+<a name="537"><span class="lineNum">     537 </span><span class="lineNoCov">          0 :         if (tol &lt; 0.0)</span></a>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :             tol = 0.0 - tol;</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :         if (diff &gt; tol)</span>
+<span class="lineNum">     540 </span>            :         {
+<a name="541"><span class="lineNum">     541 </span><span class="lineNoCov">          0 :             UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :             UnityPrint(UnityStrElement);</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :             UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     544 </span>            : #ifdef UNITY_FLOAT_VERBOSE
+<a name="545"><span class="lineNum">     545 </span>            :             UnityPrint(UnityStrExpected);</a>
+<span class="lineNum">     546 </span>            :             UnityPrintFloat(*ptr_expected);
+<span class="lineNum">     547 </span>            :             UnityPrint(UnityStrWas);
+<span class="lineNum">     548 </span>            :             UnityPrintFloat(*ptr_actual);
+<a name="549"><span class="lineNum">     549 </span>            : #else</a>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :             UnityPrint(UnityStrDelta);</span>
+<span class="lineNum">     551 </span>            : #endif
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :             UnityAddMsgIfSpecified(msg);</span>
+<a name="553"><span class="lineNum">     553 </span><span class="lineNoCov">          0 :             UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     554 </span>            :         }
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         ptr_expected++;</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         ptr_actual++;</span>
+<a name="557"><span class="lineNum">     557 </span>            :     }</a>
+<span class="lineNum">     558 </span>            : }
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<span class="lineNum">     560 </span>            : //-----------------------------------------------
+<a name="561"><span class="lineNum">     561 </span><span class="lineNoCov">          0 : void UnityAssertFloatsWithin(const _UF delta,</span></a>
+<span class="lineNum">     562 </span>            :                              const _UF expected,
+<span class="lineNum">     563 </span>            :                              const _UF actual,
+<span class="lineNum">     564 </span>            :                              const char* msg,
+<a name="565"><span class="lineNum">     565 </span>            :                              const UNITY_LINE_TYPE lineNumber)</a>
+<span class="lineNum">     566 </span>            : {
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :     _UF diff = actual - expected;</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :     _UF pos_delta = delta;</span>
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<span class="lineNum">     571 </span>            :   
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :     if (diff &lt; 0)</span>
+<a name="573"><span class="lineNum">     573 </span>            :     {</a>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         diff = 0.0f - diff;</span>
+<span class="lineNum">     575 </span>            :     }
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :     if (pos_delta &lt; 0)</span>
+<a name="577"><span class="lineNum">     577 </span>            :     {</a>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         pos_delta = 0.0f - pos_delta;</span>
+<span class="lineNum">     579 </span>            :     }
+<span class="lineNum">     580 </span>            : 
+<a name="581"><span class="lineNum">     581 </span>            :     // NOTE: This comparison is deliberately this way round so that NaNs fail.</a>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :     if ( ! (pos_delta &gt;= diff) )</span>
+<span class="lineNum">     583 </span>            :     {
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<a name="585"><span class="lineNum">     585 </span>            : #ifdef UNITY_FLOAT_VERBOSE</a>
+<span class="lineNum">     586 </span>            :         UnityPrint(UnityStrExpected);
+<span class="lineNum">     587 </span>            :         UnityPrintFloat(expected);
+<span class="lineNum">     588 </span>            :         UnityPrint(UnityStrWas);
+<a name="589"><span class="lineNum">     589 </span>            :         UnityPrintFloat(actual);</a>
+<span class="lineNum">     590 </span>            : #else
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrDelta);</span>
+<span class="lineNum">     592 </span>            : #endif
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span></a>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     595 </span>            :     }
+<span class="lineNum">     596 </span>            : }
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<span class="lineNum">     598 </span>            : #endif //not UNITY_EXCLUDE_FLOAT
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            : //-----------------------------------------------
+<a name="601"><span class="lineNum">     601 </span>            : #ifndef UNITY_EXCLUDE_DOUBLE</a>
+<span class="lineNum">     602 </span>            : void UnityAssertEqualDoubleArray(const _UD* expected,
+<span class="lineNum">     603 </span>            :                                  const _UD* actual,
+<span class="lineNum">     604 </span>            :                                  const _UU32 num_elements,
+<a name="605"><span class="lineNum">     605 </span>            :                                  const char* msg,</a>
+<span class="lineNum">     606 </span>            :                                  const UNITY_LINE_TYPE lineNumber)
+<span class="lineNum">     607 </span>            : {
+<span class="lineNum">     608 </span>            :     _UU32 elements = num_elements;
+<a name="609"><span class="lineNum">     609 </span>            :     const _UD* ptr_expected = expected;</a>
+<span class="lineNum">     610 </span>            :     const _UD* ptr_actual = actual;
+<span class="lineNum">     611 </span>            :     _UD diff, tol;
+<span class="lineNum">     612 </span>            : 
+<a name="613"><span class="lineNum">     613 </span>            :     UNITY_SKIP_EXECUTION;</a>
+<span class="lineNum">     614 </span>            :   
+<span class="lineNum">     615 </span>            :     if (elements == 0)
+<span class="lineNum">     616 </span>            :     {
+<a name="617"><span class="lineNum">     617 </span>            :         UnityTestResultsFailBegin(lineNumber);</a>
+<span class="lineNum">     618 </span>            :         UnityPrint(UnityStrPointless);
+<span class="lineNum">     619 </span>            :         UnityAddMsgIfSpecified(msg);
+<span class="lineNum">     620 </span>            :         UNITY_FAIL_AND_BAIL;
+<a name="621"><span class="lineNum">     621 </span>            :     }</a>
+<span class="lineNum">     622 </span>            :     
+<span class="lineNum">     623 </span>            :     if (UnityCheckArraysForNull((void*)expected, (void*)actual, lineNumber, msg) == 1)
+<span class="lineNum">     624 </span>            :         return;
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<span class="lineNum">     626 </span>            :     while (elements--)
+<span class="lineNum">     627 </span>            :     {
+<span class="lineNum">     628 </span>            :         diff = *ptr_expected - *ptr_actual;
+<a name="629"><span class="lineNum">     629 </span>            :         if (diff &lt; 0.0)</a>
+<span class="lineNum">     630 </span>            :           diff = 0.0 - diff;
+<span class="lineNum">     631 </span>            :         tol = UNITY_DOUBLE_PRECISION * *ptr_expected;
+<span class="lineNum">     632 </span>            :         if (tol &lt; 0.0)
+<a name="633"><span class="lineNum">     633 </span>            :             tol = 0.0 - tol;</a>
+<span class="lineNum">     634 </span>            :         if (diff &gt; tol)
+<span class="lineNum">     635 </span>            :         {
+<span class="lineNum">     636 </span>            :             UnityTestResultsFailBegin(lineNumber);
+<a name="637"><span class="lineNum">     637 </span>            :             UnityPrint(UnityStrElement);</a>
+<span class="lineNum">     638 </span>            :             UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);
+<span class="lineNum">     639 </span>            : #ifdef UNITY_DOUBLE_VERBOSE
+<span class="lineNum">     640 </span>            :             UnityPrint(UnityStrExpected);
+<a name="641"><span class="lineNum">     641 </span>            :             UnityPrintFloat((float)(*ptr_expected));</a>
+<span class="lineNum">     642 </span>            :             UnityPrint(UnityStrWas);
+<span class="lineNum">     643 </span>            :             UnityPrintFloat((float)(*ptr_actual));
+<span class="lineNum">     644 </span>            : #else
+<a name="645"><span class="lineNum">     645 </span>            :             UnityPrint(UnityStrDelta);</a>
+<span class="lineNum">     646 </span>            : #endif
+<span class="lineNum">     647 </span>            :             UnityAddMsgIfSpecified(msg);
+<span class="lineNum">     648 </span>            :             UNITY_FAIL_AND_BAIL;
+<a name="649"><span class="lineNum">     649 </span>            :         }</a>
+<span class="lineNum">     650 </span>            :         ptr_expected++;
+<span class="lineNum">     651 </span>            :         ptr_actual++;
+<span class="lineNum">     652 </span>            :     }
+<a name="653"><span class="lineNum">     653 </span>            : }</a>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            : //-----------------------------------------------
+<span class="lineNum">     656 </span>            : void UnityAssertDoublesWithin(const _UD delta,
+<a name="657"><span class="lineNum">     657 </span>            :                               const _UD expected,</a>
+<span class="lineNum">     658 </span>            :                               const _UD actual,
+<span class="lineNum">     659 </span>            :                               const char* msg,
+<span class="lineNum">     660 </span>            :                               const UNITY_LINE_TYPE lineNumber)
+<a name="661"><span class="lineNum">     661 </span>            : {</a>
+<span class="lineNum">     662 </span>            :     _UD diff = actual - expected;
+<span class="lineNum">     663 </span>            :     _UD pos_delta = delta;
+<span class="lineNum">     664 </span>            : 
+<a name="665"><span class="lineNum">     665 </span>            :     UNITY_SKIP_EXECUTION;</a>
+<span class="lineNum">     666 </span>            :   
+<span class="lineNum">     667 </span>            :     if (diff &lt; 0)
+<span class="lineNum">     668 </span>            :     {
+<a name="669"><span class="lineNum">     669 </span>            :         diff = 0.0f - diff;</a>
+<span class="lineNum">     670 </span>            :     }
+<span class="lineNum">     671 </span>            :     if (pos_delta &lt; 0)
+<span class="lineNum">     672 </span>            :     {
+<a name="673"><span class="lineNum">     673 </span>            :         pos_delta = 0.0f - pos_delta;</a>
+<span class="lineNum">     674 </span>            :     }
+<span class="lineNum">     675 </span>            : 
+<span class="lineNum">     676 </span>            :     if (pos_delta &lt; diff)
+<a name="677"><span class="lineNum">     677 </span>            :     {</a>
+<span class="lineNum">     678 </span>            :         UnityTestResultsFailBegin(lineNumber);
+<span class="lineNum">     679 </span>            : #ifdef UNITY_DOUBLE_VERBOSE
+<span class="lineNum">     680 </span>            :         UnityPrint(UnityStrExpected);
+<a name="681"><span class="lineNum">     681 </span>            :         UnityPrintFloat((float)expected);</a>
+<span class="lineNum">     682 </span>            :         UnityPrint(UnityStrWas);
+<span class="lineNum">     683 </span>            :         UnityPrintFloat((float)actual);
+<span class="lineNum">     684 </span>            : #else
+<a name="685"><span class="lineNum">     685 </span>            :         UnityPrint(UnityStrDelta);</a>
+<span class="lineNum">     686 </span>            : #endif
+<span class="lineNum">     687 </span>            :         UnityAddMsgIfSpecified(msg);
+<span class="lineNum">     688 </span>            :         UNITY_FAIL_AND_BAIL;
+<a name="689"><span class="lineNum">     689 </span>            :     }</a>
+<span class="lineNum">     690 </span>            : }
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span>            : #endif // not UNITY_EXCLUDE_DOUBLE
+<a name="693"><span class="lineNum">     693 </span>            : </a>
+<span class="lineNum">     694 </span>            : //-----------------------------------------------
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 : void UnityAssertNumbersWithin( const _U_SINT delta,</span>
+<span class="lineNum">     696 </span>            :                                const _U_SINT expected,
+<a name="697"><span class="lineNum">     697 </span>            :                                const _U_SINT actual,</a>
+<span class="lineNum">     698 </span>            :                                const char* msg,
+<span class="lineNum">     699 </span>            :                                const UNITY_LINE_TYPE lineNumber,
+<span class="lineNum">     700 </span>            :                                const UNITY_DISPLAY_STYLE_T style)
+<a name="701"><span class="lineNum">     701 </span>            : {</a>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<span class="lineNum">     703 </span>            :     
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :     if ((style &amp; UNITY_DISPLAY_RANGE_INT) == UNITY_DISPLAY_RANGE_INT)</span>
+<a name="705"><span class="lineNum">     705 </span>            :     {</a>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :         if (actual &gt; expected)</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :           Unity.CurrentTestFailed = ((actual - expected) &gt; delta);</span>
+<span class="lineNum">     708 </span>            :         else
+<a name="709"><span class="lineNum">     709 </span><span class="lineNoCov">          0 :           Unity.CurrentTestFailed = ((expected - actual) &gt; delta);</span></a>
+<span class="lineNum">     710 </span>            :     }
+<span class="lineNum">     711 </span>            :     else
+<span class="lineNum">     712 </span>            :     {
+<a name="713"><span class="lineNum">     713 </span><span class="lineNoCov">          0 :         if ((_U_UINT)actual &gt; (_U_UINT)expected)</span></a>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :             Unity.CurrentTestFailed = ((_U_UINT)(actual - expected) &gt; (_U_UINT)delta);</span>
+<span class="lineNum">     715 </span>            :         else
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :             Unity.CurrentTestFailed = ((_U_UINT)(expected - actual) &gt; (_U_UINT)delta);</span>
+<a name="717"><span class="lineNum">     717 </span>            :     }</a>
+<span class="lineNum">     718 </span>            : 
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :     if (Unity.CurrentTestFailed)</span>
+<span class="lineNum">     720 </span>            :     {
+<a name="721"><span class="lineNum">     721 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrDelta);</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :         UnityPrintNumberByStyle(delta, style);</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrExpected);</span>
+<a name="725"><span class="lineNum">     725 </span><span class="lineNoCov">          0 :         UnityPrintNumberByStyle(expected, style);</span></a>
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrWas);</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :         UnityPrintNumberByStyle(actual, style);</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<a name="729"><span class="lineNum">     729 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     730 </span>            :     }
+<span class="lineNum">     731 </span>            : }
+<a name="732"><span class="lineNum">     732 </span>            : </a>
+<a name="733"><span class="lineNum">     733 </span>            : //-----------------------------------------------</a>
+<span class="lineNum">     734 </span><span class="lineCov">          9 : void UnityAssertEqualString(const char* expected,</span>
+<span class="lineNum">     735 </span>            :                             const char* actual,
+<span class="lineNum">     736 </span>            :                             const char* msg,
+<a name="737"><span class="lineNum">     737 </span>            :                             const UNITY_LINE_TYPE lineNumber)</a>
+<span class="lineNum">     738 </span>            : {
+<span class="lineNum">     739 </span>            :     _UU32 i;
+<span class="lineNum">     740 </span>            : 
+<a name="741"><span class="lineNum">     741 </span><span class="lineCov">         18 :     UNITY_SKIP_EXECUTION;</span></a>
+<span class="lineNum">     742 </span>            :   
+<span class="lineNum">     743 </span>            :     // if both pointers not null compare the strings
+<span class="lineNum">     744 </span><span class="lineCov">          9 :     if (expected &amp;&amp; actual)</span>
+<a name="745"><span class="lineNum">     745 </span>            :     {</a>
+<span class="lineNum">     746 </span><span class="lineCov">         50 :         for (i = 0; expected[i] || actual[i]; i++)</span>
+<span class="lineNum">     747 </span>            :         {
+<span class="lineNum">     748 </span><span class="lineCov">         41 :             if (expected[i] != actual[i])</span>
+<a name="749"><span class="lineNum">     749 </span>            :             {</a>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                 Unity.CurrentTestFailed = 1;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     752 </span>            :             }
+<a name="753"><span class="lineNum">     753 </span>            :         }</a>
+<span class="lineNum">     754 </span>            :     }
+<span class="lineNum">     755 </span>            :     else
+<span class="lineNum">     756 </span>            :     { // handle case of one pointers being null (if both null, test should pass)
+<a name="757"><span class="lineNum">     757 </span><span class="lineNoCov">          0 :         if (expected != actual)</span></a>
+<span class="lineNum">     758 </span>            :         {
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :             Unity.CurrentTestFailed = 1;</span>
+<span class="lineNum">     760 </span>            :         }
+<a name="761"><span class="lineNum">     761 </span>            :     }</a>
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span><span class="lineCov">          9 :     if (Unity.CurrentTestFailed)</span>
+<span class="lineNum">     764 </span>            :     {
+<a name="765"><span class="lineNum">     765 </span><span class="lineNoCov">          0 :       UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :       UnityPrintExpectedAndActualStrings(expected, actual);</span>
+<span class="lineNum">     767 </span><span class="lineNoCov">          0 :       UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :       UNITY_FAIL_AND_BAIL;</span>
+<a name="769"><span class="lineNum">     769 </span>            :     }</a>
+<span class="lineNum">     770 </span>            : }
+<a name="771"><span class="lineNum">     771 </span>            : </a>
+<span class="lineNum">     772 </span>            : //-----------------------------------------------
+<a name="773"><span class="lineNum">     773 </span><span class="lineNoCov">          0 : void UnityAssertEqualStringArray( const char** expected,</span></a>
+<span class="lineNum">     774 </span>            :                                   const char** actual,
+<span class="lineNum">     775 </span>            :                                   const _UU32 num_elements,
+<span class="lineNum">     776 </span>            :                                   const char* msg,
+<a name="777"><span class="lineNum">     777 </span>            :                                   const UNITY_LINE_TYPE lineNumber)</a>
+<span class="lineNum">     778 </span>            : {
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :     _UU32 i, j = 0;</span>
+<span class="lineNum">     780 </span>            :     
+<a name="781"><span class="lineNum">     781 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span></a>
+<span class="lineNum">     782 </span>            :   
+<span class="lineNum">     783 </span>            :     // if no elements, it's an error
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :     if (num_elements == 0)</span>
+<a name="785"><span class="lineNum">     785 </span>            :     {</a>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrPointless);</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<a name="789"><span class="lineNum">     789 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     790 </span>            :     }
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :     if (UnityCheckArraysForNull((void*)expected, (void*)actual, lineNumber, msg) == 1)</span>
+<a name="793"><span class="lineNum">     793 </span><span class="lineNoCov">          0 :         return;</span></a>
+<span class="lineNum">     794 </span>            :     
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :     do</span>
+<span class="lineNum">     796 </span>            :     {
+<a name="797"><span class="lineNum">     797 </span>            :         // if both pointers not null compare the strings</a>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :         if (expected[j] &amp;&amp; actual[j])</span>
+<span class="lineNum">     799 </span>            :         {
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :             for (i = 0; expected[j][i] || actual[j][i]; i++)</span>
+<a name="801"><span class="lineNum">     801 </span>            :             {</a>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :                 if (expected[j][i] != actual[j][i])</span>
+<span class="lineNum">     803 </span>            :                 {
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :                     Unity.CurrentTestFailed = 1;</span>
+<a name="805"><span class="lineNum">     805 </span><span class="lineNoCov">          0 :                     break;</span></a>
+<span class="lineNum">     806 </span>            :                 }
+<span class="lineNum">     807 </span>            :             }
+<span class="lineNum">     808 </span>            :         }
+<a name="809"><span class="lineNum">     809 </span>            :         else</a>
+<span class="lineNum">     810 </span>            :         { // handle case of one pointers being null (if both null, test should pass)
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :             if (expected[j] != actual[j])</span>
+<span class="lineNum">     812 </span>            :             {
+<a name="813"><span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 Unity.CurrentTestFailed = 1;</span></a>
+<span class="lineNum">     814 </span>            :             }
+<span class="lineNum">     815 </span>            :         }
+<span class="lineNum">     816 </span>            : 
+<a name="817"><span class="lineNum">     817 </span><span class="lineNoCov">          0 :         if (Unity.CurrentTestFailed)</span></a>
+<span class="lineNum">     818 </span>            :         {
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :             UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :             if (num_elements &gt; 1)</span>
+<a name="821"><span class="lineNum">     821 </span>            :             {</a>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :                 UnityPrint(UnityStrElement);</span>
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 :                 UnityPrintNumberByStyle((num_elements - j - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     824 </span>            :             }
+<a name="825"><span class="lineNum">     825 </span><span class="lineNoCov">          0 :             UnityPrintExpectedAndActualStrings((const char*)(expected[j]), (const char*)(actual[j]));</span></a>
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :             UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :             UNITY_FAIL_AND_BAIL;</span>
+<span class="lineNum">     828 </span>            :         } 
+<a name="829"><span class="lineNum">     829 </span>            :     } while (++j &lt; num_elements);</a>
+<span class="lineNum">     830 </span>            : }
+<a name="831"><span class="lineNum">     831 </span>            : </a>
+<span class="lineNum">     832 </span>            : //-----------------------------------------------
+<a name="833"><span class="lineNum">     833 </span><span class="lineNoCov">          0 : void UnityAssertEqualMemory( const void* expected,</span></a>
+<span class="lineNum">     834 </span>            :                              const void* actual,
+<span class="lineNum">     835 </span>            :                              const _UU32 length,
+<span class="lineNum">     836 </span>            :                              const _UU32 num_elements,
+<a name="837"><span class="lineNum">     837 </span>            :                              const char* msg,</a>
+<span class="lineNum">     838 </span>            :                              const UNITY_LINE_TYPE lineNumber)
+<span class="lineNum">     839 </span>            : {
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :     unsigned char* ptr_exp = (unsigned char*)expected;</span>
+<a name="841"><span class="lineNum">     841 </span><span class="lineNoCov">          0 :     unsigned char* ptr_act = (unsigned char*)actual;</span></a>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :     _UU32 elements = num_elements;</span>
+<span class="lineNum">     843 </span>            :     _UU32 bytes;
+<span class="lineNum">     844 </span>            : 
+<a name="845"><span class="lineNum">     845 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span></a>
+<span class="lineNum">     846 </span>            :   
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 :     if ((elements == 0) || (length == 0))</span>
+<span class="lineNum">     848 </span>            :     {
+<a name="849"><span class="lineNum">     849 </span><span class="lineNoCov">          0 :         UnityTestResultsFailBegin(lineNumber);</span></a>
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :         UnityPrint(UnityStrPointless);</span>
+<span class="lineNum">     851 </span><span class="lineNoCov">          0 :         UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 :         UNITY_FAIL_AND_BAIL;</span>
+<a name="853"><span class="lineNum">     853 </span>            :     }</a>
+<span class="lineNum">     854 </span>            : 
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :     if (UnityCheckArraysForNull((void*)expected, (void*)actual, lineNumber, msg) == 1)</span>
+<span class="lineNum">     856 </span><span class="lineNoCov">          0 :         return;</span>
+<a name="857"><span class="lineNum">     857 </span>            :         </a>
+<span class="lineNum">     858 </span><span class="lineNoCov">          0 :     while (elements--)</span>
+<span class="lineNum">     859 </span>            :     {
+<span class="lineNum">     860 </span>            :         /////////////////////////////////////
+<a name="861"><span class="lineNum">     861 </span><span class="lineNoCov">          0 :         bytes = length;</span></a>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         while (bytes--)</span>
+<span class="lineNum">     863 </span>            :         {
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :             if (*ptr_exp != *ptr_act)</span>
+<a name="865"><span class="lineNum">     865 </span>            :             {</a>
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :                 UnityTestResultsFailBegin(lineNumber);</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :                 UnityPrint(UnityStrMemory);</span>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :                 if (num_elements &gt; 1)</span>
+<a name="869"><span class="lineNum">     869 </span>            :                 {</a>
+<span class="lineNum">     870 </span><span class="lineNoCov">          0 :                     UnityPrint(UnityStrElement);</span>
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :                     UnityPrintNumberByStyle((num_elements - elements - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     872 </span>            :                 }
+<a name="873"><span class="lineNum">     873 </span><span class="lineNoCov">          0 :                 UnityPrint(UnityStrByte);</span></a>
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :                 UnityPrintNumberByStyle((length - bytes - 1), UNITY_DISPLAY_STYLE_UINT);</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :                 UnityPrint(UnityStrExpected);</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                 UnityPrintNumberByStyle(*ptr_exp, UNITY_DISPLAY_STYLE_HEX8);</span>
+<a name="877"><span class="lineNum">     877 </span><span class="lineNoCov">          0 :                 UnityPrint(UnityStrWas);</span></a>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                 UnityPrintNumberByStyle(*ptr_act, UNITY_DISPLAY_STYLE_HEX8);</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :                 UnityAddMsgIfSpecified(msg);</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                 UNITY_FAIL_AND_BAIL;</span>
+<a name="881"><span class="lineNum">     881 </span>            :             }</a>
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :             ptr_exp += 1;</span>
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :             ptr_act += 1;</span>
+<span class="lineNum">     884 </span>            :         }
+<a name="885"><span class="lineNum">     885 </span>            :         /////////////////////////////////////</a>
+<span class="lineNum">     886 </span>            :         
+<span class="lineNum">     887 </span>            :     }
+<span class="lineNum">     888 </span>            : }
+<a name="889"><span class="lineNum">     889 </span>            : </a>
+<span class="lineNum">     890 </span>            : //-----------------------------------------------
+<span class="lineNum">     891 </span>            : // Control Functions
+<a name="892"><span class="lineNum">     892 </span>            : //-----------------------------------------------</a>
+<a name="893"><span class="lineNum">     893 </span>            : </a>
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 : void UnityFail(const char* msg, const UNITY_LINE_TYPE line)</span>
+<span class="lineNum">     895 </span>            : {
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<a name="897"><span class="lineNum">     897 </span>            : </a>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :     UnityTestResultsBegin(Unity.TestFile, line);</span>
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :     UnityPrintFail();</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :     if (msg != NULL)</span>
+<a name="901"><span class="lineNum">     901 </span>            :     {</a>
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :       UNITY_OUTPUT_CHAR(':');</span>
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :       if (msg[0] != ' ')</span>
+<span class="lineNum">     904 </span>            :       {
+<a name="905"><span class="lineNum">     905 </span><span class="lineNoCov">          0 :         UNITY_OUTPUT_CHAR(' ');  </span></a>
+<span class="lineNum">     906 </span>            :       }
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 :       UnityPrint(msg);</span>
+<span class="lineNum">     908 </span>            :     }
+<a name="909"><span class="lineNum">     909 </span><span class="lineNoCov">          0 :     UNITY_FAIL_AND_BAIL;</span></a>
+<span class="lineNum">     910 </span>            : }
+<a name="911"><span class="lineNum">     911 </span>            : </a>
+<span class="lineNum">     912 </span>            : //-----------------------------------------------
+<a name="913"><span class="lineNum">     913 </span><span class="lineNoCov">          0 : void UnityIgnore(const char* msg, const UNITY_LINE_TYPE line)</span></a>
+<span class="lineNum">     914 </span>            : {
+<span class="lineNum">     915 </span><span class="lineNoCov">          0 :     UNITY_SKIP_EXECUTION;</span>
+<span class="lineNum">     916 </span>            : 
+<a name="917"><span class="lineNum">     917 </span><span class="lineNoCov">          0 :     UnityTestResultsBegin(Unity.TestFile, line);</span></a>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :     UnityPrint(&quot;IGNORE&quot;);</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :     if (msg != NULL)</span>
+<span class="lineNum">     920 </span>            :     {
+<a name="921"><span class="lineNum">     921 </span><span class="lineNoCov">          0 :       UNITY_OUTPUT_CHAR(':');</span></a>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :       UNITY_OUTPUT_CHAR(' ');</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :       UnityPrint(msg);</span>
+<span class="lineNum">     924 </span>            :     }
+<a name="925"><span class="lineNum">     925 </span><span class="lineNoCov">          0 :     UNITY_IGNORE_AND_BAIL;</span></a>
+<span class="lineNum">     926 </span>            : }
+<span class="lineNum">     927 </span>            : 
+<span class="lineNum">     928 </span>            : //-----------------------------------------------
+<a name="929"><span class="lineNum">     929 </span>            : void setUp(void);</a>
+<span class="lineNum">     930 </span>            : void tearDown(void);
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 : void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int FuncLineNum)</span>
+<span class="lineNum">     932 </span>            : {
+<a name="933"><span class="lineNum">     933 </span><span class="lineNoCov">          0 :     Unity.CurrentTestName = FuncName;</span></a>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :     Unity.CurrentTestLineNumber = FuncLineNum;</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :     Unity.NumberOfTests++; </span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :     if (TEST_PROTECT())</span>
+<a name="937"><span class="lineNum">     937 </span>            :     {</a>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :         setUp();</span>
+<span class="lineNum">     939 </span><span class="lineNoCov">          0 :         Func();</span>
+<span class="lineNum">     940 </span>            :     }
+<a name="941"><span class="lineNum">     941 </span><span class="lineNoCov">          0 :     if (TEST_PROTECT() &amp;&amp; !(Unity.CurrentTestIgnored))</span></a>
+<span class="lineNum">     942 </span>            :     {
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :         tearDown();</span>
+<span class="lineNum">     944 </span>            :     }
+<a name="945"><span class="lineNum">     945 </span><span class="lineNoCov">          0 :     UnityConcludeTest();</span></a>
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 : }</span>
+<a name="947"><span class="lineNum">     947 </span>            : </a>
+<span class="lineNum">     948 </span>            : //-----------------------------------------------
+<a name="949"><span class="lineNum">     949 </span><span class="lineCov">          1 : void UnityBegin(void)</span></a>
+<span class="lineNum">     950 </span>            : {
+<span class="lineNum">     951 </span><span class="lineCov">          1 :     Unity.NumberOfTests = 0;</span>
+<span class="lineNum">     952 </span><span class="lineCov">          1 :     Unity.TestFailures = 0;</span>
+<a name="953"><span class="lineNum">     953 </span><span class="lineCov">          1 :     Unity.TestIgnores = 0;</span></a>
+<span class="lineNum">     954 </span><span class="lineCov">          1 :     Unity.CurrentTestFailed = 0;</span>
+<span class="lineNum">     955 </span><span class="lineCov">          1 :     Unity.CurrentTestIgnored = 0;</span>
+<span class="lineNum">     956 </span><span class="lineCov">          1 : }</span>
+<a name="957"><span class="lineNum">     957 </span>            : </a>
+<span class="lineNum">     958 </span>            : //-----------------------------------------------
+<span class="lineNum">     959 </span><span class="lineCov">          1 : int UnityEnd(void)</span>
+<span class="lineNum">     960 </span>            : {
+<a name="961"><span class="lineNum">     961 </span><span class="lineCov">          1 :     UnityPrint(&quot;-----------------------&quot;);</span></a>
+<span class="lineNum">     962 </span><span class="lineCov">          1 :     UNITY_PRINT_EOL;</span>
+<span class="lineNum">     963 </span><span class="lineCov">          1 :     UnityPrintNumber(Unity.NumberOfTests);</span>
+<span class="lineNum">     964 </span><span class="lineCov">          1 :     UnityPrint(&quot; Tests &quot;);</span>
+<a name="965"><span class="lineNum">     965 </span><span class="lineCov">          1 :     UnityPrintNumber(Unity.TestFailures);</span></a>
+<span class="lineNum">     966 </span><span class="lineCov">          1 :     UnityPrint(&quot; Failures &quot;);</span>
+<span class="lineNum">     967 </span><span class="lineCov">          1 :     UnityPrintNumber(Unity.TestIgnores);</span>
+<span class="lineNum">     968 </span><span class="lineCov">          1 :     UnityPrint(&quot; Ignored&quot;);</span>
+<a name="969"><span class="lineNum">     969 </span><span class="lineCov">          1 :     UNITY_PRINT_EOL;</span></a>
+<span class="lineNum">     970 </span><span class="lineCov">          1 :     if (Unity.TestFailures == 0U)</span>
+<span class="lineNum">     971 </span>            :     {
+<span class="lineNum">     972 </span><span class="lineCov">          1 :         UnityPrintOk();</span>
+<a name="973"><span class="lineNum">     973 </span>            :     }</a>
+<span class="lineNum">     974 </span>            :     else
+<span class="lineNum">     975 </span>            :     {
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :         UnityPrintFail();</span>
+<a name="977"><span class="lineNum">     977 </span>            :     }</a>
+<span class="lineNum">     978 </span><span class="lineCov">          1 :     UNITY_PRINT_EOL;</span>
+<span class="lineNum">     979 </span><span class="lineCov">          1 :     return Unity.TestFailures;</span>
+<span class="lineNum">     980 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

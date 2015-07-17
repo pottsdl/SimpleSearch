@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_test_production_code_8c.html#af0e2b6eb972bb4fde49c500a21eb7af9" title="WriterThread &#45; Child thread, writing thread, for test_queueReaderWriter." alt="" coords="235,57,331,87"/>
+<area shape="rect" id="node7" href="$_test_production_code_8c.html#aaa63f9072c144b481a4fcaee39ca6e09" title="ReaderThread &#45; Child thread, reading thread, for test_queueReaderWriter." alt="" coords="231,136,335,165"/>
+<area shape="rect" id="node9" href="$class_work___queue.html#a96130099b851a0779225f1344779a587" title="empty &#45; Public method to determine if queue is empty." alt="" coords="655,109,796,139"/>
+<area shape="rect" id="node17" href="$class_work___queue.html#a7b92e496e0d69047638e7ff8a030c5fb" title="front &#45; Public method to get front for underlying data structure." alt="" coords="217,267,348,296"/>
+<area shape="rect" id="node19" href="$class_work___queue.html#aeda8157eb23b3cb91176e1ad4f2c874d" title="pop &#45; Public pop method." alt="" coords="220,320,345,349"/>
+<area shape="rect" id="node5" href="$class_work___queue.html#adafd7cba8863e926e0e50c98bd47f604" title="push &#45; Public push method." alt="" coords="435,5,568,35"/>
+<area shape="rect" id="node11" href="$class_work___queue.html#adf86a3b60361f4d22e0f34912dcfda8f" title="waitForNotEmpty &#45; Public method to pend on an empty queue until new item(s) have appeared." alt="" coords="397,109,605,139"/>
+<area shape="rect" id="node14" href="$class_work___queue.html#af7a7461cbe09fc8653423b30c7ea5536" title="pop_front &#45; Public method to pop_front for underlying data structure." alt="" coords="421,163,581,192"/>
+</map>

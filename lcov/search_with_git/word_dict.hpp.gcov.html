@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - Basic example - search_with_git/word_dict.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">search_with_git</a> - word_dict.hpp<span style="font-size: 80%;"> (source / <a href="word_dict.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">Basic example ( <span style="font-size:80%;"><a href="../descriptions.html" target="_parent">view descriptions</a></span> )</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-06-15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+</td>
+            <td></td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifndef __WORD_DICT_H__</a>
+<span class="lineNum">       2 </span>            : #define __WORD_DICT_H__
+<span class="lineNum">       3 </span>            : /**
+<span class="lineNum">       4 </span>            :  * @file           word_dict.hpp
+<a name="5"><span class="lineNum">       5 </span>            :  * @brief:         &lt;description&gt;</a>
+<span class="lineNum">       6 </span>            :  * @verbatim
+<span class="lineNum">       7 </span>            :  *******************************************************************************
+<span class="lineNum">       8 </span>            :  * Author:         Douglas L. Potts
+<a name="9"><span class="lineNum">       9 </span>            :  *</a>
+<span class="lineNum">      10 </span>            :  * Date:           06/10/2015, &lt;SCR #&gt;
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * History:
+<a name="13"><span class="lineNum">      13 </span>            :  * Date        SCR #  Name  Description</a>
+<span class="lineNum">      14 </span>            :  * -----------------------------------------------------------------------------
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  *******************************************************************************
+<a name="17"><span class="lineNum">      17 </span>            :  * @endverbatim</a>
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : /*******************************************************************************
+<a name="21"><span class="lineNum">      21 </span>            :  * System Includes</a>
+<span class="lineNum">      22 </span>            :  *******************************************************************************
+<span class="lineNum">      23 </span>            :  */
+<span class="lineNum">      24 </span>            : #include &lt;pthread.h&gt; /* for pthread_* calls */
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;map&gt;</a>
+<span class="lineNum">      26 </span>            : #include &lt;string&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /*******************************************************************************
+<a name="29"><span class="lineNum">      29 </span>            :  * Project Includes</a>
+<span class="lineNum">      30 </span>            :  *******************************************************************************
+<span class="lineNum">      31 </span>            :  */
+<span class="lineNum">      32 </span>            : #include &quot;common_types.h&quot;
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<span class="lineNum">      34 </span>            : #if defined(TEST)
+<span class="lineNum">      35 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      36 </span>            :     void wordDictConstruct(void);
+<a name="37"><span class="lineNum">      37 </span>            :     void wordDictAddItems(void);</a>
+<span class="lineNum">      38 </span>            :     void wordDictLock(void);
+<span class="lineNum">      39 </span>            :     void wordDictUnlock(void);
+<span class="lineNum">      40 </span>            :     void wordDictIterItems(void);
+<a name="41"><span class="lineNum">      41 </span>            :     void wordDictGoodFind(void);</a>
+<span class="lineNum">      42 </span>            :     void wordDictGoodMiss(void);
+<span class="lineNum">      43 </span>            :     void wordDictGoodIncrement(void);
+<span class="lineNum">      44 </span>            : }
+<a name="45"><span class="lineNum">      45 </span>            : #endif /* defined(TEST) */</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : /*******************************************************************************
+<span class="lineNum">      48 </span>            :  * Typedefs
+<a name="49"><span class="lineNum">      49 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      50 </span>            :  */
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : /*******************************************************************************
+<a name="53"><span class="lineNum">      53 </span>            :  * Constants</a>
+<span class="lineNum">      54 </span>            :  *******************************************************************************
+<span class="lineNum">      55 </span>            :  */
+<span class="lineNum">      56 </span>            : 
+<a name="57"><span class="lineNum">      57 </span>            : /*******************************************************************************</a>
+<span class="lineNum">      58 </span>            :  * Structures
+<span class="lineNum">      59 </span>            :  *******************************************************************************
+<span class="lineNum">      60 </span>            :  */
+<a name="61"><span class="lineNum">      61 </span>            : using namespace std;</a>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : class Word_Dict
+<span class="lineNum">      64 </span>            : {
+<a name="65"><span class="lineNum">      65 </span>            :     public:</a>
+<span class="lineNum">      66 </span>            :         Word_Dict(void);
+<span class="lineNum">      67 </span>            :         virtual ~Word_Dict(void);
+<a name="68"><span class="lineNum">      68 </span>            :         void lock(void);</a>
+<a name="69"><span class="lineNum">      69 </span>            :         void unlock(void);</a>
+<span class="lineNum">      70 </span><span class="lineCov">          5 :         Bool_t isLocked(void) { return(this-&gt;_is_locked); };</span>
+<a name="71"><span class="lineNum">      71 </span>            :         // void insertWord(char *word, int count);</a>
+<span class="lineNum">      72 </span>            :         void insertWord(string word, int count);
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">          6 :         map&lt;string,int&gt; &amp;getMap(void) { return(this-&gt;_dictionaryMap); };</span></a>
+<span class="lineNum">      74 </span>            :         void begin(void);
+<span class="lineNum">      75 </span>            :         void end(void);
+<span class="lineNum">      76 </span>            :         void getNextWord(string &amp;word, int *count);
+<a name="77"><span class="lineNum">      77 </span>            :         // Bool_t hasWord(char *word);</a>
+<span class="lineNum">      78 </span>            :         Bool_t hasWord(string word);
+<span class="lineNum">      79 </span>            :         // void incrementWordCount(char *word);
+<span class="lineNum">      80 </span>            :         void incrementWordCount(string word);
+<a name="81"><span class="lineNum">      81 </span>            :         void print(void);</a>
+<span class="lineNum">      82 </span>            :         void setDebug(Bool_t enabled);
+<span class="lineNum">      83 </span>            :         Bool_t getDebug(void);
+<span class="lineNum">      84 </span>            :         int getWordCount(char *word);
+<a name="85"><span class="lineNum">      85 </span>            :         void printTopX(int top_X_counts);</a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :     private:
+<a name="89"><span class="lineNum">      89 </span>            :         Bool_t _mut_init;</a>
+<span class="lineNum">      90 </span>            :         Bool_t _is_locked;
+<span class="lineNum">      91 </span>            :         pthread_mutex_t _mut;
+<span class="lineNum">      92 </span>            :         map&lt;string,int&gt; _dictionaryMap;
+<a name="93"><span class="lineNum">      93 </span>            :         map&lt;string,int&gt;::iterator _it;</a>
+<span class="lineNum">      94 </span>            :         Bool_t _showDebugOutput;
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :         void _lock(void);
+<a name="97"><span class="lineNum">      97 </span>            :         void _unlock(void);</a>
+<span class="lineNum">      98 </span>            : };
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : /*******************************************************************************
+<a name="101"><span class="lineNum">     101 </span>            :  * Unions</a>
+<span class="lineNum">     102 </span>            :  *******************************************************************************
+<span class="lineNum">     103 </span>            :  */
+<span class="lineNum">     104 </span>            : 
+<a name="105"><span class="lineNum">     105 </span>            : /*******************************************************************************</a>
+<span class="lineNum">     106 </span>            :  * External Function Prototypes
+<span class="lineNum">     107 </span>            :  *******************************************************************************
+<span class="lineNum">     108 </span>            :  */
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<span class="lineNum">     110 </span>            : /*******************************************************************************
+<span class="lineNum">     111 </span>            :  * Global Variables
+<span class="lineNum">     112 </span>            :  *******************************************************************************
+<a name="113"><span class="lineNum">     113 </span>            :  */</a>
+<span class="lineNum">     114 </span>            : #if _MAIN_
+<span class="lineNum">     115 </span>            : #define GLOBAL_VAR_DECLARE
+<span class="lineNum">     116 </span>            : #else
+<a name="117"><span class="lineNum">     117 </span>            : #define GLOBAL_VAR_DECLARE extern</a>
+<span class="lineNum">     118 </span>            : #endif /* _MAIN_ */
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : #endif /* __WORD_DICT_H__ */
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

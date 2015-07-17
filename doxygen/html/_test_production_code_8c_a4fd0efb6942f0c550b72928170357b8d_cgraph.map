@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$buffer__processing_8cpp.html#a15dc23815859ef3ef6bf4fd21de40bf1" title="processBufferForWords &#45; Take a buffer of data read from the file and parse for words." alt="" coords="312,5,472,35"/>
+<area shape="rect" id="node5" href="$buffer__processing_8cpp.html#a2c83a1c1a0289573cb2a1130c46a34cd" title="isWordChar &#45; Check if the given character is considered a &quot;word&quot; char." alt="" coords="520,5,611,35"/>
+</map>

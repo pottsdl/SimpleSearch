@@ -1,0 +1,88 @@
+Have a non-directory at the top, so creating directory top_dir
+Adding /home/dpotts/proto/search_with_git/./Doxyfile to top_dir
+Adding /home/dpotts/proto/search_with_git/./Makefile to top_dir
+Adding /home/dpotts/proto/search_with_git/./README to top_dir
+Adding /home/dpotts/proto/search_with_git/./TestProductionCode.c to top_dir
+Adding /home/dpotts/proto/search_with_git/./TestProductionCode_Runner.c to top_dir
+Adding /home/dpotts/proto/search_with_git/./buffer_processing.cpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./buffer_processing.gcno to top_dir
+Adding /home/dpotts/proto/search_with_git/./buffer_processing.hpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./buffer_processing.o to top_dir
+Adding /home/dpotts/proto/search_with_git/./common_types.h to top_dir
+Adding /home/dpotts/proto/search_with_git/./descriptions.txt to top_dir
+Adding /home/dpotts/proto/search_with_git/./do_cppcheck.sh to top_dir
+Adding /home/dpotts/proto/search_with_git/./error_macros.h to top_dir
+Adding /home/dpotts/proto/search_with_git/./errorfil to top_dir
+Adding /home/dpotts/proto/search_with_git/./listdir.cpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./listdir.gcno to top_dir
+Adding /home/dpotts/proto/search_with_git/./listdir.hpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./listdir.o to top_dir
+Adding /home/dpotts/proto/search_with_git/./main.cpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./main.gcno to top_dir
+Adding /home/dpotts/proto/search_with_git/./main.o to top_dir
+Adding /home/dpotts/proto/search_with_git/./memcheck.txt to top_dir
+Adding /home/dpotts/proto/search_with_git/./readme.txt to top_dir
+Creating filelist for shunit2-2.1.6
+Adding /home/dpotts/proto/search_with_git/./sloc_count.txt to top_dir
+Adding /home/dpotts/proto/search_with_git/./ssfi to top_dir
+Creating filelist for testdir
+Creating filelist for testscript
+Adding /home/dpotts/proto/search_with_git/./todo.otl to top_dir
+Creating filelist for unity
+Adding /home/dpotts/proto/search_with_git/./word_dict.cpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./word_dict.gcno to top_dir
+Adding /home/dpotts/proto/search_with_git/./word_dict.hpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./word_dict.o to top_dir
+Adding /home/dpotts/proto/search_with_git/./work_queue.cpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./work_queue.gcno to top_dir
+Adding /home/dpotts/proto/search_with_git/./work_queue.hpp to top_dir
+Adding /home/dpotts/proto/search_with_git/./work_queue.o to top_dir
+Categorizing files.
+Computing results.
+/home/dpotts/proto/search_with_git/.slocdata/shunit2-2.1.6
+/home/dpotts/proto/search_with_git/.slocdata/testdir
+/home/dpotts/proto/search_with_git/.slocdata/testscript
+/home/dpotts/proto/search_with_git/.slocdata/top_dir
+/home/dpotts/proto/search_with_git/.slocdata/unity
+
+
+34	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/bin/gen_test_results.sh
+21	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/bin/which
+75	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test.sh
+78	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test_misc.sh
+135	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test_asserts.sh
+13	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test_standalone.sh
+178	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test_macros.sh
+50	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2_test_failures.sh
+544	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/src/shunit2
+165	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/lib/versions
+17	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/examples/math_test.sh
+7	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/examples/lineno_test.sh
+5	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/examples/equality_test.sh
+50	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/examples/mkdir_test.sh
+11	sh	shunit2-2.1.6	/home/dpotts/proto/search_with_git/shunit2-2.1.6/examples/party_test.sh
+11	sh	testscript	/home/dpotts/proto/search_with_git/testscript/test_ssfi.bash
+20	sh	top_dir	/home/dpotts/proto/search_with_git/./do_cppcheck.sh
+417	cpp	top_dir	/home/dpotts/proto/search_with_git/./buffer_processing.cpp
+59	cpp	top_dir	/home/dpotts/proto/search_with_git/./listdir.cpp
+149	cpp	top_dir	/home/dpotts/proto/search_with_git/./main.cpp
+428	cpp	top_dir	/home/dpotts/proto/search_with_git/./word_dict.cpp
+137	cpp	top_dir	/home/dpotts/proto/search_with_git/./work_queue.cpp
+25	cpp	top_dir	/home/dpotts/proto/search_with_git/./buffer_processing.hpp
+13	cpp	top_dir	/home/dpotts/proto/search_with_git/./listdir.hpp
+55	cpp	top_dir	/home/dpotts/proto/search_with_git/./word_dict.hpp
+40	cpp	top_dir	/home/dpotts/proto/search_with_git/./work_queue.hpp
+401	ansic	top_dir	/home/dpotts/proto/search_with_git/./TestProductionCode.c
+96	ansic	top_dir	/home/dpotts/proto/search_with_git/./TestProductionCode_Runner.c
+11	ansic	top_dir	/home/dpotts/proto/search_with_git/./common_types.h
+34	ansic	top_dir	/home/dpotts/proto/search_with_git/./error_macros.h
+185	makefile	top_dir	/home/dpotts/proto/search_with_git/./Makefile
+822	ansic	unity	/home/dpotts/proto/search_with_git/unity/unity.c
+367	ansic	unity	/home/dpotts/proto/search_with_git/unity/unity_internals.h
+141	ansic	unity	/home/dpotts/proto/search_with_git/unity/unity.h
+156	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/generate_module.rb
+31	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/colour_reporter.rb
+260	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/generate_test_runner.rb
+104	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/unity_test_summary.rb
+77	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/colour_prompt.rb
+16	ruby	unity	/home/dpotts/proto/search_with_git/unity/auto/test_file_filter.rb

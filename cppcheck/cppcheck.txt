@@ -1,0 +1,5 @@
+cppcheck --enable=all --template=gcc --includes-file=includes_file.txt -j 1 -q .
+unity/unity.c:739: style: The scope of the variable 'i' can be reduced
+unity/unity.c:0: information: Interrupted checking because of too many #ifdef configurations.
+TestProductionCode_Runner.c:64: style: The function 'resetTest' is never used
+:: information: Cppcheck cannot find all the include files (use --check-config for details)

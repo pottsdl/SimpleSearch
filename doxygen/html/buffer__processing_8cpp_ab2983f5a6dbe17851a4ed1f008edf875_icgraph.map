@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$buffer__processing_8cpp.html#ab1e29111b5492ba563421e5efdb666bc" title="processFile &#45; Take a file path, and parse the file for words putting them in the dictionary." alt="" coords="196,5,284,35"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a10f2c86eaca79ed77273ca22ee41c5d3" title="workerThread &#45; Thread to process a single file path for word count." alt="" coords="333,5,435,35"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="483,5,533,35"/>
+</map>

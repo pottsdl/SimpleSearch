@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - Basic example - search_with_git/main.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">search_with_git</a> - main.cpp<span style="font-size: 80%;"> (source / <a href="main.cpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">Basic example ( <span style="font-size:80%;"><a href="../descriptions.html" target="_parent">view descriptions</a></span> )</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntryMed">81.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-06-15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+</td>
+            <td></td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /**</a>
+<span class="lineNum">       2 </span>            :  * @file           main.c
+<span class="lineNum">       3 </span>            :  * @verbatim
+<span class="lineNum">       4 </span>            :  *******************************************************************************
+<a name="5"><span class="lineNum">       5 </span>            :  * File:           main.c</a>
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  * Description:    Main program for the Super Simple File Indexer program (ssfi)
+<span class="lineNum">       8 </span>            :  *
+<a name="9"><span class="lineNum">       9 </span>            :  * Author:         Douglas L. Potts</a>
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * Date:           09-Jun-2015
+<span class="lineNum">      12 </span>            :  *
+<a name="13"><span class="lineNum">      13 </span>            :  * History:</a>
+<span class="lineNum">      14 </span>            :  * Date        SCR #  Name  Description
+<span class="lineNum">      15 </span>            :  * -----------------------------------------------------------------------------
+<span class="lineNum">      16 </span>            :  *
+<a name="17"><span class="lineNum">      17 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      18 </span>            :  * @endverbatim
+<span class="lineNum">      19 </span>            :  */
+<span class="lineNum">      20 </span>            : 
+<a name="21"><span class="lineNum">      21 </span>            : /*******************************************************************************</a>
+<span class="lineNum">      22 </span>            :  * System Includes
+<span class="lineNum">      23 </span>            :  *******************************************************************************
+<span class="lineNum">      24 </span>            :  */
+<a name="25"><span class="lineNum">      25 </span>            : #include &lt;unistd.h&gt;</a>
+<span class="lineNum">      26 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &lt;errno.h&gt; /* for errno */
+<a name="29"><span class="lineNum">      29 </span>            : #include &lt;stdlib.h&gt; /* for exit() */</a>
+<span class="lineNum">      30 </span>            : #include &lt;limits.h&gt; /* for LONG_MAX/LONG_MIN */
+<span class="lineNum">      31 </span>            : #include &lt;pthread.h&gt; /* for pthread_* calls */
+<span class="lineNum">      32 </span>            : #include &lt;assert.h&gt;  /* for assert() */
+<a name="33"><span class="lineNum">      33 </span>            : #include &lt;string.h&gt; /* for strerror() */</a>
+<span class="lineNum">      34 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      35 </span>            : #include &lt;list&gt;
+<span class="lineNum">      36 </span>            : #include &lt;vector&gt;
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*******************************************************************************
+<span class="lineNum">      40 </span>            :  * Project Includes
+<a name="41"><span class="lineNum">      41 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      42 </span>            :  */
+<span class="lineNum">      43 </span>            : #include &quot;common_types.h&quot;
+<span class="lineNum">      44 </span>            : #include &quot;listdir.hpp&quot;
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;work_queue.hpp&quot;</a>
+<span class="lineNum">      46 </span>            : #include &quot;buffer_processing.hpp&quot;
+<span class="lineNum">      47 </span>            : #include &quot;word_dict.hpp&quot;
+<span class="lineNum">      48 </span>            : 
+<a name="49"><span class="lineNum">      49 </span>            : /*******************************************************************************</a>
+<span class="lineNum">      50 </span>            :  * Local Constants 
+<span class="lineNum">      51 </span>            :  *******************************************************************************
+<span class="lineNum">      52 </span>            :  */
+<a name="53"><span class="lineNum">      53 </span>            : #define BASE_TEN (0) /* Used for strtol */</a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : /*******************************************************************************
+<span class="lineNum">      56 </span>            :  * Local Macros
+<a name="57"><span class="lineNum">      57 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      58 </span>            :  */
+<span class="lineNum">      59 </span>            : #define DEBUG_PRINTF(...) \
+<span class="lineNum">      60 </span>            :     if (g_debug_output == TRUE) \
+<a name="61"><span class="lineNum">      61 </span>            :         printf(__VA_ARGS__);</a>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : /*******************************************************************************
+<span class="lineNum">      64 </span>            :  * Local Structs
+<a name="65"><span class="lineNum">      65 </span>            :  *******************************************************************************</a>
+<span class="lineNum">      66 </span>            :  */
+<span class="lineNum">      67 </span>            : /**
+<span class="lineNum">      68 </span>            :  * Convenience structure for passing Work_Queue, Word_Dict, etc. to the worker
+<a name="69"><span class="lineNum">      69 </span>            :  * threads.</a>
+<span class="lineNum">      70 </span>            :  */
+<span class="lineNum">      71 </span>            : typedef struct
+<span class="lineNum">      72 </span>            : {
+<a name="73"><span class="lineNum">      73 </span>            :     Work_Queue *myQueue;        /**&lt; Pointer to Thread-safe signaled work queue to use */</a>
+<span class="lineNum">      74 </span>            :     Word_Dict  *wordDictionary; /**&lt; Pointer to Thread-safe word dictionary for
+<span class="lineNum">      75 </span>            :                                   thread */
+<span class="lineNum">      76 </span>            :     int thread_idx;             /**&lt; Thread index, used in debug output to tell
+<a name="77"><span class="lineNum">      77 </span>            :                                   which thread is doing what operation */</a>
+<span class="lineNum">      78 </span>            : } ReaderWriterArgs_t;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : /*******************************************************************************
+<a name="81"><span class="lineNum">      81 </span>            :  * Local Function Prototypes </a>
+<span class="lineNum">      82 </span>            :  *******************************************************************************
+<span class="lineNum">      83 </span>            :  */
+<span class="lineNum">      84 </span>            : void *workerThread(void *arg);
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<span class="lineNum">      86 </span>            : /*******************************************************************************
+<span class="lineNum">      87 </span>            :  * File Scoped Variables 
+<span class="lineNum">      88 </span>            :  *******************************************************************************
+<a name="89"><span class="lineNum">      89 </span>            :  */</a>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : /** If set extending print output will be written to the screen */
+<span class="lineNum">      92 </span>            : Bool_t g_debug_output = FALSE;
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<span class="lineNum">      94 </span>            : /*******************************************************************************
+<span class="lineNum">      95 </span>            :  ********************* E X T E R N A L  F U N C T I O N S **********************
+<span class="lineNum">      96 </span>            :  *******************************************************************************
+<a name="97"><span class="lineNum">      97 </span>            :  */</a>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineCov">          4 : int main (int argc, char *argv[])</span>
+<span class="lineNum">     100 </span>            : {
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">          4 :     int opt = 1;</span></a>
+<span class="lineNum">     102 </span><span class="lineCov">          4 :     char *endptr = NULL;</span>
+<span class="lineNum">     103 </span><span class="lineCov">          4 :     long tmp_long = 1;</span>
+<span class="lineNum">     104 </span><span class="lineCov">          4 :     long num_worker_threads = 1;</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          4 :     char *first_dir = NULL;</span></a>
+<span class="lineNum">     106 </span><span class="lineCov">          4 :     pthread_t *thread_array = NULL;</span>
+<span class="lineNum">     107 </span><span class="lineCov">          4 :     ReaderWriterArgs_t *args_array = NULL;</span>
+<span class="lineNum">     108 </span><span class="lineCov">          4 :     int stat = 0;</span>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">          4 :     int thread_idx = 0;</span></a>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineCov">          4 :     Work_Queue *fileProcessingQueue = new Work_Queue();</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          4 :     Word_Dict  *wordDictionary = new Word_Dict();</span></a>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">         13 :     while ((opt = getopt(argc, argv, &quot;t:v&quot;)) != -1) {</span>
+<span class="lineNum">     116 </span><span class="lineCov">          5 :         switch (opt) {</span>
+<a name="117"><span class="lineNum">     117 </span>            :             case 't':</a>
+<span class="lineNum">     118 </span><span class="lineCov">          4 :                 tmp_long = strtol(optarg, &amp;endptr, BASE_TEN);</span>
+<span class="lineNum">     119 </span><span class="lineCov">          8 :                 if ((errno == ERANGE &amp;&amp; (tmp_long == LONG_MAX || tmp_long == LONG_MIN))</span>
+<span class="lineNum">     120 </span><span class="lineCov">          4 :                         || (errno != 0 &amp;&amp; tmp_long == 0))</span>
+<a name="121"><span class="lineNum">     121 </span>            :                 {</a>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                     perror(&quot;strtol&quot;);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                     exit(EXIT_FAILURE);</span>
+<span class="lineNum">     124 </span>            :                 }
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<span class="lineNum">     126 </span><span class="lineCov">          4 :                 if (endptr == optarg)</span>
+<span class="lineNum">     127 </span>            :                 {
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                     fprintf(stderr, &quot;No digits were found\n&quot;);</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :                     exit(EXIT_FAILURE);</span></a>
+<span class="lineNum">     130 </span>            :                 }
+<span class="lineNum">     131 </span><span class="lineCov">          4 :                 num_worker_threads = tmp_long;</span>
+<span class="lineNum">     132 </span><span class="lineCov">          4 :                 break;</span>
+<a name="133"><span class="lineNum">     133 </span>            :             case 'v':</a>
+<span class="lineNum">     134 </span><span class="lineCov">          1 :                 g_debug_output = TRUE;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :                 printf(&quot;=========== VERBOSE DEBUG OUPUT SET ===========\n&quot;);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :                 break;</span>
+<a name="137"><span class="lineNum">     137 </span>            :             default:</a>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 fprintf(stderr, &quot;Usage: %s [-t num_threads] &lt;first_dir_path&gt;\n&quot;, argv[0]);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 exit(EXIT_FAILURE);</span>
+<span class="lineNum">     140 </span>            :         }
+<a name="141"><span class="lineNum">     141 </span>            :     }</a>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :     /* Now optind (declared extern int by &lt;unistd.h&gt;) is the index of the first non-option argument. */
+<span class="lineNum">     144 </span>            :     /* If it is &gt;= argc, there were no non-option arguments. */
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          4 :     if (optind &gt;= argc)</span></a>
+<span class="lineNum">     146 </span>            :     {
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         fprintf(stderr, &quot;Usage: %s [-t num_threads] &lt;first_dir_path&gt;\n&quot;, argv[0]);</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         exit(EXIT_FAILURE);</span>
+<a name="149"><span class="lineNum">     149 </span>            :     }</a>
+<span class="lineNum">     150 </span><span class="lineCov">          4 :     first_dir = argv[optind];</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">          4 :     DEBUG_PRINTF (&quot;Number of threads:  %li\n&quot;, num_worker_threads);</span>
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          4 :     DEBUG_PRINTF (&quot;Based dir:          %s\n&quot;, first_dir);</span></a>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineCov">          4 :     thread_array = (pthread_t *) malloc(num_worker_threads * sizeof(pthread_t));</span>
+<span class="lineNum">     156 </span><span class="lineCov">          4 :     args_array = (ReaderWriterArgs_t *) malloc(num_worker_threads * sizeof(ReaderWriterArgs_t));</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          4 :     if (thread_array == NULL)</span></a>
+<span class="lineNum">     158 </span>            :     {
+<span class="lineNum">     159 </span>            :         fprintf(stderr, &quot;ERROR: Failed to allocate thread_array, exitting. (%d, %s)\n&quot;,
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 errno, strerror(errno));</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineNoCov">          0 :         exit(EXIT_FAILURE);</span></a>
+<span class="lineNum">     162 </span>            :     }
+<span class="lineNum">     163 </span><span class="lineCov">          4 :     if (args_array == NULL)</span>
+<span class="lineNum">     164 </span>            :     {
+<a name="165"><span class="lineNum">     165 </span>            :         fprintf(stderr, &quot;ERROR: Failed to allocate args_array, exitting. (%d, %s)\n&quot;,</a>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 errno, strerror(errno));</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :         exit(EXIT_FAILURE);</span>
+<span class="lineNum">     168 </span>            :     }
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">         10 :     for (thread_idx = 0; thread_idx &lt; num_worker_threads; thread_idx++) </span></a>
+<span class="lineNum">     170 </span>            :     {
+<span class="lineNum">     171 </span><span class="lineCov">          6 :         args_array[thread_idx].myQueue = fileProcessingQueue;</span>
+<span class="lineNum">     172 </span><span class="lineCov">          6 :         args_array[thread_idx].thread_idx = thread_idx;</span>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          6 :         args_array[thread_idx].wordDictionary = wordDictionary;</span></a>
+<span class="lineNum">     174 </span><span class="lineCov">          6 :         stat = pthread_create(&amp;thread_array[thread_idx], NULL, workerThread, (void*) &amp;args_array[thread_idx]);</span>
+<span class="lineNum">     175 </span><span class="lineCov">          6 :         if (stat != 0)</span>
+<span class="lineNum">     176 </span>            :         {
+<a name="177"><span class="lineNum">     177 </span>            :             fprintf(stderr, &quot;ERROR: Failed to spawn thread index: %d. (%d, %s)\n&quot;,</a>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 thread_idx, errno, strerror(errno));</span>
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span>            :     }
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<span class="lineNum">     182 </span><span class="lineCov">          4 :     listdir(first_dir, fileProcessingQueue);</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineCov">          8 :     for (thread_idx = 0; thread_idx &lt; num_worker_threads; thread_idx++) </span>
+<a name="185"><span class="lineNum">     185 </span>            :     {</a>
+<span class="lineNum">     186 </span><span class="lineCov">          5 :         fileProcessingQueue-&gt;push(&quot;EXIT&quot;);</span>
+<span class="lineNum">     187 </span>            :     }
+<span class="lineNum">     188 </span><span class="lineCov">          8 :     for (thread_idx = 0; thread_idx &lt; num_worker_threads; thread_idx++) </span>
+<a name="189"><span class="lineNum">     189 </span>            :     {</a>
+<span class="lineNum">     190 </span>            :         // printf (&quot;Joining thread idx=%d\n&quot;, thread_idx);
+<span class="lineNum">     191 </span><span class="lineCov">          5 :         DEBUG_PRINTF(&quot;Joining thread idx=%d\n&quot;, thread_idx);</span>
+<span class="lineNum">     192 </span><span class="lineCov">          5 :         pthread_join(thread_array[thread_idx], NULL);</span>
+<a name="193"><span class="lineNum">     193 </span>            :     }</a>
+<span class="lineNum">     194 </span><span class="lineCov">          3 :     free(thread_array);</span>
+<span class="lineNum">     195 </span><span class="lineCov">          3 :     free(args_array);</span>
+<span class="lineNum">     196 </span>            : 
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<span class="lineNum">     198 </span><span class="lineCov">          3 :     wordDictionary-&gt;printTopX(10);</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineCov">          3 :     delete fileProcessingQueue;</span>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">          3 :     delete wordDictionary;</span></a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          3 :     return 0;</span>
+<span class="lineNum">     204 </span>            : } /* main */
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<span class="lineNum">     206 </span>            : /*******************************************************************************
+<span class="lineNum">     207 </span>            :  ************************ L O C A L  F U N C T I O N S *************************
+<span class="lineNum">     208 </span>            :  *******************************************************************************
+<a name="209"><span class="lineNum">     209 </span>            :  */</a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : /**
+<span class="lineNum">     212 </span>            :  *******************************************************************************
+<a name="213"><span class="lineNum">     213 </span>            :  * @brief workerThread - Thread to process a single file path for word count.</a>
+<span class="lineNum">     214 </span>            :  *
+<span class="lineNum">     215 </span>            :  * &lt;!-- Parameters --&gt;
+<span class="lineNum">     216 </span>            :  *      @param[in]      arg            Pointer to structure containing
+<a name="217"><span class="lineNum">     217 </span>            :  *                                     thread arguments.</a>
+<span class="lineNum">     218 </span>            :  *
+<span class="lineNum">     219 </span>            :  * &lt;!-- Returns --&gt;
+<span class="lineNum">     220 </span>            :  *      None (if return type is void)
+<a name="221"><span class="lineNum">     221 </span>            :  *</a>
+<span class="lineNum">     222 </span>            :  * @par Pre/Post Conditions:
+<span class="lineNum">     223 </span>            :  *      @pre     Work_Queue and Word_Dict have been already successfully
+<span class="lineNum">     224 </span>            :  *      constructed.
+<a name="225"><span class="lineNum">     225 </span>            :  *</a>
+<span class="lineNum">     226 </span>            :  * @par Global Data:
+<span class="lineNum">     227 </span>            :  *      @li g_debug_output - Debug output flag
+<span class="lineNum">     228 </span>            :  *
+<a name="229"><span class="lineNum">     229 </span>            :  * @par Description:</a>
+<span class="lineNum">     230 </span>            :  *      Description of what the function does from
+<span class="lineNum">     231 </span>            :  *      the caller's point of view.
+<span class="lineNum">     232 </span>            :  *
+<a name="233"><span class="lineNum">     233 </span>            :  * @par Algorithm:</a>
+<span class="lineNum">     234 </span>            :  *      Using the Work_Queue, waits to be signaled that there are file paths
+<span class="lineNum">     235 </span>            :  *      which are read to be searched for words.  Once a path appears, thread
+<span class="lineNum">     236 </span>            :  *      pulls it off of the queue and starts reading and processing it.  If the
+<a name="237"><span class="lineNum">     237 </span>            :  *      path is instead the &quot;EXIT&quot; command, then thread gracefullys exits to be</a>
+<span class="lineNum">     238 </span>            :  *      harvested by thread_join.
+<a name="239"><span class="lineNum">     239 </span>            :  *******************************************************************************</a>
+<span class="lineNum">     240 </span>            :  */
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">          6 : void *workerThread(void *arg)</span></a>
+<span class="lineNum">     242 </span>            : {
+<span class="lineNum">     243 </span><span class="lineCov">          6 :     ReaderWriterArgs_t *_arg = (ReaderWriterArgs_t *) arg;</span>
+<span class="lineNum">     244 </span><span class="lineCov">          6 :     Work_Queue *q = _arg-&gt;myQueue;</span>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">          6 :     Word_Dict *dict = _arg-&gt;wordDictionary;</span></a>
+<span class="lineNum">     246 </span><span class="lineCov">          6 :     string queueString = &quot;&quot;;</span>
+<span class="lineNum">     247 </span><span class="lineCov">          6 :     int tid = _arg-&gt;thread_idx;</span>
+<span class="lineNum">     248 </span>            : 
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          6 :     DEBUG_PRINTF (&quot;Worker Thread #%d starting...\n&quot;, tid);</span></a>
+<span class="lineNum">     250 </span><span class="lineCov">          6 :     sleep(1); /* To allow threads to get started */</span>
+<span class="lineNum">     251 </span><span class="lineCov">         21 :     while (queueString != &quot;EXIT&quot;)</span>
+<span class="lineNum">     252 </span>            :     {
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">         11 :         if (q-&gt;empty())</span></a>
+<span class="lineNum">     254 </span>            :         {
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             DEBUG_PRINTF (&quot;[%d] Waiting for not empty...\n&quot;, tid);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             q-&gt;waitForNotEmpty();</span>
+<a name="257"><span class="lineNum">     257 </span>            :         }</a>
+<span class="lineNum">     258 </span><span class="lineCov">         11 :         DEBUG_PRINTF (&quot;[%d] Queue not empty, popping front\n&quot;, tid);</span>
+<span class="lineNum">     259 </span><span class="lineCov">         11 :         queueString = q-&gt;pop_front();</span>
+<span class="lineNum">     260 </span>            : 
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">         11 :         if (queueString != &quot;EXIT&quot;)</span></a>
+<span class="lineNum">     262 </span>            :         {
+<span class="lineNum">     263 </span><span class="lineCov">          6 :             DEBUG_PRINTF (&quot;[%d] Processing:%s\n&quot;, tid, queueString.c_str());</span>
+<span class="lineNum">     264 </span><span class="lineCov">          6 :             processFile(tid, queueString, dict);</span>
+<a name="265"><span class="lineNum">     265 </span>            :         }</a>
+<span class="lineNum">     266 </span>            :         else
+<span class="lineNum">     267 </span>            :         {
+<span class="lineNum">     268 </span><span class="lineCov">          5 :             DEBUG_PRINTF (&quot;[%d] Received EXIT msg\n&quot;, tid);</span>
+<a name="269"><span class="lineNum">     269 </span>            :         }</a>
+<span class="lineNum">     270 </span>            :     }
+<span class="lineNum">     271 </span><span class="lineCov">          5 :     DEBUG_PRINTF (&quot;Worker Thread #%d exitting procesing loop\n&quot;, tid);</span>
+<a name="272"><span class="lineNum">     272 </span>            : </a>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">          5 :     return(NULL);</span></a>
+<span class="lineNum">     274 </span><span class="lineCov">         12 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
