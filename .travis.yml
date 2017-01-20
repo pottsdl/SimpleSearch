@@ -4,8 +4,8 @@ compiler:
   - clang
   - gcc
 language: cpp
-os:
-- linux
+script:
+  make
 branches:
   only:
   - master
