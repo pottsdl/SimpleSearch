@@ -1,0 +1,12 @@
+language: cpp
+sudo: required
+compiler:
+-clang
+-gcc
+language: cpp
+os:
+- linux
+branches:
+  only:
+  - master
+  - "/^v\\d+\\./"
