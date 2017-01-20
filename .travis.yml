@@ -1,8 +1,8 @@
 language: cpp
 sudo: required
 compiler:
--clang
--gcc
+  - clang
+  - gcc
 language: cpp
 os:
 - linux
