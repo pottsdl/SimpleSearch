@@ -1,4 +1,4 @@
-# Super Simple File Indexer Project
+# (GitHub-Flavored) Markdown Editor  ![Build Status](https://travis-ci.org/pottsdl/SimpleSearch.svg?branch=master)
 ------------------------------------------------------------------------------ 
 
 Package includes Makefile and assorted source files, and some supporting Software
