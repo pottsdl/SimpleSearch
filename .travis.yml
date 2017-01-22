@@ -1,11 +1,11 @@
 language: cpp
 sudo: required
 compiler:
-  - clang
   - gcc
 language: cpp
 script:
-  make && make test && make coverage
+  make && make test #&& make coverage
+  #make && make test
 branches:
   only:
   - master
