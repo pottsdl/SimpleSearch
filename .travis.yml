@@ -1,12 +1,42 @@
 language: cpp
-sudo: required
+
+# This will run on Travis' 'new' container-based infrastructure
+sudo: false
+
 compiler:
   - gcc
+
 language: cpp
-script:
-  make && make test #&& make coverage
-  #make && make test
+
 branches:
   only:
   - master
   - "/^v\\d+\\./"
+
+#
+# Environment variables
+env:
+  global:
+    - GH_REPO_NAME: doxygen/html
+    - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
+    - GH_REPO_REF: github.com/pottsdl/SimpleSearch.git
+
+# Install dependencies
+addons:
+  apt:
+    packages:
+      - doxygen
+      - doxygen-doc
+      - doxygen-latex
+      - doxygen-gui
+      - graphviz
+
+
+script:
+  make && make test #&& make coverage
+
+# Generate and deploy documentation
+after_success:
+  - cd $TRAVIS_BUILD_DIR
+  - chmod +x generateDocumentationAndDeploy.sh
+  - ./generateDocumentationAndDeploy.sh
