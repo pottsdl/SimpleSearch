@@ -5,17 +5,22 @@ Package includes Makefile and assorted source files, and some supporting Softwar
 Engineering material (like SLOC report, Source Documentation (Doxgyen), Code
 Coverage, Memory usage analysis, and Static Analysis run)
 
+
 Project is copyrighted (c) by Douglas Potts.
+
 
 This project is Licensed under the Apache License, Version 2.0.
 See the [License](http://www.apache.org/licenses/LICENSE-2.0) at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
+
 To build the executable:
   % make
+
 
 There are many other targets for the assorted material referred to above, invoke
 "make help" to see what those targets are and how to run them.
   % make help
+
 
 +-------------------------------------------------------------------+
 | Help file for Super Simple File Indexer project
