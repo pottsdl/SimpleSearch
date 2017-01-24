@@ -1,5 +1,5 @@
 #
-# LAST MODIFICATION: "Fri, 17 Jul 2015 14:29:58 ()"
+# LAST MODIFICATION: "Mon, 23 Jan 2017 18:36:54 (dpotts)"
 # (C) 2015 by Douglas L. Potts, <pottsdl@gmail.com>
 #
 # ==============================================================================
@@ -41,6 +41,11 @@ else
   FRAMES :=
 endif
 
+# Figure out where the Makefile is located (in case we aren't in the Makefile
+# directory), project sources are in the same directory as the Makefile.
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
+SRC_ROOT=$(current_dir)
 
 LINK_FLAGS = -lstdc++
 DOXYGEN_BIN = $(shell which doxygen)

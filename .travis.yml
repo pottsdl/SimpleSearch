@@ -17,9 +17,10 @@ branches:
 # Environment variables
 env:
   global:
-    - GH_REPO_NAME: SimpleSearch/doxygen/html
+    - GH_REPO_NAME: SimpleSearch/doxygen
     - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
     - GH_REPO_REF: github.com/pottsdl/SimpleSearch.git
+    - SRC_ROOT:  $TRAVIS_BUILD_DIR
 
 # Install dependencies
 addons:
