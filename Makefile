@@ -1,5 +1,5 @@
 #
-# LAST MODIFICATION: "Mon, 23 Jan 2017 18:36:54 (dpotts)"
+# LAST MODIFICATION: "Thu, 26 Jan 2017 19:33:33 (dpotts)"
 # (C) 2015 by Douglas L. Potts, <pottsdl@gmail.com>
 #
 # ==============================================================================
@@ -23,6 +23,7 @@
 # $Id:$ }}}
 CC         = gcc
 CPP        = g++
+SHELL := /bin/bash
 
 INC_DIRS   = -I. -Iunity
 LIBFLAGS   = -L/usr/lib -L /usr/local/lib -L/usr/lib/x86_64-linux-gnu
