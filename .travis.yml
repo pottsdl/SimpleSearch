@@ -24,6 +24,7 @@ env:
 
 # Install dependencies
 addons:
+  artifacts: true
   apt:
     packages:
       - doxygen
